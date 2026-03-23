@@ -19,6 +19,7 @@ sap.ui.define([
       ];
 
       const oAppModel = new JSONModel({
+        wizardstep: null,
         currentRuleId: null,
         rules: [{
           "ID": "001",
@@ -104,7 +105,6 @@ sap.ui.define([
       const oView = this.getView();
       const oModel = oView?.getModel("app");
       const aRules = oModel?.getProperty("/rules") || [];
-      
       const currentRuleId = oModel?.getProperty("/currentRuleId");
 
       /* Step 1: General Information */
@@ -155,6 +155,7 @@ sap.ui.define([
         const oScope = oModel?.getProperty("/scope");
         const aSelectedScope = this.byId("_IDGenSelect")?.getSelectedKey() || [];
         const aSelectedPlantKeys = this.byId("_IDGenMultiComboBox")?.getSelectedKeys() || [];
+
         const sPlants = aSelectedPlantKeys
           .filter(function (sKey) {
             return sKey !== "*";
@@ -174,7 +175,6 @@ sap.ui.define([
           aRules[iTargetIndex].Plants = sPlants;
           oScope.push(oNewScope);
           oModel?.setProperty("/scope", oScope);
-          console.log("ONEWSCOPE: ", oModel?.getProperty("/scope"))
         }
 
         oWizard?.validateStep(oStepScope);
@@ -184,8 +184,14 @@ sap.ui.define([
 
       /* Step 3: Filters */
       if (sCurrentStepId === oStepFilter?.getId()) {
+        const aFilters = oModel?.getProperty("/filters")
         oWizard?.validateStep(oStepFilter);
-        this._toast("FILTERS_SAVED_MSG");
+
+        const currentFilter = aFilters.filter(f => f.RuleID === currentRuleId)
+        
+        if (currentFilter.length > 0) {
+          console.log("Current filter: ", currentFilter)
+          this._toast("FILTERS_SAVED_MSG")};
         oWizard?.nextStep();
         return;
       }
@@ -193,7 +199,8 @@ sap.ui.define([
       /* Step 4: Adjustment Logic */
       if (sCurrentStepId === oStepAdj?.getId()) {
         const aAdj = oModel?.getProperty("/adjLogic") || [];
-        if (!aAdj.length) {
+        const currentAdjLogic = aAdj.filter(f => f.RuleID === currentRuleId)
+        if (currentAdjLogic.length === 0) {
           this._toast("ADJ_LOGIC_REQUIRED_MSG");
           return;
         }
@@ -202,7 +209,6 @@ sap.ui.define([
         MessageBox.success(this._i18n("RULE_SAVED_SUCCESS"), {
           title: this._i18n("SUCCESS_TITLE"),
           onClose: function () {
-            console.log("OMODEL AFTER ADDING THE RULE: ", oModel?.getData())
             oWizard.discardProgress(oStepGeneral);
             this.byId("_IDGenNavContainer")?.backToTop();
           }.bind(this)
@@ -300,8 +306,6 @@ sap.ui.define([
       const sPath = oContext?.getPath();
       const oRuleData = oContext?.getObject();
 
-      console.log("EDIT RULE ORULEDATA: ", oRuleData)
-
       if (!sPath || !oRuleData) {
         this._toast("UNABLE_RETRIEVE_RULE_MSG");
         return;
@@ -340,25 +344,14 @@ sap.ui.define([
       // --------------
 
       const aScopes = oModel?.getProperty("/scope");
-      if (Array.isArray(aScopes)) {
-        const oScope = aScopes.find(s => s.RuleID === oRuleData.ID);
-        if (oScope) {
-          this.byId("_IDGenSelect")?.setSelectedKey(oScope.InventoryScope || "");
-          const aPlants = (oScope.Plants || "").split(",").map(s => s.trim()).filter(Boolean);
-          this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
-        }
-      } else {
-        const oScope = oModel?.getProperty("/scope");
+      const oScope = aScopes.find(s => s.RuleID === oRuleData.ID);
 
-        if (oScope?.RuleID === oRuleData.ID) {
-          this.byId("_IDGenSelect")?.setSelectedKey(oScope.InventoryScope || "");
-          const aPlants = (oScope.Plants || "").split(",").map(s => s.trim()).filter(Boolean);
-          this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
-        } else {
-          const aPlants = (oRuleData.Plants || "").split(",").map(s => s.trim()).filter(Boolean);
-          this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
-        }
-      }
+      this.byId("_IDGenSelect")?.setSelectedKey(oScope.InventoryScope || "");
+
+      const aPlants = (oScope.Plants || "").split(",").map(s => s.trim()).filter(Boolean);
+      oModel.setProperty("/plantsFilters/plants/selectedKeys", aPlants);
+      oModel.setProperty("/scope/Plants", aPlants);
+      this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
 
       this.byId("editIconScope")?.setVisible(true);
       this.byId("editIconPlants")?.setVisible(true);
@@ -368,13 +361,6 @@ sap.ui.define([
       // ------------------------------------------
       this._applyFiltersForCurrentRule?.();
       this._applyAdjLogicForCurrentRule?.();
-
-      // Optional: If you want the wizard to start at Step 1 but keep progress reset
-      const oWizard = this._byAnyId(["idGenWizard", "GeneralWizard"]);
-      if (oWizard) {
-        // reset progress to start (but keep UI values)
-        oWizard.discardProgress(oWizard.getSteps()?.[0], true);
-      }
     },
 
     /* ===================== FILTER DIALOGS ===================== */
@@ -524,7 +510,6 @@ sap.ui.define([
 
       oModel?.setProperty("/filters", aFilters);
       this.byId("dlgAddFilter2")?.close();
-      console.log("AFILTER2: ", aFilters)
     },
 
     onEditFilter: async function () {
@@ -643,7 +628,6 @@ sap.ui.define([
       }
       oModel?.setProperty("/adjLogic", aLogic);
       this.byId("dlgAddAdjLogic")?.close();
-      console.log("ALOGIC: ", aLogic)
     },
 
     onCancelAddAdjLogic: function () {
@@ -678,7 +662,6 @@ sap.ui.define([
       }
       oModel?.setProperty("/adjLogic", aLogic);
       this.byId("dlgAddAdjLogic2")?.close();
-      console.log("ALOGIC2: ", aLogic)
     },
 
     onCancelAddAdjLogic2: function () {

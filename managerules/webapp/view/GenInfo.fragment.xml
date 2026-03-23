@@ -1,6 +1,6 @@
 <core:FragmentDefinition xmlns:core="sap.ui.core" xmlns="sap.m" xmlns:l="sap.ui.layout.form">
   <VBox id="idGenVBox">
-    <Wizard id="idGenWizard" showNextButton="false" renderMode="Page">
+    <Wizard id="idGenWizard" showNextButton="false" renderMode="Page" stepActivate=".onWizardStepActivate">
       <WizardStep id="idGenStepGeneral" title="{i18n>GENINFO_STEP_TITLE}">
         <Toolbar id="idGenToolbar">
           <Text id="idGenCreateText" text="{i18n>GENINFO_CREATE_TEXT}" class="create"/>
