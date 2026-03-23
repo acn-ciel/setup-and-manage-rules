@@ -1,0 +1,79 @@
+<mvc:View controllerName="applyrules.controller.Home"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    xmlns:tnt="sap.tnt"
+    xmlns:f="sap.f"
+    >
+
+    <Page id="applyRulePage"  showHeader="false">
+        <Page id="pageSummary1" showHeader="false">
+            <VBox id="_IDGenVBox11" class="sapUiSmallMargin">
+                <f:Card id="_IDGenCard">
+                    <f:content>
+                        <VBox id="_IDGenVBox13">
+                            <Toolbar id="_IDGenToolbar4" height="3rem" class="sapUiSmallPaddingBeginEnd">
+                                <Title id="_IDGenTitle4" text="Apply Rules" class="sapUiSmallMarginBegin" />
+                                <ToolbarSpacer id="_IDGenToolbarSpacer5" />
+
+                                <SearchField id="_IDGenSearchField1" width= "300px"
+                                                placeholder="Search rules"
+                                                liveChange="onSearch" />
+
+                                <ToolbarSpacer id="_IDGenToolbarSpacer1" />
+
+                                <Button id="_IDGenButton21" text="Add new rule to apply"
+                                        type="Emphasized"
+                                        press="onAddApplyRule"/>
+
+                                <Button id="_IDGenButton22" text="Delete selected rule"
+                                        type="Emphasized"
+                                        press="onDeleteSelectedApplyRules"/>  
+
+                                <Button id="_IDGenButton23" text="Execute"
+                                        type="Emphasized"
+                                        press="onDeleteRule"
+                                        class="sapUiSmallMarginEnd"
+                                />                 
+                            </Toolbar>
+
+                            <Table id="_IDGenTable1"
+                                    mode="MultiSelect"
+                                    width="100%"
+                                    class="table"
+                                    items="{app>/applyrules}"
+                                    >
+                                <columns>
+                                    <Column id="_IDGenColumn23" width="4rem" class="sapUiSmallMargin"><Text id="_IDGenText44" text="ID"/></Column>
+                                    <Column id="_IDGenColumn24" minScreenWidth="Tablet"><Text id="_IDGenText45" text="Name"/></Column>
+                                    <Column id="_IDGenColumn25" minScreenWidth="Tablet"><Text id="_IDGenText46" text="Description"/></Column>
+                                    <Column id="_IDGenColumn26" width="7rem"><Text id="_IDGenText47" text="Application from date (Valid from)"/></Column>
+                                    <Column id="_IDGenColumn27" width="7rem"><Text id="_IDGenText48" text="Application till date (Valid to)"/></Column>
+                                    <Column id="_IDGenColumn28" width="6rem"><Text id="_IDGenText49" text="Item type"/></Column>
+                                    <Column id="_IDGenColumn29" minScreenWidth="Tablet"><Text id="_IDGenText50" text="Type of rule"/></Column>
+                                    <Column id="_IDGenColumn30" minScreenWidth="Tablet"><Text id="_IDGenText51" text="Plants" class="sapUiSmallMarginEnd"/></Column>
+                                </columns>    
+
+                                <items>
+                                    <ColumnListItem id="_IDGenColumnListItem5" >
+                                        <cells>
+                                            <Text id="_IDGenText52" text="{app>GeneralInfo/ID}" />
+                                            <Text id="_IDGenText53" text="{app>GeneralInfo/Name}" />
+                                            <Text id="_IDGenText54" text="{app>GeneralInfo/Description}" />
+                                            <Text id="_IDGenText55" text="{app>GeneralInfo/ValidFrom}" />
+                                            <Text id="_IDGenText56" text="{app>GeneralInfo/ValidTo}" />
+                                            <Text id="_IDGenText57" text="{app>GeneralInfo/ItemType}" />
+                                            <Text id="_IDGenText58" text="{app>GeneralInfo/RuleType}" />
+                                            <Text id="_IDGenText59" text="{app>Scope/Plants}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>    
+                            </Table>
+                        </VBox>
+                    </f:content>
+                </f:Card>
+            </VBox>
+        </Page>
+    </Page>
+</mvc:View>

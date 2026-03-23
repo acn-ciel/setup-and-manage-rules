@@ -1,0 +1,57 @@
+<core:FragmentDefinition
+      xmlns="sap.m"
+      xmlns:core="sap.ui.core">
+
+  <Dialog id="dlgAddApplyRule"
+          title="Define apply rules"
+          draggable="true"
+          resizable="true"
+          contentWidth="45rem"
+          contentHeight="auto"
+          afterClose="onFilterDialogClose"
+          >
+
+    <VBox id="_IDGenVBox12">
+      <Table
+          id="tblAddApplyRule"
+          inset="false"
+          width="100%"
+          showSeparators="None">
+        <columns>
+          <Column id="_IDGenColumn31"><Text id="IDGenText51" text="Rule ID"/></Column>
+          <Column id="_IDGenColumn32"><Text id="IDGenText52" text="Rule Name"/></Column>
+          <Column id="_IDGenColumn33"><Text id="IDGenText53" text="Rule Description"/></Column>
+        </columns>
+        <items>
+          <ColumnListItem id="_IDGenColumnListItem6">
+            <cells>
+              
+              <ComboBox id="_IDGenComboBox"
+                width="100%"
+                selectedKey="{app>/selectedRuleId}"
+                placeholder="Select rule ID to apply"
+                selectionChange=".onRuleSelectChange"
+                items="{app>/rules}">
+                <core:Item id="_IDGenItem50" key="{app>ID}" text="{app>ID}"/>
+              </ComboBox>
+
+              <Text id="inpName" width="200px" wrapping="true" text="{app>/selectedRule/Name}" />
+              <Text id="inpDesc" width="200px" wrapping="true" text="{app>/selectedRule/Description}" />
+            </cells>
+          </ColumnListItem>
+        </items>
+      </Table>
+    </VBox>
+
+    <endButton>
+      <Button id="_IDGenButton24" text="Cancel" type="Transparent"
+              press="onCancelAddApplyRule"/>
+    </endButton>
+
+    <beginButton>
+      <Button id="_IDGenButton25" text="Add" type="Emphasized"
+              press="onConfirmAddApplyRule"/>
+    </beginButton>
+
+  </Dialog>
+</core:FragmentDefinition>
