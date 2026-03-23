@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "4.0"
+metadata:
+  name: managerules
+type: application
+builder:
+  resources:
+    excludes:
+      - /test/**
+      - /localService/**
+  customTasks:
+    - name: deploy-to-abap
+      afterTask: generateCachebusterInfo
+      configuration:
+        target:
+          destination: ZSAP_BAS
+          url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+          scp: true
+        app:
+          name: Z_SETUPRULES
+          description: Setup and Manage Rules
+          package: ZRULES_SETUP_APP
+          transport: ''
+        exclude:
+          - /test/
