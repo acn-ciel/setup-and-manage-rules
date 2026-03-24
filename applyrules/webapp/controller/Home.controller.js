@@ -27,7 +27,16 @@ sap.ui.define([
       this.getView().setModel(oAppModel, "app");
     },
 
+    /* ===================== PUBLIC HANDLERS ===================== */
     onAddApplyRule: async function () {
+      const oAppModel = this.getView().getModel("app");
+      const oRuleModel = this.getOwnerComponent()?.getModel("rule");
+
+      if (!oAppModel || !oRuleModel) {
+        this._toast("NO_MODELS_FOUND")
+        return;
+      }
+
       await this._getDataFromComponent();
 
       await this._ensureDialog("_pAddApplyRuleDialog", "applyrules.view.AddApplyRuleDialog");
@@ -45,14 +54,14 @@ sap.ui.define([
       const aAdjLogic = oModel.getProperty("/adjLogics")
 
       if (!aRules || !aRules.ID) {
-        MessageToast.show("Please select a rule first.");
+        this._toast("SELECT_RULE");
         return;
       }
 
       const bExists = aApplyRule.some(r => r?.GeneralInfo.ID === aRules.ID);
 
       if (bExists) {
-        MessageToast.show("This rule is already added.");
+        this._toast("ALREADY_ADDED");
         return;
       }
 
@@ -102,7 +111,7 @@ sap.ui.define([
 
       const aSelectedItems = oTable.getSelectedItems();
       if (!aSelectedItems.length) {
-        MessageToast.show("Please select at least one item to delete.");
+        this._toast("SELECT_TO_CONTINUE");
         return;
       }
 
@@ -125,19 +134,29 @@ sap.ui.define([
           oModel.setProperty("/applyrules", aApplyRules);
           oTable.removeSelections(true);
 
-          MessageToast.show("Selected rule(s) deleted.");
+          this._toast("RULES_DELETED");
         }
       });
     },
 
+    onExecuteApplyRule: function () {
+      const oModel = this.getView()?.getModel("app");
+      const oApplyRules = oModel.getProperty("/applyrules");
+
+      if (oApplyRules.length > 0) {
+        MessageBox.success(
+          this._i18n(""),
+          { title: "Success" }
+        )
+      } else {
+          this._toast("ERROR_EXEC_RULES")
+      }
+    },
+
+    /* ===================== PRIVATE HELPERS ===================== */
     _getDataFromComponent: function () {
       const oAppModel = this.getView().getModel("app");
       const oRuleModel = this.getOwnerComponent()?.getModel("rule");
-
-      if (!oAppModel || !oRuleModel) {
-        MessageToast.show("Required models not found.");
-        return;
-      }
 
       const oData = oRuleModel.getData() || {};
 
