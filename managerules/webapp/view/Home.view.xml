@@ -43,7 +43,7 @@
                         </Toolbar>
 
                         <t:Table
-                           id="_IDGenGridTable"
+                           id="_IDGenTable"
                            rows="{app>/rules}"
                            selectionMode="MultiToggle"
                            width="100%"

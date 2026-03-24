@@ -5,75 +5,109 @@
     xmlns:core="sap.ui.core"
     xmlns:tnt="sap.tnt"
     xmlns:f="sap.f"
+    xmlns:t="sap.ui.table"
     >
 
     <Page id="applyRulePage"  showHeader="false">
-        <Page id="pageSummary1" showHeader="false">
-            <VBox id="_IDGenVBox11" class="sapUiSmallMargin">
-                <f:Card id="_IDGenCard">
-                    <f:content>
-                        <VBox id="_IDGenVBox13">
-                            <Toolbar id="_IDGenToolbar4" height="3rem" class="sapUiSmallPaddingBeginEnd">
-                                <Title id="_IDGenTitle4" text="Apply Rules" class="sapUiSmallMarginBegin" />
-                                <ToolbarSpacer id="_IDGenToolbarSpacer5" />
+        <Toolbar id="_IDGenToolbar4" height="5rem" class="sapUiSmallPaddingBeginEnd">
+            <SearchField id="_IDGenSearchField1" width= "300px"
+                            placeholder="{i18n>SEARCH_FIELD}"
+                            liveChange="onSearch" 
+                            class="sapUiLargeMarginBegin sapUiSmallMarginTop"/>
 
-                                <SearchField id="_IDGenSearchField1" width= "300px"
-                                                placeholder="{i18n>SEARCH_FIELD}"
-                                                liveChange="onSearch" />
+            <ToolbarSpacer id="_IDGenToolbarSpacer1" />
 
-                                <ToolbarSpacer id="_IDGenToolbarSpacer1" />
+            <Button id="_IDGenButton21" text="{i18n>BUTTON_ADD}"
+                    type="Emphasized"
+                    press="onAddApplyRule"
+                    class="sapUiSmallMarginTop" />
 
-                                <Button id="_IDGenButton21" text="{i18n>BUTTON_ADD}"
-                                        type="Emphasized"
-                                        press="onAddApplyRule"/>
+            <Button id="_IDGenButton22" text="{i18n>BUTTON_DELETE}"
+                    type="Emphasized"
+                    press="onDeleteSelectedApplyRules"
+                    class="sapUiSmallMarginTop" />  
 
-                                <Button id="_IDGenButton22" text="{i18n>BUTTON_DELETE}"
-                                        type="Emphasized"
-                                        press="onDeleteSelectedApplyRules"/>  
+            <Button id="_IDGenButton23" text="{i18n>BUTTON_EXEC}"
+                    type="Emphasized"
+                    press="onExecuteApplyRule"
+                    class="sapUiLargeMarginEnd sapUiSmallMarginTop"/>                 
+        </Toolbar>
+        <VBox id="_IDGenVBox11" class="sapUiSmallMargin">
+            <f:Card id="_IDGenCard">
+                <f:content>
+                    <VBox id="_IDGenVBox13">
+                        <Toolbar id="_IDGenToolbar5" height="3rem" class="sapUiSmallPaddingBeginEnd sapUiSmallPaddingTop">
+                            <Title id="_IDGenTitle4" text="Apply Rules" class="sapUiSmallMarginBegin" />
+                        </Toolbar>
 
-                                <Button id="_IDGenButton23" text="{i18n>BUTTON_EXEC}"
-                                        type="Emphasized"
-                                        press="onExecuteApplyRule"
-                                        class="sapUiSmallMarginEnd"
-                                />                 
-                            </Toolbar>
+                        <t:Table
+                            id="_IDGenTable1"
+                            rows="{app>/applyrules}"
+                            selectionMode="MultiToggle"
+                            width="100%"
+                            class="table">
 
-                            <Table id="_IDGenTable1"
-                                    mode="MultiSelect"
-                                    width="100%"
-                                    class="table"
-                                    items="{app>/applyrules}"
-                                    >
-                                <columns>
-                                    <Column id="_IDGenColumn23" width="4rem" class="sapUiSmallMargin"><Text id="_IDGenText44" text="{i18n>RULE_ID}"/></Column>
-                                    <Column id="_IDGenColumn24" minScreenWidth="Tablet"><Text id="_IDGenText45" text=""/></Column>
-                                    <Column id="_IDGenColumn25" minScreenWidth="Tablet"><Text id="_IDGenText46" text="{i18n>RULE_DESCRIPTION}"/></Column>
-                                    <Column id="_IDGenColumn26" width="8rem"><Text id="_IDGenText47" text="{i18n>RULE_VALID_FROM}"/></Column>
-                                    <Column id="_IDGenColumn27" width="8rem"><Text id="_IDGenText48" text="{i18n>RULE_VALID_TO}"/></Column>
-                                    <Column id="_IDGenColumn28" width="6rem"><Text id="_IDGenText49" text="{i18n>RULE_ITEM_TYPE}"/></Column>
-                                    <Column id="_IDGenColumn29" minScreenWidth="Tablet"><Text id="_IDGenText50" text="{i18n>RULE_RULETYPE}"/></Column>
-                                    <Column id="_IDGenColumn30" minScreenWidth="Tablet"><Text id="_IDGenText51" text="{i18n>RULE_PLANTS}" class="sapUiSmallMarginEnd"/></Column>
-                                </columns>    
+                            <t:columns>
+                                <t:Column id="_IDGenGridApplyCol23" width="4rem" resizable="true">
+                                <Label id="_IDGenGridApplyLbl23" text="{i18n>RULE_ID}" wrapping="true"/>
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt52" text="{app>GeneralInfo/ID}" wrapping="true"/>
+                                </t:template>
+                                </t:Column>
+                                
+                                <t:Column id="_IDGenGridApplyCol24" resizable="true">
+                                <Label id="_IDGenGridApplyLbl24" text="{i18n>RULE_NAME}" wrapping="true"/>
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt53" text="{app>GeneralInfo/Name}" wrapping="true"/>
+                                </t:template>
+                                </t:Column>
 
-                                <items>
-                                    <ColumnListItem id="_IDGenColumnListItem5" >
-                                        <cells>
-                                            <Text id="_IDGenText52" text="{app>GeneralInfo/ID}" />
-                                            <Text id="_IDGenText53" text="{app>GeneralInfo/Name}" />
-                                            <Text id="_IDGenText54" text="{app>GeneralInfo/Description}" />
-                                            <Text id="_IDGenText55" text="{app>GeneralInfo/ValidFrom}" />
-                                            <Text id="_IDGenText56" text="{app>GeneralInfo/ValidTo}" />
-                                            <Text id="_IDGenText57" text="{app>GeneralInfo/ItemType}" />
-                                            <Text id="_IDGenText58" text="{app>GeneralInfo/RuleType}" />
-                                            <Text id="_IDGenText59" text="{app>Scope/Plants}" />
-                                        </cells>
-                                    </ColumnListItem>
-                                </items>    
-                            </Table>
-                        </VBox>
-                    </f:content>
-                </f:Card>
-            </VBox>
-        </Page>
+                                <t:Column id="_IDGenGridApplyCol25" resizable="true">
+                                <Label id="_IDGenGridApplyLbl25" text="{i18n>RULE_DESCRIPTION}" wrapping="true"/>
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt54" text="{app>GeneralInfo/Description}" wrapping="true" />
+                                </t:template>
+                                </t:Column>
+
+                                <t:Column id="_IDGenGridApplyCol26" width="8rem" resizable="true">
+                                <Label id="_IDGenGridApplyLbl26" text="{i18n>RULE_VALID_FROM}" wrapping="true" />
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt55" text="{app>GeneralInfo/ValidFrom}" wrapping="true"/>
+                                </t:template>
+                                </t:Column>
+
+                                <t:Column id="_IDGenGridApplyCol27" width="8rem" resizable="true">
+                                <Label id="_IDGenGridApplyLbl27" text="{i18n>RULE_VALID_TO}" wrapping="true"/>
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt56" text="{app>GeneralInfo/ValidTo}" wrapping="true"/>
+                                </t:template>
+                                </t:Column>
+
+                                <t:Column id="_IDGenGridApplyCol28" width="6rem" resizable="true">
+                                <Label id="_IDGenGridApplyLbl28" text="{i18n>RULE_ITEM_TYPE}" wrapping="true"/>
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt57" text="{app>GeneralInfo/ItemType}" wrapping="true"/>
+                                </t:template>
+                                </t:Column>
+
+                                <t:Column id="_IDGenGridApplyCol29" resizable="true">
+                                <Label id="_IDGenGridApplyLbl29" text="{i18n>RULE_RULETYPE}" wrapping="true"/>
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt58" text="{app>GeneralInfo/RuleType}" wrapping="true"/>
+                                </t:template>
+                                </t:Column>
+
+                                <t:Column id="_IDGenGridApplyCol30" resizable="true">
+                                <Label id="_IDGenGridApplyLbl30" text="{i18n>RULE_PLANTS}" wrapping="true"/>
+                                <t:template>
+                                    <Text id="_IDGenGridApplyTxt59" text="{app>Scope/Plants}" wrapping="true" />
+                                </t:template>
+                                </t:Column>
+                            </t:columns>
+                        </t:Table>
+                    </VBox>
+                </f:content>
+            </f:Card>
+        </VBox>
     </Page>
 </mvc:View>

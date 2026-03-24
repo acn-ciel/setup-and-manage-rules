@@ -108,14 +108,14 @@ sap.ui.define([
     onDeleteSelectedApplyRules: function () {
       const oTable = this.byId("_IDGenTable1");
       const oModel = this.getView().getModel("app");
+      const aSelectedIndices = oTable?.getSelectedIndices();
 
-      const aSelectedItems = oTable.getSelectedItems();
-      if (!aSelectedItems.length) {
+      if (!aSelectedIndices) {
         this._toast("SELECT_TO_CONTINUE");
         return;
       }
 
-      MessageBox.confirm(`Delete ${aSelectedItems.length} selected item(s)?`, {
+      MessageBox.confirm(`Delete ${aSelectedIndices.length} selected item(s)?`, {
         onClose: (sAction) => {
           if (sAction !== MessageBox.Action.OK) {
             return;
@@ -123,14 +123,7 @@ sap.ui.define([
 
           const aApplyRules = oModel.getProperty("/applyrules") || [];
 
-          const aIndices = aSelectedItems
-            .map(oItem => {
-              const sPath = oItem.getBindingContext("app").getPath();
-              return parseInt(sPath.split("/").pop(), 10);
-            })            
-            .sort((a, b) => b - a);
-
-          aIndices.forEach(i => aApplyRules.splice(i, 1));
+          aSelectedIndices.forEach(i => aApplyRules.splice(i, 1));
           oModel.setProperty("/applyrules", aApplyRules);
           oTable.removeSelections(true);
 

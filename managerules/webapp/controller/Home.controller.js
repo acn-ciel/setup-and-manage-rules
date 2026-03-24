@@ -226,20 +226,18 @@ sap.ui.define([
     onDeleteRule: function () {
       const oTable = this.byId("_IDGenTable");
       const oModel = this.getView()?.getModel("app");
-      const aSelectedItems = oTable?.getSelectedItems() || [];
+      const aSelectedIndices = oTable?.getSelectedIndices();
 
-      if (!aSelectedItems.length) {
+      if (!aSelectedIndices) {
         this._toast("SELECT_RULE_TO_DELETE_MSG");
         return;
       }
 
-      const aSelectedIds = Array.from(new Set(
-        aSelectedItems
-          .map(oItem => oItem.getBindingContext("app")?.getProperty("ID"))
-          .filter(Boolean)
-      ));
+      const aSelectedIds = aSelectedIndices
+        .map(i => oTable.getContextByIndex(i)?.getProperty("ID"))
+        .filter(Boolean);
 
-      if (!aSelectedIds.length) {
+      if (!aSelectedIds) {
         this._toast("SELECT_RULE_TO_DELETE_MSG");
         return;
       }
@@ -249,7 +247,6 @@ sap.ui.define([
       const aAdj     = oModel?.getProperty("/adjLogic") || [];
 
       const aUpdatedRules = aRules.filter(oRule => !aSelectedIds.includes(oRule.ID));
-
       const aUpdatedFilters = aFilters.filter(oFilter => !aSelectedIds.includes(oFilter.RuleID));
       const aUpdatedAdj     = aAdj.filter(oEntry  => !aSelectedIds.includes(oEntry.RuleID));
 
@@ -280,55 +277,42 @@ sap.ui.define([
       this._applyFiltersForCurrentRule?.();
       this._applyAdjLogicForCurrentRule?.();
 
-      oTable?.removeSelections(true);
+      oTable?.clearSelection();
       this._toast("RULES_DELETED_MSG");
     },
 
     onEditRule: function () {
       const oTable = this.byId("_IDGenTable");
-      const aSelectedItems = oTable?.getSelectedItems() || [];
+      const aSelectedIndices = oTable?.getSelectedIndices() || [];
+      const oCtx = oTable.getContextByIndex(aSelectedIndices);
+      const aSelectedItems = oCtx.getObject();
 
       this._applyFiltersForCurrentRule();
       this._applyAdjLogicForCurrentRule();
 
-      if (aSelectedItems.length !== 1) {
+      console.log("SELECTED ITEM: ", aSelectedItems)
+
+      if (aSelectedIndices.length !== 1) {
         this._toast("SELECT_ONE_RULE_TO_EDIT_MSG");
         return;
       }
 
       const oModel = this.getView()?.getModel("app");
+      oModel?.setProperty("/currentRuleId", aSelectedItems.ID);
 
-      const oContext = aSelectedItems[0].getBindingContext("app");
-      const sPath = oContext?.getPath();
-      const oRuleData = oContext?.getObject();
-
-      if (!sPath || !oRuleData) {
-        this._toast("UNABLE_RETRIEVE_RULE_MSG");
-        return;
-      }
-
-      const iIndex = parseInt(sPath.split("/").pop() ?? "-1", 10);
-      if (iIndex === -1) {
-        this._toast("INVALID_RULE_INDEX_MSG");
-        return;
-      }
-
-      this._iEditRuleIndex = iIndex;
-      oModel?.setProperty("/currentRuleId", oRuleData.ID);
-
-      // Navigate to wizard page
+      this._iEditRuleIndex = aSelectedIndices;
       this._navToWizardPage();
 
       // ----------------------------
       // Step 1: General Information
       // ----------------------------
-      this._input("idGenNameInput", "inpName")?.setValue(oRuleData.Name || "");
-      this._input("idGenDescInput", "inpDesc")?.setValue(oRuleData.Description || "");
-      this._byAnyId(["idGenValidFromDP", "dpFrom"])?.setValue(oRuleData.ValidFrom || "");
-      this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue(oRuleData.ValidTo || "");
+      this._input("idGenNameInput", "inpName")?.setValue(aSelectedItems.Name || "");
+      this._input("idGenDescInput", "inpDesc")?.setValue(aSelectedItems.Description || "");
+      this._byAnyId(["idGenValidFromDP", "dpFrom"])?.setValue(aSelectedItems.ValidFrom || "");
+      this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue(aSelectedItems.ValidTo || "");
 
-      this.byId("idGenItemTypeMCB")?.setSelectedKeys(this._mapItemTypeKey(oRuleData.ItemType))
-      this.byId("idGenRuleTypeMCB")?.setSelectedKeys(this._mapRuleTypeKey(oRuleData.RuleType))
+      this.byId("idGenItemTypeMCB")?.setSelectedKeys(this._mapItemTypeKey(aSelectedItems.ItemType))
+      this.byId("idGenRuleTypeMCB")?.setSelectedKeys(this._mapRuleTypeKey(aSelectedItems.RuleType))
       
       this.byId("idGenNameEditBtn")?.setVisible(true);
       this.byId("idGenDescEditBtn")?.setVisible(true);
@@ -340,7 +324,7 @@ sap.ui.define([
       // --------------
 
       const aScopes = oModel?.getProperty("/scope");
-      const oScope = aScopes.find(s => s.RuleID === oRuleData.ID);
+      const oScope = aScopes.find(s => s.RuleID === aSelectedItems.ID);
 
       this.byId("_IDGenSelect")?.setSelectedKey(oScope.InventoryScope || "");
 
@@ -509,6 +493,7 @@ sap.ui.define([
     onEditFilter: async function () {
       const oTable = this.byId("tblFilters");
       const aSelectedItems = oTable?.getSelectedItems() || [];
+
       if (aSelectedItems.length !== 1) {
         this._toast("SELECT_ONE_ROW_TO_EDIT_MSG");
         return;
