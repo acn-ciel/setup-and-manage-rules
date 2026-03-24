@@ -196,7 +196,6 @@ sap.ui.define([
         oWizard?.validateStep(oStepFilter);
 
         const currentFilter = aFilters.find(f => f.RuleID === currentRuleId)
-        console.log("CURRENT FILTER: ", currentFilter)
         
         if (currentFilter) { this._toast("FILTERS_SAVED_MSG") };
         oWizard?.nextStep();
@@ -289,8 +288,6 @@ sap.ui.define([
 
       this._applyFiltersForCurrentRule();
       this._applyAdjLogicForCurrentRule();
-
-      console.log("SELECTED ITEM INDEX: ", aSelectedIndices[0])
 
       if (aSelectedIndices.length !== 1) {
         this._toast("SELECT_ONE_RULE_TO_EDIT_MSG");
