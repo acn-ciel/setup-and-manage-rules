@@ -196,9 +196,9 @@ sap.ui.define([
         oWizard?.validateStep(oStepFilter);
 
         const currentFilter = aFilters.find(f => f.RuleID === currentRuleId)
+        console.log("CURRENT FILTER: ", currentFilter)
         
-        if (currentFilter.length > 0) {
-          this._toast("FILTERS_SAVED_MSG")};
+        if (currentFilter) { this._toast("FILTERS_SAVED_MSG") };
         oWizard?.nextStep();
         return;
       }
@@ -290,7 +290,7 @@ sap.ui.define([
       this._applyFiltersForCurrentRule();
       this._applyAdjLogicForCurrentRule();
 
-      console.log("SELECTED ITEM: ", aSelectedItems)
+      console.log("SELECTED ITEM INDEX: ", aSelectedIndices[0])
 
       if (aSelectedIndices.length !== 1) {
         this._toast("SELECT_ONE_RULE_TO_EDIT_MSG");
@@ -300,7 +300,7 @@ sap.ui.define([
       const oModel = this.getView()?.getModel("app");
       oModel?.setProperty("/currentRuleId", aSelectedItems.ID);
 
-      this._iEditRuleIndex = aSelectedIndices;
+      this._iEditRuleIndex = aSelectedIndices[0];
       this._navToWizardPage();
 
       // ----------------------------
@@ -510,13 +510,14 @@ sap.ui.define([
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
-      if (sItemKey === "PRO" && sRuleKey === "AV") {
-        this.byId("selCharacteristic")?.setSelectedKey(this._mapCharacteristicKey(oRow.Characteristics));
+      await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
+
+      if (this._mapItemTypeKey(sItemKey) === "PRO" && this._mapRuleTypeKey(sRuleKey) === "AV") {
+        this.byId("selCharacteristic").setSelectedKey(this._mapCharacteristicKey(oRow.Characteristics));
         this.byId("selOperator")?.setSelectedKey(this._mapOperatorKey(oRow.Operator));
-        this.byId("inpValue")?.setSelectedKey(this._mapValueKey(oRow.Value));
+        this.byId("inpValue")?.setSelectedKey(this._mapFilterValues(oRow.Value));
         this.byId("selUoM")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
 
-        await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
         const oDialog = await this._pAddDialog;
         oDialog.setTitle(this._i18n("FILTER_EDIT_TITLE"));
         oDialog.getBeginButton()?.setText(this._i18n("BTN_UPDATE"));
@@ -527,7 +528,7 @@ sap.ui.define([
 
         setTimeout(function () {
           this.byId("selOperator2")?.setSelectedKey(this._mapOperatorKey(oRow.Operator));
-          this.byId("inpValue2")?.setSelectedKey(this._mapValueKey(oRow.Value));
+          this.byId("inpValue2")?.setSelectedKey(this._mapFilterValues(oRow.Value));
           this.byId("selUoM2")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
         }.bind(this), 0);
 
@@ -664,11 +665,12 @@ sap.ui.define([
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
       if (sItemKey === "PRO" && sRuleKey === "AV") {
+        await this._ensureDialog("_pAdjLogicDialog", "managerules.view.AddAdjLogicDialog");
+
         this.byId("selLogic")?.setSelectedKey(this._mapLogicKey(oRow.Logic));
         this.byId("selLogicValue")?.setSelectedKey(this._mapValueKey(oRow.Value));
         this.byId("selLogicUoM")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
 
-        await this._ensureDialog("_pAdjLogicDialog", "managerules.view.AddAdjLogicDialog");
         const oDialog = await this._pAdjLogicDialog;
         oDialog.setTitle(this._i18n("ADJ_EDIT_TITLE"));
         oDialog.getBeginButton()?.setText(this._i18n("BTN_UPDATE"));
@@ -830,6 +832,12 @@ sap.ui.define([
     _mapLogicKey: function (sText) {
       switch (sText) {
         case "Rolling average": return "ROLLAVG";
+        default: return sText;
+      }
+    },
+    _mapFilterValues: function (sText) {
+      switch (sText) {
+        case "All": return "VAL";
         default: return sText;
       }
     },

@@ -26,7 +26,7 @@
         <items>
           <ColumnListItem id="_IDGenColumnListItem3">
             <cells>
-              <ComboBox id="selCharacteristic" 
+              <ComboBox id="selCharacteristic"
                       class="select"
                       placeholder="Select characteristic to apply"
                       selectedKey=""
