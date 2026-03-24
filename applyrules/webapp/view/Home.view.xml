@@ -18,22 +18,22 @@
                                 <ToolbarSpacer id="_IDGenToolbarSpacer5" />
 
                                 <SearchField id="_IDGenSearchField1" width= "300px"
-                                                placeholder="Search rules"
+                                                placeholder="{i18n>SEARCH_FIELD}"
                                                 liveChange="onSearch" />
 
                                 <ToolbarSpacer id="_IDGenToolbarSpacer1" />
 
-                                <Button id="_IDGenButton21" text="Add new rule to apply"
+                                <Button id="_IDGenButton21" text="{i18n>BUTTON_ADD}"
                                         type="Emphasized"
                                         press="onAddApplyRule"/>
 
-                                <Button id="_IDGenButton22" text="Delete selected rule"
+                                <Button id="_IDGenButton22" text="{i18n>BUTTON_DELETE}"
                                         type="Emphasized"
                                         press="onDeleteSelectedApplyRules"/>  
 
-                                <Button id="_IDGenButton23" text="Execute"
+                                <Button id="_IDGenButton23" text="{i18n>BUTTON_EXEC}"
                                         type="Emphasized"
-                                        press="onDeleteRule"
+                                        press="onExecuteApplyRule"
                                         class="sapUiSmallMarginEnd"
                                 />                 
                             </Toolbar>
@@ -45,14 +45,14 @@
                                     items="{app>/applyrules}"
                                     >
                                 <columns>
-                                    <Column id="_IDGenColumn23" width="4rem" class="sapUiSmallMargin"><Text id="_IDGenText44" text="ID"/></Column>
-                                    <Column id="_IDGenColumn24" minScreenWidth="Tablet"><Text id="_IDGenText45" text="Name"/></Column>
-                                    <Column id="_IDGenColumn25" minScreenWidth="Tablet"><Text id="_IDGenText46" text="Description"/></Column>
-                                    <Column id="_IDGenColumn26" width="7rem"><Text id="_IDGenText47" text="Application from date (Valid from)"/></Column>
-                                    <Column id="_IDGenColumn27" width="7rem"><Text id="_IDGenText48" text="Application till date (Valid to)"/></Column>
-                                    <Column id="_IDGenColumn28" width="6rem"><Text id="_IDGenText49" text="Item type"/></Column>
-                                    <Column id="_IDGenColumn29" minScreenWidth="Tablet"><Text id="_IDGenText50" text="Type of rule"/></Column>
-                                    <Column id="_IDGenColumn30" minScreenWidth="Tablet"><Text id="_IDGenText51" text="Plants" class="sapUiSmallMarginEnd"/></Column>
+                                    <Column id="_IDGenColumn23" width="4rem" class="sapUiSmallMargin"><Text id="_IDGenText44" text="{i18n>RULE_ID}"/></Column>
+                                    <Column id="_IDGenColumn24" minScreenWidth="Tablet"><Text id="_IDGenText45" text=""/></Column>
+                                    <Column id="_IDGenColumn25" minScreenWidth="Tablet"><Text id="_IDGenText46" text="{i18n>RULE_DESCRIPTION}"/></Column>
+                                    <Column id="_IDGenColumn26" width="8rem"><Text id="_IDGenText47" text="{i18n>RULE_VALID_FROM}"/></Column>
+                                    <Column id="_IDGenColumn27" width="8rem"><Text id="_IDGenText48" text="{i18n>RULE_VALID_TO}"/></Column>
+                                    <Column id="_IDGenColumn28" width="6rem"><Text id="_IDGenText49" text="{i18n>RULE_ITEM_TYPE}"/></Column>
+                                    <Column id="_IDGenColumn29" minScreenWidth="Tablet"><Text id="_IDGenText50" text="{i18n>RULE_RULETYPE}"/></Column>
+                                    <Column id="_IDGenColumn30" minScreenWidth="Tablet"><Text id="_IDGenText51" text="{i18n>RULE_PLANTS}" class="sapUiSmallMarginEnd"/></Column>
                                 </columns>    
 
                                 <items>
