@@ -69,9 +69,8 @@ sap.ui.define([
     /* ===================== PUBLIC HANDLERS ===================== */
     onCreateNewRule: function () {
       this._navToWizardPage();
-      this._resetGeneralFields(true /* bEnableCombos */);
+      this._resetGeneralFields(true);
       
-      // reset edit-icons if present
       this.byId("idGenNameEditBtn")?.setVisible(false);
       this.byId("idGenDescEditBtn")?.setVisible(false);
       this.byId("idGenValidFromEditBtn")?.setVisible(false);
@@ -151,7 +150,6 @@ sap.ui.define([
 
       /* Step 2: Scope */
       if (sCurrentStepId === oStepScope?.getId()) {
-        // example scope widgets kept backward compatible
         const oScope = oModel?.getProperty("/scope");
         const aSelectedScope = this.byId("_IDGenSelect")?.getSelectedKey() || [];
         const aSelectedPlantKeys = this.byId("_IDGenMultiComboBox")?.getSelectedKeys() || [];
@@ -168,13 +166,23 @@ sap.ui.define([
           Plants: sPlants,
         };
 
-        if (aRules.length > 0) {
-          const iTargetIndex = (this._iEditRuleIndex !== undefined)
-            ? this._iEditRuleIndex
-            : aRules.length - 1;
-          aRules[iTargetIndex].Plants = sPlants;
+        const iIndex = oScope.findIndex(s =>
+          s.RuleID === currentRuleId && s.ScopeID === oNewScope.ScopeID
+        );
+
+        if (iIndex !== -1) {
+          oScope[iIndex] = { ...oScope[iIndex], ...oNewScope };
+        } else {
           oScope.push(oNewScope);
-          oModel?.setProperty("/scope", oScope);
+        }
+
+        oModel.setProperty("/scope", oScope);
+
+        const aRules = oModel.getProperty("/rules") || [];
+        const iRuleIndex = aRules.findIndex(r => r.ID === currentRuleId);
+
+        if (iRuleIndex !== -1) {
+          oModel.setProperty(`/rules/${iRuleIndex}/Plants`, sPlants);
         }
 
         oWizard?.validateStep(oStepScope);
@@ -187,10 +195,9 @@ sap.ui.define([
         const aFilters = oModel?.getProperty("/filters")
         oWizard?.validateStep(oStepFilter);
 
-        const currentFilter = aFilters.filter(f => f.RuleID === currentRuleId)
+        const currentFilter = aFilters.find(f => f.RuleID === currentRuleId)
         
         if (currentFilter.length > 0) {
-          console.log("Current filter: ", currentFilter)
           this._toast("FILTERS_SAVED_MSG")};
         oWizard?.nextStep();
         return;
@@ -226,7 +233,6 @@ sap.ui.define([
         return;
       }
 
-      // Collect selected Rule IDs (deduped, remove falsy)
       const aSelectedIds = Array.from(new Set(
         aSelectedItems
           .map(oItem => oItem.getBindingContext("app")?.getProperty("ID"))
@@ -238,15 +244,12 @@ sap.ui.define([
         return;
       }
 
-      // Current data
       const aRules   = oModel?.getProperty("/rules") || [];
       const aFilters = oModel?.getProperty("/filters") || [];
       const aAdj     = oModel?.getProperty("/adjLogic") || [];
 
-      // 1) Delete rules
       const aUpdatedRules = aRules.filter(oRule => !aSelectedIds.includes(oRule.ID));
 
-      // 2) Cascade delete: filters & adj logic by RuleID
       const aUpdatedFilters = aFilters.filter(oFilter => !aSelectedIds.includes(oFilter.RuleID));
       const aUpdatedAdj     = aAdj.filter(oEntry  => !aSelectedIds.includes(oEntry.RuleID));
 
@@ -254,36 +257,29 @@ sap.ui.define([
       oModel?.setProperty("/filters", aUpdatedFilters);
       oModel?.setProperty("/adjLogic", aUpdatedAdj);
 
-      // 3) Scope cleanup (handle BOTH possible structures)
-      // A) If you store scopes as an array: /scopes
       const aScopes = oModel?.getProperty("/scopes");
       if (Array.isArray(aScopes)) {
         const aUpdatedScopes = aScopes.filter(oScope => !aSelectedIds.includes(oScope.RuleID));
         oModel?.setProperty("/scopes", aUpdatedScopes);
       }
 
-      // B) If you store a single scope object: /scope
       const oScope = oModel?.getProperty("/scope");
       if (oScope?.RuleID && aSelectedIds.includes(oScope.RuleID)) {
         oModel?.setProperty("/scope", null);
       }
 
-      // 4) Clear currentRuleId if it was deleted
       const sCurrentRuleId = oModel?.getProperty("/currentRuleId");
       if (sCurrentRuleId && aSelectedIds.includes(sCurrentRuleId)) {
         oModel?.setProperty("/currentRuleId", null);
       }
 
-      // 5) Optional: clear edit state so you don't edit a deleted rule
       this._iEditRuleIndex = undefined;
       this._iEditAdjIndex = undefined;
-      this._iEditFilterIndex = undefined; // if you have one
+      this._iEditFilterIndex = undefined; 
 
-      // 6) Refresh filtered tables (if you are filtering by currentRuleId)
       this._applyFiltersForCurrentRule?.();
       this._applyAdjLogicForCurrentRule?.();
 
-      // UI cleanup
       oTable?.removeSelections(true);
       this._toast("RULES_DELETED_MSG");
     },
@@ -348,17 +344,15 @@ sap.ui.define([
 
       this.byId("_IDGenSelect")?.setSelectedKey(oScope.InventoryScope || "");
 
-      const aPlants = (oScope.Plants || "").split(",").map(s => s.trim()).filter(Boolean);
-      oModel.setProperty("/plantsFilters/plants/selectedKeys", aPlants);
-      oModel.setProperty("/scope/Plants", aPlants);
+      const aPlants = (oScope.Plants || "").split(",").map(s => s.trim());
       this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
 
       this.byId("editIconScope")?.setVisible(true);
       this.byId("editIconPlants")?.setVisible(true);
 
-      // ------------------------------------------
-      // Step 3 & 4: Filters + AdjLogic (RuleID)
-      // ------------------------------------------
+      // ------------------------------
+      // Step 3 & 4: Filters + AdjLogic
+      // ------------------------------
       this._applyFiltersForCurrentRule?.();
       this._applyAdjLogicForCurrentRule?.();
     },
@@ -893,7 +887,6 @@ sap.ui.define([
         return;
       }
 
-      // Filter rows by the active rule
       oBinding.filter([
         new sap.ui.model.Filter("RuleID", sap.ui.model.FilterOperator.EQ, sRuleId)
       ]);
@@ -906,13 +899,12 @@ sap.ui.define([
       const aAllKeys = oModel.getProperty("/plantsFilters/plants/allKeys") || [];
 
       const oChangedItem = oEvent.getParameter("changedItem");
-      const bSelected = oEvent.getParameter("selected"); // true if selected, false if removed
+      const bSelected = oEvent.getParameter("selected");
       const sChangedKey = oChangedItem && oChangedItem.getKey();
 
-      // Current selection after the UI change
       let aSelectedKeys = oMCB.getSelectedKeys();
 
-      // --- Case 1: user clicked "All Plants" (selected) ---
+      // --- "All Plants" (selected) ---
       if (sChangedKey === "*" && bSelected) {
         aSelectedKeys = ["*", ...aAllKeys];
 
@@ -921,21 +913,16 @@ sap.ui.define([
         return;
       }
 
-      // --- Case 2: user unclicked "All Plants" (deselected) ---
+      // --- unclicked "All Plants" (deselected) ---
       if (sChangedKey === "*" && !bSelected) {
-        // Option A (common): clear all
         aSelectedKeys = [];
-
-        // Option B: keep individual selections (if any) — uncomment if preferred:
-        // aSelectedKeys = aSelectedKeys.filter(k => k !== "*");
 
         oMCB.setSelectedKeys(aSelectedKeys);
         oModel.setProperty("/plantsFilters/plants/selectedKeys", aSelectedKeys);
         return;
       }
 
-      // --- Case 3: user changed an individual plant ---
-      // If "*" is present but not all plants are selected anymore, remove "*"
+      // --- changed an individual plant ---
       const bAllSelected =
         aAllKeys.length > 0 &&
         aAllKeys.every(k => aSelectedKeys.includes(k));
@@ -972,26 +959,23 @@ sap.ui.define([
 
     onLogicalOperatorChangeFilter: function (oEvent) {
 
-      const sSelectedKey = oEvent.getSource().getSelectedKey(); // "AND" / "OR" / ""
+      const sSelectedKey = oEvent.getSource().getSelectedKey();
 
       const oTable = this.byId("tblFilters");
       const oBinding = oTable.getBinding("items");
       if (!oBinding) return;
 
-      // If nothing selected, show all rows (no filtering)
       if (!sSelectedKey) {
         oBinding.filter([]);
         return;
       }
 
-      // Show rows where LogOp is the selected value OR LogOp is empty
       const oOrFilter = new sap.ui.model.Filter({
         filters: [
           new sap.ui.model.Filter("LogOp", sap.ui.model.FilterOperator.EQ, sSelectedKey),
           new sap.ui.model.Filter("LogOp", sap.ui.model.FilterOperator.EQ, "")
-          // if sometimes undefined/null, you can also normalize your model to "" to keep it simple
         ],
-        and: false // false = OR
+        and: false
       });
 
       oBinding.filter([oOrFilter]);
