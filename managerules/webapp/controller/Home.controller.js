@@ -10,7 +10,7 @@ sap.ui.define([
 
     return Controller.extend("managerules.controller.Home", {
     /* ===================== LIFECYCLE ===================== */
-    onInit: function () {
+    onInit: async function () {
 
       const aMockPlants = [
         { key: "Plant 1", text: "Plant 1" },
@@ -18,6 +18,7 @@ sap.ui.define([
         { key: "Plant 3", text: "Plant 3" }
       ];
 
+      // Mock data
       const oAppModel = new JSONModel({
         wizardstep: null,
         currentRuleId: null,
@@ -62,10 +63,185 @@ sap.ui.define([
           }
         },
       });
-      this.getView()?.setModel(oAppModel, "app");
+
       this.getOwnerComponent()?.setModel(oAppModel, "rule");
+
+      // Fetch data from backend
+      const aDataRule = await this.onGetRuleGenInfo()
+
+      const aRuleSummary = aDataRule.map(rule => ({
+        RuleId: rule.RuleId,
+        RuleName: rule.RuleName,
+        RuleDescription: rule.RuleDescription,
+        ValidFrom: rule.ValidFrom,
+        ValidTo: rule.ValidTo,
+        ItemType: rule.ItemType,
+        RuleType: rule.RuleType,
+        Plant: rule._RuleScope?.map(scope => scope.Plant) ?? []
+      }))
+
+      console.log("aRULESUMMARY: ", aRuleSummary)
+
+      const aGenInfo = aDataRule.map(rule => ({
+        RuleId: rule.RuleId,
+        RuleName: rule.RuleName,
+        RuleDescription: rule.RuleDescription,
+        ValidFrom: rule.ValidFrom,
+        ValidTo: rule.ValidTo,
+        ItemType: rule.ItemType,
+        RuleType: rule.RuleType,
+      }))
+
+      const aDataScope = await this.onGetRuleScope()
+      const aScope = aDataScope.map(scope => ({
+        RuleId: scope.RuleId,
+        InventoryScope: scope.InventoryScope,
+        Plant: scope.Plant
+      }))
+
+      const aDataFilter = await this.onGetRuleFilter()
+      const aFilter = aDataFilter.map(filter => ({
+        RuleId: filter.RuleId,
+        Characteristic: filter.Characteristic,
+        Operator: filter.Operator,
+        Value: filter.Value,
+        ValueUom: filter.ValueUom,
+        LogicalOperator: filter.LogicalOperator
+      }))
+
+      const aDataAdjLogic = await this.onGetRuleAdjLogic()
+      const aAdjLogic = aDataAdjLogic.map(adjLogic => ({
+        RuleId: adjLogic.RuleId,
+        Logic: adjLogic.Logic,
+        Value: adjLogic.Value,
+        ValueUom: adjLogic.ValueUom
+      }))
+      
+      // Current view model
+      const oRuleModel = new JSONModel({
+        currentRuleId: null,
+        ruleSummary: aRuleSummary,
+        genInfo: aGenInfo,
+        filter: aFilter,
+        scope: aScope,
+        adjLogic: aAdjLogic,
+
+        // Scope values for selection
+        scopeFilters: {
+          scopes: {
+            list: [...aMockPlants],
+            allKeys: aMockPlants.map(p => p.key),
+            selectAll: false  
+          }
+        },
+
+        // Plants values for selection
+        plantsFilters: {
+          plants: {
+            list: [{ key: "*", text: "All Plants" }, ...aMockPlants],
+            allKeys: aMockPlants.map(p => p.key),
+            selectAll: false  
+          }
+        },
+      });
+
+      this.getView()?.setModel(oRuleModel, "rules");
     },
 
+    onTestCreateRule: async function () {
+      const oPayload = {
+          "RuleName": "Rule 4 Test from FE",
+          "RuleDescription": "Rule 4 Test from FE",
+          "RuleType": "001",
+          "ValidFrom": "2017-03-24",
+          "ValidTo": "2099-12-31",
+          "ItemType": "001",
+          "IsActiveEntity" : true
+      };
+      
+    const oModel = this.getOwnerComponent().getModel();
+    const oList = oModel.bindList("/ZC_RULESHEADER");
+
+      try {
+        const oCtx = oList.create(oPayload); 
+        await oCtx.created();                 
+        sap.m.MessageToast.show("Created successfully!");
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e.message || "Create failed");
+      }
+    },
+
+    onGetRuleGenInfo: async function () {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList("/ZC_RULESHEADER", null, null, null, {
+        $expand: "_RuleScope"
+      });
+
+      const aContexts = await oList.requestContexts();
+
+      const aData = aContexts.map(c => {
+        const oObj = c.getObject();
+
+        return Object.fromEntries(
+          Object.entries(oObj)
+        );
+      });
+
+      return await aData
+    },
+
+    onGetRuleScope: async function () {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList("/ZC_RULESSCOPE");
+
+      const aContexts = await oList.requestContexts();
+
+      const aData = aContexts.map(c => {
+        const oObj = c.getObject();
+
+        return Object.fromEntries(
+          Object.entries(oObj)
+        );
+      });
+
+      return await aData
+    },
+
+    onGetRuleFilter: async function () {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList("/ZC_RULESFILTER");
+
+      const aContexts = await oList.requestContexts();
+
+      const aData = aContexts.map(c => {
+        const oObj = c.getObject();
+
+        return Object.fromEntries(
+          Object.entries(oObj)
+        );
+      });
+
+      return await aData
+    },
+
+    onGetRuleAdjLogic: async function () {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList("/ZC_RULESLOGIC");
+
+      const aContexts = await oList.requestContexts();
+
+      const aData = aContexts.map(c => {
+        const oObj = c.getObject();
+
+        return Object.fromEntries(
+          Object.entries(oObj)
+        );
+      });
+
+      return await aData
+    },
+    
     /* ===================== PUBLIC HANDLERS ===================== */
     onCreateNewRule: function () {
       this._navToWizardPage();
