@@ -58,7 +58,6 @@ sap.ui.define([
     },
 
     onPatchRuleTest: async function () {
-      
       const oModel = this.getOwnerComponent().getModel();
 
       // const sPath = `/ZC_RULESHEADER(Id=${Id},RuleId='${RuleId}',DraftUUID=${DraftUUID},IsActiveEntity=${IsActiveEntity})`;
@@ -188,9 +187,9 @@ sap.ui.define([
           IsActiveEntity : true
         };
 
-        if (!oCreated == null) {
+        if (oCreated != null) {
           // Edit rule
-          
+          await this.onPatchGenInfo(oCreated, oNewRule)
         } else {
           // Create new rule
           oCreated = await this.onCreateGenInfo(oNewRule)
@@ -223,7 +222,7 @@ sap.ui.define([
 
         if (this._iEditRuleIndex) {
           // Edit scope
-          
+          await this.onPatchScope(oCreated, oNewScope)
         } else {
           // Create scope
           await this.onCreateScope(oCreated, oNewScope)
@@ -286,9 +285,98 @@ sap.ui.define([
       }
     },
 
+    onPatchGenInfo: async function (oCreated, oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+
+      const sPath = `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+      `RuleId='${oCreated.RuleId}',`+
+      `DraftUUID=${oCreated.DraftUUID},`+
+      `IsActiveEntity=${oCreated.IsActiveEntity})`;
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
+      const oCtx = oCtxBinding.getBoundContext();
+
+      Object.entries(oPayload).forEach(([sProp, vValue]) => {
+        oCtx.setProperty(sProp, vValue);
+      });
+
+      await oModel.submitBatch("ruleUpdates");
+      return oCtx.getObject();
+    },
+
+    onPatchScope: async function (oCreated, oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+      const aScopes = oCreated._RuleScope || [];
+
+      console.log("ASCOPE: ", aScopes)
+
+      const sGroupId = "ruleUpdates";
+      if (!aRowsToDelete.length) {
+        sap.m.MessageToast.show("No matching scope rows found to delete.");
+        return;
+      }
+
+      for (const r of aScopes) {
+        const sPath =
+          `/ZC_RULESSCOPE(` +
+            `Id=${r.Id},` +
+            `RuleUUID=${r.RuleUUID},` +
+            `RuleId='${r.RuleId}',` +
+            `DraftUUID=${r.DraftUUID},` +
+            `IsActiveEntity=${r.IsActiveEntity}` +
+          `)`;
+
+        const oCtx = oModel.bindContext(sPath, null, { $$updateGroupId: sGroupId }).getBoundContext();
+        await oCtx.delete(sGroupId); // queues deletes in same group
+      }
+
+      await oModel.submitBatch(sGroupId);
+      sap.m.MessageToast.show("Selected scope rows deleted.");
+    },
+
+    onPatchFilter: async function (oCreated, oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+
+      const sPath = `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+      `RuleId='${oCreated.RuleId}',`+
+      `DraftUUID=${oCreated.DraftUUID},`+
+      `IsActiveEntity=${oCreated.IsActiveEntity})`;
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
+      const oCtx = oCtxBinding.getBoundContext();
+
+      Object.entries(oPayload).forEach(([sProp, vValue]) => {
+        oCtx.setProperty(sProp, vValue);
+      });
+
+      await oModel.submitBatch("ruleUpdates");
+      return oCtx.getObject();
+    },
+
+    onPatchAdjLogic: async function (oCreated, oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+
+      const sPath = `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+      `RuleId='${oCreated.RuleId}',`+
+      `DraftUUID=${oCreated.DraftUUID},`+
+      `IsActiveEntity=${oCreated.IsActiveEntity})`;
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
+      const oCtx = oCtxBinding.getBoundContext();
+
+      Object.entries(oPayload).forEach(([sProp, vValue]) => {
+        oCtx.setProperty(sProp, vValue);
+      });
+
+      await oModel.submitBatch("ruleUpdates");
+      return oCtx.getObject();
+    },
+
     onCreateScope: async function (oCreated, oPayload) {
       const oModel = this.getOwnerComponent().getModel();
-      const oList = oModel.bindList(`/ZC_RULESHEADER(Id=${oCreated.Id},RuleId='${oCreated.RuleId}',DraftUUID=${oCreated.DraftUUID},IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`);
+      const oList = oModel.bindList(
+        `/ZC_RULESHEADER(Id=${oCreated.Id},
+        RuleId='${oCreated.RuleId}',
+        DraftUUID=${oCreated.DraftUUID},
+        IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`
+      );
 
       try {
         if (oPayload.Plant.length > 1) {
@@ -417,67 +505,59 @@ sap.ui.define([
       return `'${String(v).replace(/'/g, "''")}'`;
     },
 
-    onEditRule: function () {
+    onEditRule: async function () {
       const oTable = this.byId("_IDGenTable");
-      const aSelectedIndices = oTable?.getSelectedIndices() || [];
-      const oCtx = oTable.getContextByIndex(aSelectedIndices);
-      const aSelectedItems = oCtx.getObject();
+      const aSelectedIndices = oTable.getSelectedIndices();
 
-      console.log("ASELECTED OBJ: ", aSelectedItems)
-
-      this._applyFiltersForCurrentRule();
-      this._applyAdjLogicForCurrentRule();
-
-      if (aSelectedIndices.length !== 1) {
+      if (!aSelectedIndices.length) {
         this._toast("SELECT_ONE_RULE_TO_EDIT_MSG");
         return;
       }
 
+      const iIndex = aSelectedIndices[0];
+      const oCtx = oTable.getContextByIndex(iIndex);
+
+      if (!oCtx) {
+        sap.m.MessageToast.show("No context found for selected row.");
+        return;
+      }
+
+      const aObj = oCtx.getObject();
+      console.log("Selected object:", aObj);
+
       const oModel = this.getView()?.getModel("rules");
-      oModel?.setProperty("/currentRule", aSelectedItems);
+      oModel?.setProperty("/currentRule", aObj);
 
       this._iEditRuleIndex = aSelectedIndices[0];
       this._navToWizardPage();
 
-      // ----------------------------
       // Step 1: General Information
-      // ----------------------------
-      this._input("idGenNameInput", "inpName")?.setValue(aSelectedItems.RuleName || "");
-      this._input("idGenDescInput", "inpDesc")?.setValue(aSelectedItems.RuleDescription || "");
-      this._byAnyId(["idGenValidFromDP", "dpFrom"])?.setValue(aSelectedItems.ValidFrom || "");
-      this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue(aSelectedItems.ValidTo || "");
+      this._input("idGenNameInput", "inpName")?.setValue(aObj.RuleName || "");
+      this._input("idGenDescInput", "inpDesc")?.setValue(aObj.RuleDescription || "");
+      this._byAnyId(["idGenValidFromDP", "dpFrom"])?.setValue(aObj.ValidFrom || "");
+      this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue(aObj.ValidTo || "");
 
-      console.log("ITEM TYPE, RULE TYPE: ", aSelectedItems.ItemType, aSelectedItems.RuleType)
-
-      this.byId("idGenItemTypeMCB")?.setSelectedKeys(`${aSelectedItems.ItemType}`)
-      this.byId("idGenRuleTypeMCB")?.setSelectedKeys(`${aSelectedItems.RuleType}`)
+      this.byId("idGenItemTypeMCB")?.setSelectedKeys(`${aObj.ItemType}`)
+      this.byId("idGenRuleTypeMCB")?.setSelectedKeys(`${aObj.RuleType}`)
     
       this.byId("idGenNameEditBtn")?.setVisible(true);
       this.byId("idGenDescEditBtn")?.setVisible(true);
       this.byId("idGenValidFromEditBtn")?.setVisible(true);
       this.byId("idGenValidToEditBtn")?.setVisible(true);
 
-      // --------------
       // Step 2: Scope
-      // --------------
-
-      const aScopes = oModel?.getProperty("/scope");
-      const oScope = aScopes.find(s => s.RuleId === aSelectedItems.RuleId);
-
-      this.byId("_IDGenSelect")?.setSelectedKey(oScope.InventoryScope || "");
-      console.log("OSCOPE INVENTORY: ", oScope.InventoryScope)
-      const aPlants = (oScope.Plant || "")
-      
-      this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
+      if (aObj._RuleScope.length > 0) {      
+        this.byId("_IDGenSelect")?.setSelectedKey(aObj._RuleScope[0].InventoryScope || "");
+        const aPlants = (aObj._RuleScope.map(s => s.Plant) || "")
+        this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
+      }
 
       this.byId("editIconScope")?.setVisible(true);
       this.byId("editIconPlants")?.setVisible(true);
 
-      // ------------------------------
       // Step 3 & 4: Filters + AdjLogic
-      // ------------------------------
-      this._applyFiltersForCurrentRule?.();
-      this._applyAdjLogicForCurrentRule?.();
+      this._applyFiltersForCurrentRule?.(aObj);
+      this._applyAdjLogicForCurrentRule?.(aObj);
     },
 
     /* ===================== FILTER DIALOGS ===================== */

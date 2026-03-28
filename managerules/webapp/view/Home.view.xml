@@ -48,7 +48,7 @@
                               path: '/ZC_RULESHEADER',
                               parameters: {
                                  $select: 'RuleId,RuleName,RuleDescription,ValidFrom,ValidTo,ItemType,RuleType',
-                                 $expand: '_RuleScope($select=Plant)'
+                                 $expand: '_RuleScope($select=Plant,InventoryScope),_RuleFilter'
                               }
                            }"
                            selectionMode="MultiToggle"
