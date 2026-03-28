@@ -12,64 +12,11 @@ sap.ui.define([
     /* ===================== LIFECYCLE ===================== */
     onInit: async function () {
 
-      const aMockPlants = [
-        { key: "Plant 1", text: "Plant 1" },
-        { key: "Plant 2", text: "Plant 2" },
-        { key: "Plant 3", text: "Plant 3" }
-      ];
-
-      // Mock data
-      const oAppModel = new JSONModel({
-        wizardstep: null,
-        currentRuleId: null,
-        rules: [{
-          "ID": "001",
-          "Name": "a",
-          "Description": "a",
-          "ValidFrom": "3/18/26",
-          "ValidTo": "3/26/26",
-          "ItemType": "Product",
-          "RuleType": "Average calculated product footprint",
-          "Plants": "Plant 1, Plant 2, Plant 3"
-        }],
-        filters: [{
-                  "RuleID": "001",
-                  "Characteristics": "Product",
-                  "Operator": "Equal to",
-                  "Value": "All",
-                  "UoM": "Not applicable",
-                  "LogOp": ""
-              }],
-        scope: [{
-              "RuleID": "001",
-              "InventoryScope": "Scope 1",
-              "Plants": "Plant 1, Plant 2, Plant 3"
-          }],
-        adjLogic: [{
-                  "RuleID": "001",
-                  "Logic": "Rolling average",
-                  "Value": "Last 3 months",
-                  "UoM": "Not applicable"
-              }],
-        editBuffer: { Logic: "", Value: "", UoM: "" },
-
-        // Data for selection
-        plantsFilters: {
-          plants: {
-            list: [{ key: "*", text: "All Plants" }, ...aMockPlants],
-            selectedKeys: [],
-            allKeys: aMockPlants.map(p => p.key),
-            selectAll: false  
-          }
-        },
-      });
-
-      this.getOwnerComponent()?.setModel(oAppModel, "rule");
-
       // Fetch data from backend
-      const aDataRule = await this.onGetRuleGenInfo()
-
+      const aDataRule = await this.onGetRule()
       const aRuleSummary = aDataRule.map(rule => ({
+        Id: rule.Id,
+        DraftUUID: rule.DraftUUID,
         RuleId: rule.RuleId,
         RuleName: rule.RuleName,
         RuleDescription: rule.RuleDescription,
@@ -77,173 +24,105 @@ sap.ui.define([
         ValidTo: rule.ValidTo,
         ItemType: rule.ItemType,
         RuleType: rule.RuleType,
-        Plant: rule._RuleScope?.map(scope => scope.Plant) ?? []
+        Plant: rule._RuleScope?.map(scope => scope.Plant) ?? [],
+        IsActiveEntity: rule.IsActiveEntity
       }))
 
-      console.log("aRULESUMMARY: ", aRuleSummary)
-
-      const aGenInfo = aDataRule.map(rule => ({
-        RuleId: rule.RuleId,
-        RuleName: rule.RuleName,
-        RuleDescription: rule.RuleDescription,
-        ValidFrom: rule.ValidFrom,
-        ValidTo: rule.ValidTo,
-        ItemType: rule.ItemType,
-        RuleType: rule.RuleType,
-      }))
-
-      const aDataScope = await this.onGetRuleScope()
-      const aScope = aDataScope.map(scope => ({
-        RuleId: scope.RuleId,
-        InventoryScope: scope.InventoryScope,
-        Plant: scope.Plant
-      }))
-
-      const aDataFilter = await this.onGetRuleFilter()
-      const aFilter = aDataFilter.map(filter => ({
-        RuleId: filter.RuleId,
-        Characteristic: filter.Characteristic,
-        Operator: filter.Operator,
-        Value: filter.Value,
-        ValueUom: filter.ValueUom,
-        LogicalOperator: filter.LogicalOperator
-      }))
-
-      const aDataAdjLogic = await this.onGetRuleAdjLogic()
-      const aAdjLogic = aDataAdjLogic.map(adjLogic => ({
-        RuleId: adjLogic.RuleId,
-        Logic: adjLogic.Logic,
-        Value: adjLogic.Value,
-        ValueUom: adjLogic.ValueUom
-      }))
-      
       // Current view model
       const oRuleModel = new JSONModel({
-        currentRuleId: null,
+        currentRule: {},
         ruleSummary: aRuleSummary,
-        genInfo: aGenInfo,
-        filter: aFilter,
-        scope: aScope,
-        adjLogic: aAdjLogic,
+        genInfo: null,
+        filter: null,
+        scope: null,
+        adjlogic: null,
 
         // Scope values for selection
         scopeFilters: {
           scopes: {
-            list: [...aMockPlants],
-            allKeys: aMockPlants.map(p => p.key),
-            selectAll: false  
+            list: null,
+            allKeys: null,
+            selectAll: false 
           }
         },
-
         // Plants values for selection
         plantsFilters: {
           plants: {
-            list: [{ key: "*", text: "All Plants" }, ...aMockPlants],
-            allKeys: aMockPlants.map(p => p.key),
+            list: null,
+            allKeys: null,
             selectAll: false  
           }
         },
       });
-
       this.getView()?.setModel(oRuleModel, "rules");
     },
 
-    onTestCreateRule: async function () {
-      const oPayload = {
-          "RuleName": "Rule 4 Test from FE",
-          "RuleDescription": "Rule 4 Test from FE",
-          "RuleType": "001",
-          "ValidFrom": "2017-03-24",
-          "ValidTo": "2099-12-31",
-          "ItemType": "001",
-          "IsActiveEntity" : true
-      };
+    onPatchRuleTest: async function () {
       
-    const oModel = this.getOwnerComponent().getModel();
-    const oList = oModel.bindList("/ZC_RULESHEADER");
+      const oModel = this.getOwnerComponent().getModel();
 
-      try {
-        const oCtx = oList.create(oPayload); 
-        await oCtx.created();                 
-        sap.m.MessageToast.show("Created successfully!");
-      } catch (e) {
-        console.error(e);
-        sap.m.MessageBox.error(e.message || "Create failed");
-      }
+      // const sPath = `/ZC_RULESHEADER(Id=${Id},RuleId='${RuleId}',DraftUUID=${DraftUUID},IsActiveEntity=${IsActiveEntity})`;
+      const sPath = `/ZC_RULESHEADER(Id=3253fd37-5938-1fd1-89ef-c327659c6fbc,RuleId='1000000001',DraftUUID=00000000-0000-0000-0000-000000000000,IsActiveEntity=${true})`;
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
+      const oCtx = oCtxBinding.getBoundContext();
+
+      oCtx.setProperty("RuleName", "Edited");
+      await oModel.submitBatch("ruleUpdates");
     },
 
-    onGetRuleGenInfo: async function () {
+    onGetRule: async function () {
       const oModel = this.getOwnerComponent().getModel();
       const oList = oModel.bindList("/ZC_RULESHEADER", null, null, null, {
-        $expand: "_RuleScope"
+        $expand: {
+          _RuleScope: true
+        }
       });
 
       const aContexts = await oList.requestContexts();
-
-      const aData = aContexts.map(c => {
-        const oObj = c.getObject();
-
-        return Object.fromEntries(
-          Object.entries(oObj)
-        );
-      });
-
-      return await aData
+      return aContexts.map(c => c.getObject());
     },
 
-    onGetRuleScope: async function () {
+    onGetScope: async function (oCreated) {
       const oModel = this.getOwnerComponent().getModel();
-      const oList = oModel.bindList("/ZC_RULESSCOPE");
+      const oList = oModel.bindList(
+        `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+        `RuleId='${oCreated.RuleId}',`+
+        `DraftUUID=${oCreated.DraftUUID},`+
+        `IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`
+      );
 
       const aContexts = await oList.requestContexts();
-
-      const aData = aContexts.map(c => {
-        const oObj = c.getObject();
-
-        return Object.fromEntries(
-          Object.entries(oObj)
-        );
-      });
-
-      return await aData
+      return aContexts.map(c => c.getObject());
     },
 
-    onGetRuleFilter: async function () {
+    onGetFilter: async function (oCreated) {
       const oModel = this.getOwnerComponent().getModel();
-      const oList = oModel.bindList("/ZC_RULESFILTER");
+      const oList = oModel.bindList(
+        `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+        `RuleId='${oCreated.RuleId}',`+
+        `DraftUUID=${oCreated.DraftUUID},`+
+        `IsActiveEntity=${oCreated.IsActiveEntity})/_RuleFilter`
+      );
 
       const aContexts = await oList.requestContexts();
-
-      const aData = aContexts.map(c => {
-        const oObj = c.getObject();
-
-        return Object.fromEntries(
-          Object.entries(oObj)
-        );
-      });
-
-      return await aData
+      return aContexts.map(c => c.getObject());
     },
 
-    onGetRuleAdjLogic: async function () {
+    onGetAdjLogic: async function (oCreated) {
       const oModel = this.getOwnerComponent().getModel();
-      const oList = oModel.bindList("/ZC_RULESLOGIC");
+      const oList = oModel.bindList(
+        `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+        `RuleId='${oCreated.RuleId}',`+
+        `DraftUUID=${oCreated.DraftUUID},`+
+        `IsActiveEntity=${oCreated.IsActiveEntity})/_RuleLogic`
+      );
 
       const aContexts = await oList.requestContexts();
-
-      const aData = aContexts.map(c => {
-        const oObj = c.getObject();
-
-        return Object.fromEntries(
-          Object.entries(oObj)
-        );
-      });
-
-      return await aData
+      return aContexts.map(c => c.getObject());
     },
     
     /* ===================== PUBLIC HANDLERS ===================== */
-    onCreateNewRule: function () {
+    onCreateNewRule: async function () {
       this._navToWizardPage();
       this._resetGeneralFields(true);
       
@@ -254,10 +133,10 @@ sap.ui.define([
       this.byId("editIconScope")?.setVisible(false);
       this.byId("editIconPlants")?.setVisible(false);
 
-      const oModel = this.getView()?.getModel("app");
-      const aRules = oModel?.getProperty("/rules");
-      const generatedRuleId = String(aRules.length + 1).padStart(3, "0");
-      oModel?.setProperty("/currentRuleId", generatedRuleId)
+      const oModel = this.getView()?.getModel("rules");
+      // const aRules = oModel?.getProperty("/rules");
+      // const generatedRuleId = String(aRules.length + 1).padStart(3, "0"); // will be removed
+      // oModel?.setProperty("/currentRuleId", generatedRuleId)
 
       this._applyFiltersForCurrentRule();
       this._applyAdjLogicForCurrentRule();
@@ -267,9 +146,10 @@ sap.ui.define([
       this._iEditRuleIndex = undefined;
     },
 
-    onSaveAndNext: function () {
+    onSaveAndNext: async function () {
       const oWizard = this._byAnyId(["idGenWizard", "GeneralWizard"]);
       const sCurrentStepId = oWizard?.getCurrentStep?.();
+
       if (!sCurrentStepId) { return; }
 
       const oStepGeneral = this._byAnyId(["idGenStepGeneral", "StepGeneral"]);
@@ -277,10 +157,9 @@ sap.ui.define([
       const oStepFilter  = this._byAnyId(["idGenStepFilters", "StepFilters"]);
       const oStepAdj     = this._byAnyId(["idGenStepAdjLogic", "StepAdjLogic"]);
 
-      const oView = this.getView();
-      const oModel = oView?.getModel("app");
-      const aRules = oModel?.getProperty("/rules") || [];
-      const currentRuleId = oModel?.getProperty("/currentRuleId");
+      const oModel = this.getView().getModel("rules") || [];
+      var oCreated = oModel.getProperty("/currentRule") || null;
+      console.log("SAVE and NEXT OCreated: ", oCreated)
 
       /* Step 1: General Information */
       if (sCurrentStepId === oStepGeneral?.getId()) {
@@ -295,30 +174,32 @@ sap.ui.define([
         const sTo   = this._byAnyId(["idGenValidToDP", "dpTo"])?.getValue() || "";
 
         const aItemTypeItems = this._mcb("idGenItemTypeMCB", "selItemType")
-          ?.getSelectedItems()
-          ?.map(function (oItem) { return oItem.getText(); }) || [];
+          ?.getSelectedKeys()
         const aRuleTypeItems = this._mcb("idGenRuleTypeMCB", "selRuleType")
-          ?.getSelectedItems()
-          ?.map(function (oItem) { return oItem.getText(); }) || [];
+          ?.getSelectedKeys()
         
         const oNewRule = {
-          ID: currentRuleId,
-          Name: sName,
-          Description: sDesc,
+          RuleName: sName,
+          RuleDescription: sDesc,
           ValidFrom: sFrom,
           ValidTo: sTo,
           ItemType: aItemTypeItems.join(","),
-          RuleType: aRuleTypeItems.join(",")
+          RuleType: aRuleTypeItems.join(","),
+          IsActiveEntity : true
         };
 
-        if (this._iEditRuleIndex !== undefined && this._iEditRuleIndex >= 0) {
-          aRules[this._iEditRuleIndex] = oNewRule;
-          this._iEditRuleIndex = undefined;
+        if (!oCreated == null) {
+          // Edit rule
+          
         } else {
-          aRules.push(oNewRule);
+          // Create new rule
+          oCreated = await this.onCreateGenInfo(oNewRule)
+          oModel?.setProperty("/currentRule", oCreated)
         }
 
-        oModel?.setProperty("/rules", aRules);
+        this._applyFiltersForCurrentRule(oCreated);
+        this._applyAdjLogicForCurrentRule(oCreated);
+
         oWizard?.validateStep(oStepGeneral);
         oWizard?.nextStep();
         return;
@@ -326,7 +207,6 @@ sap.ui.define([
 
       /* Step 2: Scope */
       if (sCurrentStepId === oStepScope?.getId()) {
-        const oScope = oModel?.getProperty("/scope");
         const aSelectedScope = this.byId("_IDGenSelect")?.getSelectedKey() || [];
         const aSelectedPlantKeys = this.byId("_IDGenMultiComboBox")?.getSelectedKeys() || [];
 
@@ -334,31 +214,19 @@ sap.ui.define([
           .filter(function (sKey) {
             return sKey !== "*";
           })
-          .join(", ");
 
         const oNewScope = {
-          RuleID: currentRuleId,
           InventoryScope: aSelectedScope,
-          Plants: sPlants,
+          Plant: sPlants,
+          IsActiveEntity : true
         };
 
-        const iIndex = oScope.findIndex(s =>
-          s.RuleID === currentRuleId && s.ScopeID === oNewScope.ScopeID
-        );
-
-        if (iIndex !== -1) {
-          oScope[iIndex] = { ...oScope[iIndex], ...oNewScope };
+        if (this._iEditRuleIndex) {
+          // Edit scope
+          
         } else {
-          oScope.push(oNewScope);
-        }
-
-        oModel.setProperty("/scope", oScope);
-
-        const aRules = oModel.getProperty("/rules") || [];
-        const iRuleIndex = aRules.findIndex(r => r.ID === currentRuleId);
-
-        if (iRuleIndex !== -1) {
-          oModel.setProperty(`/rules/${iRuleIndex}/Plants`, sPlants);
+          // Create scope
+          await this.onCreateScope(oCreated, oNewScope)
         }
 
         oWizard?.validateStep(oStepScope);
@@ -368,26 +236,30 @@ sap.ui.define([
 
       /* Step 3: Filters */
       if (sCurrentStepId === oStepFilter?.getId()) {
-        const aFilters = oModel?.getProperty("/filters")
         oWizard?.validateStep(oStepFilter);
-
-        const currentFilter = aFilters.find(f => f.RuleID === currentRuleId)
-        
+        const currentFilter = oModel.getProperty("/filter")
         if (currentFilter) { this._toast("FILTERS_SAVED_MSG") };
+
         oWizard?.nextStep();
         return;
       }
 
       /* Step 4: Adjustment Logic */
       if (sCurrentStepId === oStepAdj?.getId()) {
-        const aAdj = oModel?.getProperty("/adjLogic") || [];
-        const currentAdjLogic = aAdj.filter(f => f.RuleID === currentRuleId)
-        if (currentAdjLogic.length === 0) {
+        const aAdj = oModel?.getProperty("/adjlogic") || [];
+
+        if (aAdj.length === 0) {
           this._toast("ADJ_LOGIC_REQUIRED_MSG");
           return;
         }
+
         oWizard?.validateStep(oStepAdj);
         this._iEditRuleIndex = undefined;
+        oModel?.setProperty("/currentRule", null)
+        
+        const oTable = this.byId("_IDGenTable");
+        await oTable.getBinding("rows").refresh();
+
         MessageBox.success(this._i18n("RULE_SAVED_SUCCESS"), {
           title: this._i18n("SUCCESS_TITLE"),
           onClose: function () {
@@ -398,62 +270,151 @@ sap.ui.define([
       }
     },
 
-    onDeleteRule: function () {
+    onCreateGenInfo: async function (oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList("/ZC_RULESHEADER");
+
+      try {
+        const oCtx = oList.create(oPayload); 
+        await oCtx.created();           
+        const oCreated = oCtx.getObject();   
+        console.log("OCREATED: ", oCreated)
+        return oCreated
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e.message || "Create failed");
+      }
+    },
+
+    onCreateScope: async function (oCreated, oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList(`/ZC_RULESHEADER(Id=${oCreated.Id},RuleId='${oCreated.RuleId}',DraftUUID=${oCreated.DraftUUID},IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`);
+
+      try {
+        if (oPayload.Plant.length > 1) {
+
+          const aCtx = oPayload.Plant.map(sPlant => {
+            const oNewScope = {
+              InventoryScope: oPayload.InventoryScope,
+              Plant: String(sPlant),
+              IsActiveEntity : true
+              };
+              return oList.create(oNewScope);
+            });
+
+          await Promise.all(aCtx.map(c => c.created()));
+          return aCtx.map(c => c.getObject());
+        } else {
+            const oCtx = oList.create({...oPayload, Plant: oPayload.Plant[0]}); 
+            await oCtx.created();        
+            const oCreated = oCtx.getObject();  
+            return oCreated
+          }
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e.message || "Create failed");
+      }
+    },
+
+    onCreateFilter: async function (oCreated, oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList(`/ZC_RULESHEADER(Id=${oCreated.Id},RuleId='${oCreated.RuleId}',DraftUUID=${oCreated.DraftUUID},IsActiveEntity=${oCreated.IsActiveEntity})/_RuleFilter`);
+
+      try {
+        const oCtx = oList.create(oPayload); 
+        await oCtx.created();        
+        const oCreated = oCtx.getObject();   
+        return oCreated
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e.message || "Create failed");
+      }
+    },
+
+    onCreateAdjLogic: async function (oCreated, oPayload) {
+      const oModel = this.getOwnerComponent().getModel();
+      const oList = oModel.bindList(`/ZC_RULESHEADER(Id=${oCreated.Id},RuleId='${oCreated.RuleId}',DraftUUID=${oCreated.DraftUUID},IsActiveEntity=${oCreated.IsActiveEntity})/_RuleLogic`);
+
+      try {
+        const oCtx = oList.create(oPayload); 
+        await oCtx.created();        
+        const oCreated = oCtx.getObject();   
+        return oCreated
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e.message || "Create failed");
+      }
+    },
+
+    onFetchFilter: async function (oCreated) {
+      const oODataModel = this.getOwnerComponent().getModel();
+      const sRuleId = String(oCreated?.RuleId || "").replace(/'/g, "").trim();
+
+      const oList = oODataModel.bindList("/ZC_RULESFILTER");
+      const aContexts = await oList.requestContexts();
+      const aFilters = aContexts.map(c => c.getObject());
+
+      return aFilters.filter(f => String(f.RuleId).trim() === sRuleId);
+    },
+
+    onFetchAdjLogic: async function (oCreated) {
+      const oODataModel = this.getOwnerComponent().getModel();
+      const sRuleId = String(oCreated?.RuleId || "").replace(/'/g, "").trim();
+
+      const oList = oODataModel.bindList("/ZC_RULESLOGIC");
+      const aContexts = await oList.requestContexts();
+      const aFilters = aContexts.map(c => c.getObject());
+
+      return aFilters.filter(f => String(f.RuleId).trim() === sRuleId);
+    },
+
+    onDeleteRule: async function () {
       const oTable = this.byId("_IDGenTable");
-      const oModel = this.getView()?.getModel("app");
-      const aSelectedIndices = oTable?.getSelectedIndices();
+      const aIdx = oTable.getSelectedIndices();
+      if (!aIdx.length) return;
 
-      if (!aSelectedIndices) {
-        this._toast("SELECT_RULE_TO_DELETE_MSG");
-        return;
+      const oRow = oTable.getContextByIndex(aIdx[0]).getObject();
+      const oModel = this.getOwnerComponent().getModel();
+
+
+      const sPath = this._buildRulesHeaderPath(oRow);
+      console.log("SPATH:", sPath);
+
+      try {
+        const oCtx = oModel.bindContext(sPath).getBoundContext();
+
+        console.log("1) Queue delete");
+        const pDelete = oCtx.delete(); 
+
+        console.log("2) Submit batch");
+        await oModel.submitBatch("ruleUpdates");
+
+        console.log("3) Await delete resolution");
+        await pDelete;                 
+
+        this._toast("Deleted successfully.");
+        console.log("PDELETE: ", pDelete)
+
+        oTable.clearSelection();
+
+      } catch (e) {
+        oModel.resetChanges("ruleUpdates");
+        sap.m.MessageBox.error(e?.message || "Delete failed.");
       }
-
-      const aSelectedIds = aSelectedIndices
-        .map(i => oTable.getContextByIndex(i)?.getProperty("ID"))
-        .filter(Boolean);
-
-      if (!aSelectedIds) {
-        this._toast("SELECT_RULE_TO_DELETE_MSG");
-        return;
-      }
-
-      const aRules   = oModel?.getProperty("/rules") || [];
-      const aFilters = oModel?.getProperty("/filters") || [];
-      const aAdj     = oModel?.getProperty("/adjLogic") || [];
-
-      const aUpdatedRules = aRules.filter(oRule => !aSelectedIds.includes(oRule.ID));
-      const aUpdatedFilters = aFilters.filter(oFilter => !aSelectedIds.includes(oFilter.RuleID));
-      const aUpdatedAdj     = aAdj.filter(oEntry  => !aSelectedIds.includes(oEntry.RuleID));
-
-      oModel?.setProperty("/rules", aUpdatedRules);
-      oModel?.setProperty("/filters", aUpdatedFilters);
-      oModel?.setProperty("/adjLogic", aUpdatedAdj);
-
-      const aScopes = oModel?.getProperty("/scopes");
-      if (Array.isArray(aScopes)) {
-        const aUpdatedScopes = aScopes.filter(oScope => !aSelectedIds.includes(oScope.RuleID));
-        oModel?.setProperty("/scopes", aUpdatedScopes);
-      }
-
-      const oScope = oModel?.getProperty("/scope");
-      if (oScope?.RuleID && aSelectedIds.includes(oScope.RuleID)) {
-        oModel?.setProperty("/scope", null);
-      }
-
-      const sCurrentRuleId = oModel?.getProperty("/currentRuleId");
-      if (sCurrentRuleId && aSelectedIds.includes(sCurrentRuleId)) {
-        oModel?.setProperty("/currentRuleId", null);
-      }
-
-      this._iEditRuleIndex = undefined;
-      this._iEditAdjIndex = undefined;
-      this._iEditFilterIndex = undefined; 
-
-      this._applyFiltersForCurrentRule?.();
-      this._applyAdjLogicForCurrentRule?.();
-
-      oTable?.clearSelection();
-      this._toast("RULES_DELETED_MSG");
+    },
+    
+    _buildRulesHeaderPath: function (o) {
+      // Adjust UUID formatting if your backend expects guid'...'
+      return `/ZC_RULESHEADER(` +
+        `Id=${o.Id},` +
+        `RuleId=${this._fmtStr(o.RuleId)},` +
+        `DraftUUID=${o.DraftUUID},` +
+        `IsActiveEntity=${o.IsActiveEntity}` +
+      `)`;
+    },
+  
+    _fmtStr: function (v) {
+      return `'${String(v).replace(/'/g, "''")}'`;
     },
 
     onEditRule: function () {
@@ -461,6 +422,8 @@ sap.ui.define([
       const aSelectedIndices = oTable?.getSelectedIndices() || [];
       const oCtx = oTable.getContextByIndex(aSelectedIndices);
       const aSelectedItems = oCtx.getObject();
+
+      console.log("ASELECTED OBJ: ", aSelectedItems)
 
       this._applyFiltersForCurrentRule();
       this._applyAdjLogicForCurrentRule();
@@ -470,8 +433,8 @@ sap.ui.define([
         return;
       }
 
-      const oModel = this.getView()?.getModel("app");
-      oModel?.setProperty("/currentRuleId", aSelectedItems.ID);
+      const oModel = this.getView()?.getModel("rules");
+      oModel?.setProperty("/currentRule", aSelectedItems);
 
       this._iEditRuleIndex = aSelectedIndices[0];
       this._navToWizardPage();
@@ -479,14 +442,16 @@ sap.ui.define([
       // ----------------------------
       // Step 1: General Information
       // ----------------------------
-      this._input("idGenNameInput", "inpName")?.setValue(aSelectedItems.Name || "");
-      this._input("idGenDescInput", "inpDesc")?.setValue(aSelectedItems.Description || "");
+      this._input("idGenNameInput", "inpName")?.setValue(aSelectedItems.RuleName || "");
+      this._input("idGenDescInput", "inpDesc")?.setValue(aSelectedItems.RuleDescription || "");
       this._byAnyId(["idGenValidFromDP", "dpFrom"])?.setValue(aSelectedItems.ValidFrom || "");
       this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue(aSelectedItems.ValidTo || "");
 
-      this.byId("idGenItemTypeMCB")?.setSelectedKeys(this._mapItemTypeKey(aSelectedItems.ItemType))
-      this.byId("idGenRuleTypeMCB")?.setSelectedKeys(this._mapRuleTypeKey(aSelectedItems.RuleType))
-      
+      console.log("ITEM TYPE, RULE TYPE: ", aSelectedItems.ItemType, aSelectedItems.RuleType)
+
+      this.byId("idGenItemTypeMCB")?.setSelectedKeys(`${aSelectedItems.ItemType}`)
+      this.byId("idGenRuleTypeMCB")?.setSelectedKeys(`${aSelectedItems.RuleType}`)
+    
       this.byId("idGenNameEditBtn")?.setVisible(true);
       this.byId("idGenDescEditBtn")?.setVisible(true);
       this.byId("idGenValidFromEditBtn")?.setVisible(true);
@@ -497,11 +462,12 @@ sap.ui.define([
       // --------------
 
       const aScopes = oModel?.getProperty("/scope");
-      const oScope = aScopes.find(s => s.RuleID === aSelectedItems.ID);
+      const oScope = aScopes.find(s => s.RuleId === aSelectedItems.RuleId);
 
       this.byId("_IDGenSelect")?.setSelectedKey(oScope.InventoryScope || "");
-
-      const aPlants = (oScope.Plants || "").split(",").map(s => s.trim());
+      console.log("OSCOPE INVENTORY: ", oScope.InventoryScope)
+      const aPlants = (oScope.Plant || "")
+      
       this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
 
       this.byId("editIconScope")?.setVisible(true);
@@ -519,16 +485,16 @@ sap.ui.define([
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
-      if (sItemKey === "PRO" && sRuleKey === "AV") {
-        await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
-        (await this._pAddDialog)?.open();
-        return;
-      }
-      if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
-        await this._ensureDialog("_pAddDialog2", "managerules.view.FilterAdd2Dialog");
-        (await this._pAddDialog2)?.open();
-        return;
-      }
+      // if (sItemKey === "001" && sRuleKey === "001") {
+      await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
+      (await this._pAddDialog)?.open();
+      return;
+      // }
+      // if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
+      //   await this._ensureDialog("_pAddDialog2", "managerules.view.FilterAdd2Dialog");
+      //   (await this._pAddDialog2)?.open();
+      //   return;
+      // }
       this._toast("ADD_FILTER_SELECT_VALID_MSG");
     },
 
@@ -566,10 +532,10 @@ sap.ui.define([
       }
     },
 
-    onConfirmAddFilter: function () {
-      const sCharText = this.byId("selCharacteristic")?.getSelectedItem()?.getText();
+    onConfirmAddFilter: async function () {
+      const sCharText = this.byId("selCharacteristic")?.getSelectedKey();
       const sOperKey = this.byId("selOperator")?.getSelectedKey();
-      const sValText = this.byId("inpValue")?.getSelectedItem()?.getText();
+      const sValText = this.byId("inpValue")?.getSelectedKey();
       const sUoMKey = this.byId("selUoM")?.getSelectedKey();
 
       if (!sCharText || !sOperKey || !sValText) {
@@ -577,27 +543,26 @@ sap.ui.define([
         return;
       }
 
-      const oModel = this.getView()?.getModel("app");
-      const aFilters = oModel?.getProperty("/filters") || [];
-      const currentRuleId = oModel?.getProperty("/currentRuleId");
+      const oModel = this.getView()?.getModel("rules");
+      const oCreated = oModel?.getProperty("/currentRule");
 
       const oEntry = {
-        RuleID: currentRuleId,
-        Characteristics: sCharText,
+        Characteristic: sCharText,
         Operator: this._mapOperatorText(sOperKey),
         Value: sValText,
-        UoM: sUoMKey === "NA" ? this._i18n("UOM_NOT_APPLICABLE") : sUoMKey,
-        LogOp: ""
+        ValueUom: sUoMKey,
+        LogicalOperator: "002",
+        IsActiveEntity : true
       };
 
-      if (this._iEditFilterIndex !== undefined && this._iEditFilterIndex >= 0) {
-        aFilters[this._iEditFilterIndex] = oEntry;
-        this._iEditFilterIndex = undefined;
+      if (this._iEditFilterIndex) {
+        // Edit filter
       } else {
-        aFilters.push(oEntry);
+        // Create filter
+        this.onCreateFilter(oCreated, oEntry)
+        const aFilter = await this._applyFiltersForCurrentRule(oCreated)
       }
 
-      oModel?.setProperty("/filters", aFilters);
       this.byId("dlgAddFilter")?.close();
     },
 
@@ -734,52 +699,55 @@ sap.ui.define([
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
-      if (sItemKey === "PRO" && sRuleKey === "AV") {
+      // if (sItemKey === "001" && sRuleKey === "001") {
         await this._ensureDialog("_pAdjLogicDialog", "managerules.view.AddAdjLogicDialog");
         const oDialog = await this._pAdjLogicDialog;
         oDialog.setTitle(this._i18n("ADJ_DEFINE_TITLE"));
         oDialog.getBeginButton()?.setText(this._i18n("BTN_ADD"));
         oDialog.open();
         return;
-      }
-      if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
-        await this._ensureDialog("_pAdjLogicDialog2", "managerules.view.AddAdjLogic2Dialog");
-        const oDialog2 = await this._pAdjLogicDialog2;
-        oDialog2.setTitle(this._i18n("ADJ_DEFINE_TITLE"));
-        oDialog2.getBeginButton()?.setText(this._i18n("BTN_ADD"));
-        oDialog2.open();
-        return;
-      }
-      this._toast("INVALID_COMBINATION_MSG");
+      // }
+      // if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
+      //   await this._ensureDialog("_pAdjLogicDialog2", "managerules.view.AddAdjLogic2Dialog");
+      //   const oDialog2 = await this._pAdjLogicDialog2;
+      //   oDialog2.setTitle(this._i18n("ADJ_DEFINE_TITLE"));
+      //   oDialog2.getBeginButton()?.setText(this._i18n("BTN_ADD"));
+      //   oDialog2.open();
+      //   return;
+      // }
+      // this._toast("INVALID_COMBINATION_MSG");
     },
 
-    onConfirmAddAdjLogic: function () {
-      const sLogic = this.byId("selLogic")?.getSelectedItem()?.getText();
-      const sValue = this.byId("selLogicValue")?.getSelectedItem()?.getText();
-      const sUoM = this.byId("selLogicUoM")?.getSelectedItem()?.getText();
+    onConfirmAddAdjLogic: async function () {
+      const sLogic = this.byId("selLogic")?.getSelectedKey();
+      const sValue = this.byId("selLogicValue")?.getSelectedKey();
+      const sUoM = this.byId("selLogicUoM")?.getSelectedKey();
 
       if (!sLogic || !sValue || !sUoM) { this._toast("FILL_ALL_FIELDS_MSG"); return; }
 
-      const oModel = this.getView()?.getModel("app");
-      const aLogic = oModel?.getProperty("/adjLogic") || [];
-      const currentRuleId = oModel?.getProperty("/currentRuleId");
+      const oModel = this.getView()?.getModel("rules");
+      const oCreated = oModel?.getProperty("/currentRule");
       
-      if (!currentRuleId) { this._toast("NO_ACTIVE_RULE_MSG"); }
+      if (!oCreated.RuleId) { this._toast("NO_ACTIVE_RULE_MSG"); }
 
-      const oEntry = { 
-        RuleID: currentRuleId,
+      const oAdjLogic = { 
         Logic: sLogic, 
         Value: sValue, 
-        UoM: sUoM 
+        ValueUom: sUoM,
+        IsActiveEntity: true
       };
 
-      if (this._iEditAdjIndex !== undefined && this._iEditAdjIndex >= 0) {
-        aLogic[this._iEditAdjIndex] = oEntry;
-        this._iEditAdjIndex = undefined;
+      if (this._iEditAdjIndex) {
+        // Edit adj logic
+
       } else {
-        aLogic.push(oEntry);
+        // Create adj logic
+        this.onCreateAdjLogic(oCreated, oAdjLogic)
+        const aAdjLogic = await this.onFetchAdjLogic(oCreated)
+        oModel?.setProperty("/adjlogic", aAdjLogic);
       }
-      oModel?.setProperty("/adjLogic", aLogic);
+      console.log("OMODEL ADJ LOGIC: ", oModel?.getProperty("/adjlogic"))
+      console.log("OMODEL FILTER: ", oModel?.getProperty("/filter"))
       this.byId("dlgAddAdjLogic")?.close();
     },
 
@@ -1022,60 +990,47 @@ sap.ui.define([
         default: return sText;
       }
     },
-    _applyFiltersForCurrentRule: function () {
-      const oModel = this.getView().getModel("app");
-      const sRuleId = oModel.getProperty("/currentRuleId");
-
-      const oTable = this.byId("tblFilters");
-      const oBinding = oTable.getBinding("items");
-      if (!oBinding) { return; }
-
-      if (!sRuleId) {
-        oBinding.filter([]);
-        return;
+    _mapPlantKey: function (sText) {
+      switch(sText) {
+        case "001": return "Plant 1";
+        case "002": return "Plant 2";
+        case "003": return "Plant 3";
+        default: return sText;
       }
-
-      const oFilter = new sap.ui.model.Filter("RuleID", sap.ui.model.FilterOperator.EQ, sRuleId);
-      oBinding.filter([oFilter]);
     },
-    _applyAdjLogicForCurrentRule: function () {
-      const oModel = this.getView().getModel("app");
-      const sRuleId = oModel?.getProperty("/currentRuleId");
+    _applyFiltersForCurrentRule: async function (oCreated) {
+      const oModel = this.getView().getModel("rules");
 
-      const oTable = this.byId("tblAdjLogic");
-      const oBinding = oTable?.getBinding("items");
-      if (!oBinding) { return; }
-
-      if (!sRuleId) {
-        oBinding.filter([
-          new sap.ui.model.Filter("RuleID", sap.ui.model.FilterOperator.EQ, "__NONE__")
-        ]);
-        return;
+      if (oCreated != null ) {      
+        const aFilter = await this.onGetFilter(oCreated)
+        oModel?.setProperty("/filter", aFilter)
       }
-
-      oBinding.filter([
-        new sap.ui.model.Filter("RuleID", sap.ui.model.FilterOperator.EQ, sRuleId)
-      ]);
+    },
+    _applyAdjLogicForCurrentRule: async function (oCreated) {
+      const oModel = this.getView().getModel("rules");
+      
+      if (oCreated != null ) {      
+        const aScope = await this.onGetAdjLogic(oCreated)
+        oModel?.setProperty("/adjlogic", aScope)
+      }
     },
 
     onPlantsSelectionChange: function (oEvent) {
       const oMCB = oEvent.getSource();
       const oModel = this.getView().getModel("app");
 
-      const aAllKeys = oModel.getProperty("/plantsFilters/plants/allKeys") || [];
-
       const oChangedItem = oEvent.getParameter("changedItem");
       const bSelected = oEvent.getParameter("selected");
       const sChangedKey = oChangedItem && oChangedItem.getKey();
 
       let aSelectedKeys = oMCB.getSelectedKeys();
+      const aAllKeys = ["001", "002", "003"]
 
       // --- "All Plants" (selected) ---
       if (sChangedKey === "*" && bSelected) {
         aSelectedKeys = ["*", ...aAllKeys];
 
         oMCB.setSelectedKeys(aSelectedKeys);
-        oModel.setProperty("/plantsFilters/plants/selectedKeys", aSelectedKeys);
         return;
       }
 
@@ -1084,7 +1039,6 @@ sap.ui.define([
         aSelectedKeys = [];
 
         oMCB.setSelectedKeys(aSelectedKeys);
-        oModel.setProperty("/plantsFilters/plants/selectedKeys", aSelectedKeys);
         return;
       }
 
@@ -1102,8 +1056,6 @@ sap.ui.define([
         aSelectedKeys = ["*", ...aSelectedKeys];
         oMCB.setSelectedKeys(aSelectedKeys);
       }
-
-      oModel.setProperty("/plantsFilters/plants/selectedKeys", aSelectedKeys);
     },
 
     onItemTypeSelectionChange: function () {
@@ -1171,6 +1123,29 @@ sap.ui.define([
         oRuleTypeMCB.setValueState("None");
         oRuleTypeMCB.setValueStateText("");
       }
+    },
+    formatPlants: function (vRuleScope) {
+      if (!vRuleScope) {
+        return "";
+      }
+
+      if (Array.isArray(vRuleScope)) {
+        const aPlants = vRuleScope
+          .map(o => o?.Plant)
+          .filter(Boolean);
+
+        return [...new Set(aPlants)].join(", ");
+      }
+
+      if (Array.isArray(vRuleScope.value)) {
+        const aPlants = vRuleScope.value
+          .map(o => o?.Plant)
+          .filter(Boolean);
+
+        return [...new Set(aPlants)].join(", ");
+      }
+
+      return "";
     },
 
     /* ===================== UTIL (ID + i18n) ===================== */

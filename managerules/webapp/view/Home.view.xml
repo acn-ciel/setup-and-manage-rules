@@ -43,71 +43,85 @@
                         </Toolbar>
 
                         <t:Table
-                           id="_IDGenTable"
-                           rows="{rules>/ruleSummary}"
+                           id="_IDGenTable"                 
+                           rows="{
+                              path: '/ZC_RULESHEADER',
+                              parameters: {
+                                 $select: 'RuleId,RuleName,RuleDescription,ValidFrom,ValidTo,ItemType,RuleType',
+                                 $expand: '_RuleScope($select=Plant)'
+                              }
+                           }"
                            selectionMode="MultiToggle"
                            width="100%"
-                           class="table">
+                           class="table"
+                           >
 
                            <t:columns>
                               <t:Column id="_IDGenGridColumn1" width="6rem" resizable="true">
                               <Label id="_IDGenGridLabel1" text="ID" />
                               <t:template>
-                                 <Text id="_IDGenGridText1" text="{rules>RuleId}" />
+                                 <Text id="_IDGenGridText1" text="{RuleId}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn2" resizable="true">
                               <Label id="_IDGenGridLabel2" text="Name" />
                               <t:template>
-                                 <Text id="_IDGenGridText2" text="{rules>RuleName}" />
+                                 <Text id="_IDGenGridText2" text="{RuleName}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn3" resizable="true">
                               <Label id="_IDGenGridLabel3" text="Description" />
                               <t:template>
-                                 <Text id="_IDGenGridText3" text="{rules>RuleDescription}" wrapping="true" />
+                                 <Text id="_IDGenGridText3" text="{RuleDescription}" wrapping="true" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn4" width="7rem" resizable="true">
                               <Label id="_IDGenGridLabel4" text="Valid from" />
                               <t:template>
-                                 <Text id="_IDGenGridText4" text="{rules>ValidFrom}" />
+                                 <Text id="_IDGenGridText4" text="{ValidFrom}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn5" width="7rem" resizable="true">
                               <Label id="_IDGenGridLabel5" text="Valid to" />
                               <t:template>
-                                 <Text id="_IDGenGridText5" text="{rules>ValidTo}" />
+                                 <Text id="_IDGenGridText5" text="{ValidTo}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn6" width="6rem" resizable="true">
                               <Label id="_IDGenGridLabel6" text="Item type" />
                               <t:template>
-                                 <Text id="_IDGenGridText6" text="{rules>ItemType}" />
+                                 <Text id="_IDGenGridText6" text="{ItemType}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn7" resizable="true">
                               <Label id="_IDGenGridLabel7" text="Type of rule" />
                               <t:template>
-                                 <Text id="_IDGenGridText7" text="{rules>RuleType}" />
+                                 <Text id="_IDGenGridText7" text="{RuleType}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn8" resizable="true">
                               <Label id="_IDGenGridLabel8" text="Plants" />
                               <t:template>
-                                 <Text id="_IDGenGridText8" text="{rules>Plant}" wrapping="true" />
+                                 <Text
+                                    id="_IDGenGridText8"
+                                    text="{
+                                    path: '_RuleScope',
+                                    targetType: 'any',
+                                    formatter: '.formatPlants'
+                                    }"
+                                    wrapping="true"
+                                 />
                               </t:template>
                               </t:Column>
 
                            </t:columns>
-
                         </t:Table>
                      </VBox>
                </f:content>

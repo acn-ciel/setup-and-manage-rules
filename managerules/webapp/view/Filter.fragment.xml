@@ -19,7 +19,7 @@ xmlns:l="sap.ui.layout.form"
        mode="MultiSelect"
        inset="false"
        width="100%" 
-       items="{app>/filters}">
+       items="{rules>/filter}">
 
    <columns>
      <Column id="_IDGenColumn9" ><Text id="_IDGenText19" text="Characteristic" /></Column>
@@ -32,10 +32,10 @@ xmlns:l="sap.ui.layout.form"
    <items>
     <ColumnListItem id="_IDGenColumnListItem2" >
      <cells>
-      <Text id="_IDGenText23" text="{app>Characteristics}" />
-      <Text id="_IDGenText24" text="{app>Operator}" />
-      <Text id="_IDGenText25" text="{app>Value}" />
-      <Text id="_IDGenText26" text="{app>UoM}" />
+      <Text id="_IDGenText23" text="{rules>Characteristic}" />
+      <Text id="_IDGenText24" text="{rules>Operator}" />
+      <Text id="_IDGenText25" text="{rules>Value}" />
+      <Text id="_IDGenText26" text="{rules>ValueUom}" />
       <ComboBox id="_IDGenComboBox2" width="10rem" placeholder="AND / OR" selectionChange=".onLogicalOperatorChange" selectedKey="{app>LogOp}">
         <core:Item id="_IDGenItem52" key="AND" text="AND"></core:Item>
         <core:Item id="_IDGenItem53" key="OR" text="OR"></core:Item>

@@ -15,7 +15,7 @@
                 <Label id="_IDGenLabel8" text="Logic" labelFor="selLogic"/>
                 <ComboBox id="selLogic" width="100%" placeholder="Select logic to apply">
                     <items>
-                        <core:Item id="_IDGenItem18" key="ROLLAVG" text="Rolling average" />
+                        <core:Item id="_IDGenItem18" key="001" text="Rolling average" />
                     </items>
                 </ComboBox>
             </VBox>

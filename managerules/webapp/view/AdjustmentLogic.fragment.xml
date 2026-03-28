@@ -4,8 +4,6 @@ xmlns="sap.m"
 xmlns:l="sap.ui.layout.form"
 >
 <WizardStep id="StepAdjLogic" title="Adjustment Logic" >
-  <VBox id="_IDGenVBox" class="sapUiSmallMargin" >
-  </VBox>
 
   <Toolbar id="_IDGenToolbar5">
     <Text id="_IDGenText30" text="Define adjustment logic to filtered item records. " />
@@ -15,29 +13,27 @@ xmlns:l="sap.ui.layout.form"
     <Button id="_IDGenButton11" text="Delete" type="Emphasized" press="onDeleteAdjLogic" />
     <Button id="_IDGenButton12" text="Save rule" type="Emphasized" press="onSaveAndNext" />
   </Toolbar>
-    <Table id="tblAdjLogic" 
-           mode="MultiSelect"
-           width="100%"
-           inset="false"
-           items="{app>/adjLogic}">
-
-       <columns>
-          <Column id="_IDGenColumn" ><Text id="_IDGenText31" text="Logic" /></Column>
-          <Column id="_IDGenColumn13" ><Text id="_IDGenText32" text="Value" /></Column>
-          <Column id="_IDGenColumn14" ><Text id="_IDGenText33" text="Value UoM" /></Column>
-       </columns>    
-
-       <items>
-         <ColumnListItem id="_IDGenColumnListItem1" >
-           <cells>
-             <Text id="_IDGenText40" text="{app>Logic}" />
-             <Text id="_IDGenText41"  text="{app>Value}" />
-             <Text id="_IDGenText42"  text="{app>UoM}" />
-           </cells>
-         </ColumnListItem>
-       </items>
-    </Table>
-
+  
+  <Table id="tblAdjLogic2" 
+          mode="MultiSelect"
+          inset="false"
+          width="100%"
+          items="{rules>/adjlogic}">
+      <columns>
+        <Column id="_IDGenColumn" ><Text id="_IDGenText31" text="Logic" /></Column>
+        <Column id="_IDGenColumn13" ><Text id="_IDGenText32" text="Value" /></Column>
+        <Column id="_IDGenColumn14" ><Text id="_IDGenText33" text="Value UoM" /></Column>
+      </columns>    
+      <items>
+        <ColumnListItem id="_IDGenColumnListItem1" >
+          <cells>
+            <Text id="_IDGenText40" text="{rules>Logic}" />
+            <Text id="_IDGenText41"  text="{rules>Value}" />
+            <Text id="_IDGenText42"  text="{rules>ValueUom}" />
+          </cells>
+        </ColumnListItem>
+      </items>
+  </Table>
  
 </WizardStep>
 </core:FragmentDefinition>

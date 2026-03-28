@@ -32,11 +32,11 @@
         id="_IDGenMultiComboBox"
         width="400px"
         placeholder="Select one/multiple/All plants for this rule"
-        items="{app>/plantsFilters/plants/list}"
-        selectedKeys="{app>/plantsFilters/plants/selectedKeys}"
         selectionChange=".onPlantsSelectionChange">
-
-        <core:Item id="_IDGenItem9" key="{app>key}" text="{app>text}" />
+        <core:Item id="_IDGenItem10" key="001" text="Plant 1" />
+        <core:Item id="_IDGenItem11" key="002" text="Plant 2" />
+        <core:Item id="_IDGenItem12" key="003" text="Plant 3" />
+        <core:Item id="_IDGenItem13" key="*" text="All" />
       </MultiComboBox>
 
         <Button id="editIconPlants" icon="sap-icon://edit" type="Transparent" visible="false" />

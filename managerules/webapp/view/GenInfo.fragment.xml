@@ -26,21 +26,21 @@
           <!-- Valid From -->
           <Label id="idGenValidFromLabel" text="{i18n>GENINFO_VALID_FROM_LBL}" required="true" class="label"/>
           <HBox id="idGenValidFromHBox">
-            <DatePicker id="idGenValidFromDP" displayFormat="yyyy-MM-dd" placeholder="{i18n>GENINFO_DATE_PH}" width="500px"/>
+            <DatePicker id="idGenValidFromDP" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" placeholder="{i18n>GENINFO_DATE_PH}" width="500px"/>
             <Button id="idGenValidFromEditBtn" icon="sap-icon://edit" type="Transparent" visible="false"/>
           </HBox>
 
           <!-- Valid To -->
           <Label id="idGenValidToLabel" text="{i18n>GENINFO_VALID_TO_LBL}" required="true" class="label"/>
           <HBox id="idGenValidToHBox">
-            <DatePicker id="idGenValidToDP" displayFormat="yyyy-MM-dd" placeholder="{i18n>GENINFO_DATE_PH}" width="500px"/>
+            <DatePicker id="idGenValidToDP" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" placeholder="{i18n>GENINFO_DATE_PH}" width="500px"/>
             <Button id="idGenValidToEditBtn" icon="sap-icon://edit" type="Transparent" visible="false"/>
           </HBox>
 
           <!-- Item type -->
           <Label id="idGenItemTypeLabel" text="{i18n>GENINFO_ITEMTYPE_LBL}" required="true" class="label"/>
           <MultiComboBox id="idGenItemTypeMCB" width="500px" placeholder="{i18n>GENINFO_ITEMTYPE_PH}" selectionChange=".onItemTypeSelectionChange">
-            <core:Item id="idGenItemTypePRO" key="PRO" text="{i18n>GENINFO_ITEMTYPE_PRO}"/>
+            <core:Item id="idGenItemTypePRO" key="1" text="{i18n>GENINFO_ITEMTYPE_PRO}"/>
             <!-- <core:Item id="idGenItemTypeREC" key="REC" text="{i18n>GENINFO_ITEMTYPE_REC}"/>
             <core:Item id="idGenItemTypeSUP" key="SUP" text="{i18n>GENINFO_ITEMTYPE_SUP}"/>
             <core:Item id="idGenItemTypeES"  key="ES"  text="{i18n>GENINFO_ITEMTYPE_ES}"/> -->
@@ -49,7 +49,7 @@
           <!-- Type of rule -->
           <Label id="idGenRuleTypeLabel" text="{i18n>GENINFO_RULETYPE_LBL}" required="true" class="label"/>
           <MultiComboBox id="idGenRuleTypeMCB" width="500px" placeholder="{i18n>GENINFO_RULETYPE_PH}">
-            <core:Item id="idGenRuleTypeAV" key="AV" text="{i18n>GENINFO_RULETYPE_AV}"/>
+            <core:Item id="idGenRuleTypeAV" key="1" text="{i18n>GENINFO_RULETYPE_AV}"/>
             <!-- <core:Item id="idGenRuleTypeIN" key="IN" text="{i18n>GENINFO_RULETYPE_IN}"/> -->
           </MultiComboBox>
 

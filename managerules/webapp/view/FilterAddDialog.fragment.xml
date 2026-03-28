@@ -31,8 +31,8 @@
                       placeholder="Select characteristic to apply"
                       selectedKey=""
                       width="100%">
-                <core:Item id="_IDGenItem25" key="Product" text="Product"/>
-                <core:Item id="_IDGenItem26" key="ProductGroup" text="Product group"/>
+                <core:Item id="_IDGenItem25" key="001" text="Product"/>
+                <core:Item id="_IDGenItem26" key="002" text="Product group"/>
               </ComboBox>
 
               <ComboBox id="selOperator" 
@@ -40,7 +40,7 @@
                       placeholder="Select operator"
                       selectedKey=""
                       width="100%">
-                <core:Item id="_IDGenItem28" key="EQ" text="Equal to"/>
+                <core:Item id="_IDGenItem28" key="01" text="Equal to"/>
               </ComboBox>
 
               <ComboBox id= "inpValue" 
