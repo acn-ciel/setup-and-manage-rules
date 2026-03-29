@@ -37,6 +37,9 @@ sap.ui.define([
         scope: null,
         adjlogic: null,
 
+        editfilter: null,
+        editlogic: null,
+
         // Scope values for selection
         scopeFilters: {
           scopes: {
@@ -220,9 +223,9 @@ sap.ui.define([
           IsActiveEntity : true
         };
 
-        if (this._iEditRuleIndex) {
+        if (oCreated != null) {
           // Edit scope
-          await this.onPatchScope(oCreated, oNewScope)
+          // await this.onPatchScope(oCreated, oNewScope)
         } else {
           // Create scope
           await this.onCreateScope(oCreated, oNewScope)
@@ -336,10 +339,13 @@ sap.ui.define([
     onPatchFilter: async function (oCreated, oPayload) {
       const oModel = this.getOwnerComponent().getModel();
 
-      const sPath = `/ZC_RULESHEADER(Id=${oCreated.Id},`+
-      `RuleId='${oCreated.RuleId}',`+
-      `DraftUUID=${oCreated.DraftUUID},`+
-      `IsActiveEntity=${oCreated.IsActiveEntity})`;
+      const sPath = 
+        `/ZC_RULESFILTER(`+
+        `Id=${oCreated.Id},`+
+        `RuleUUID=${oCreated.RuleUUID},` +
+        `RuleId='${oCreated.RuleId}',`+
+        `DraftUUID=${oCreated.DraftUUID},`+
+        `IsActiveEntity=${oCreated.IsActiveEntity})`;
       const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
       const oCtx = oCtxBinding.getBoundContext();
 
@@ -354,7 +360,10 @@ sap.ui.define([
     onPatchAdjLogic: async function (oCreated, oPayload) {
       const oModel = this.getOwnerComponent().getModel();
 
-      const sPath = `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+      const sPath = 
+      `/ZC_RULESLOGIC(`+
+      `Id=${oCreated.Id},`+
+      `RuleUUID=${oCreated.RuleUUID},` +
       `RuleId='${oCreated.RuleId}',`+
       `DraftUUID=${oCreated.DraftUUID},`+
       `IsActiveEntity=${oCreated.IsActiveEntity})`;
@@ -565,11 +574,11 @@ sap.ui.define([
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
-      // if (sItemKey === "001" && sRuleKey === "001") {
+      if (sItemKey === "1" && sRuleKey === "1") {
       await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
       (await this._pAddDialog)?.open();
       return;
-      // }
+      }
       // if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
       //   await this._ensureDialog("_pAddDialog2", "managerules.view.FilterAdd2Dialog");
       //   (await this._pAddDialog2)?.open();
@@ -625,6 +634,7 @@ sap.ui.define([
 
       const oModel = this.getView()?.getModel("rules");
       const oCreated = oModel?.getProperty("/currentRule");
+      const aFilter = oModel?.getProperty("/editfilter") || null;
 
       const oEntry = {
         Characteristic: sCharText,
@@ -635,14 +645,16 @@ sap.ui.define([
         IsActiveEntity : true
       };
 
-      if (this._iEditFilterIndex) {
+      if (aFilter != null) {
         // Edit filter
+        await this.onPatchFilter(aFilter, oEntry)
+        await oModel?.setProperty("/editfilter", null)
       } else {
         // Create filter
-        this.onCreateFilter(oCreated, oEntry)
-        const aFilter = await this._applyFiltersForCurrentRule(oCreated)
+        await this.onCreateFilter(oCreated, oEntry)
       }
 
+      this._applyFiltersForCurrentRule(oCreated)
       this.byId("dlgAddFilter")?.close();
     },
 
@@ -709,6 +721,7 @@ sap.ui.define([
     },
 
     onEditFilter: async function () {
+      const oModel = this.getView()?.getModel("rules")
       const oTable = this.byId("tblFilters");
       const aSelectedItems = oTable?.getSelectedItems() || [];
 
@@ -717,23 +730,24 @@ sap.ui.define([
         return;
       }
 
-      const oModel = this.getView()?.getModel("app");
-      const oContext = aSelectedItems[0].getBindingContext("app");
-      const sPath = oContext?.getPath();
-      if (!sPath) { this._toast("UNABLE_RETRIEVE_CONTEXT_MSG"); return; }
+      const oItem = aSelectedItems[0];
+      const oCtx = oItem.getBindingContext("rules");
+      const oRow = oCtx?.getObject();
 
-      this._iEditFilterIndex = parseInt(sPath.split("/").pop() ?? "-1", 10);
-      const oRow = oModel?.getProperty(sPath);
+      console.log("Row data:", oRow);
 
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
       await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
 
-      if (this._mapItemTypeKey(sItemKey) === "PRO" && this._mapRuleTypeKey(sRuleKey) === "AV") {
-        this.byId("selCharacteristic").setSelectedKey(this._mapCharacteristicKey(oRow.Characteristics));
-        this.byId("selOperator")?.setSelectedKey(this._mapOperatorKey(oRow.Operator));
-        this.byId("inpValue")?.setSelectedKey(this._mapFilterValues(oRow.Value));
+      // temporary values for product=1 and average=1
+      if (this._mapItemTypeKey(sItemKey) === "1" && this._mapRuleTypeKey(sRuleKey) === "1") {
+        oModel?.setProperty("/editfilter", oRow)
+
+        this.byId("selCharacteristic").setSelectedKey(oRow.Characteristic);
+        this.byId("selOperator")?.setSelectedKey(oRow.Operator);
+        this.byId("inpValue")?.setSelectedKey(oRow.Value);
         this.byId("selUoM")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
 
         const oDialog = await this._pAddDialog;
@@ -775,27 +789,28 @@ sap.ui.define([
       });
     },
 
+    /* ===================== ADJUSTMENT LOGIC DIALOGS ===================== */
     onAddAdjLogic: async function () {
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
-      // if (sItemKey === "001" && sRuleKey === "001") {
+      if (sItemKey === "1" && sRuleKey === "1") {
         await this._ensureDialog("_pAdjLogicDialog", "managerules.view.AddAdjLogicDialog");
         const oDialog = await this._pAdjLogicDialog;
         oDialog.setTitle(this._i18n("ADJ_DEFINE_TITLE"));
         oDialog.getBeginButton()?.setText(this._i18n("BTN_ADD"));
         oDialog.open();
         return;
-      // }
-      // if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
-      //   await this._ensureDialog("_pAdjLogicDialog2", "managerules.view.AddAdjLogic2Dialog");
-      //   const oDialog2 = await this._pAdjLogicDialog2;
-      //   oDialog2.setTitle(this._i18n("ADJ_DEFINE_TITLE"));
-      //   oDialog2.getBeginButton()?.setText(this._i18n("BTN_ADD"));
-      //   oDialog2.open();
-      //   return;
-      // }
-      // this._toast("INVALID_COMBINATION_MSG");
+      }
+      if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
+        await this._ensureDialog("_pAdjLogicDialog2", "managerules.view.AddAdjLogic2Dialog");
+        const oDialog2 = await this._pAdjLogicDialog2;
+        oDialog2.setTitle(this._i18n("ADJ_DEFINE_TITLE"));
+        oDialog2.getBeginButton()?.setText(this._i18n("BTN_ADD"));
+        oDialog2.open();
+        return;
+      }
+      this._toast("INVALID_COMBINATION_MSG");
     },
 
     onConfirmAddAdjLogic: async function () {
@@ -803,10 +818,18 @@ sap.ui.define([
       const sValue = this.byId("selLogicValue")?.getSelectedKey();
       const sUoM = this.byId("selLogicUoM")?.getSelectedKey();
 
-      if (!sLogic || !sValue || !sUoM) { this._toast("FILL_ALL_FIELDS_MSG"); return; }
+      if (!sLogic || !sValue || !sUoM) { 
+        this._toast("FILL_ALL_FIELDS_MSG"); 
+        return; 
+      }
+
+      console.log("LOGIC VALUE UOM: ", sLogic, sValue, sUoM)
 
       const oModel = this.getView()?.getModel("rules");
       const oCreated = oModel?.getProperty("/currentRule");
+      const aLogic = oModel?.getProperty("/editlogic") || null;
+
+      console.log("ALOGIC: ", aLogic)
       
       if (!oCreated.RuleId) { this._toast("NO_ACTIVE_RULE_MSG"); }
 
@@ -817,17 +840,16 @@ sap.ui.define([
         IsActiveEntity: true
       };
 
-      if (this._iEditAdjIndex) {
+      if (aLogic != null) {
         // Edit adj logic
-
+        await this.onPatchAdjLogic(aLogic, oAdjLogic)
+        oModel?.setProperty("/editlogic", null)
       } else {
         // Create adj logic
-        this.onCreateAdjLogic(oCreated, oAdjLogic)
-        const aAdjLogic = await this.onFetchAdjLogic(oCreated)
-        oModel?.setProperty("/adjlogic", aAdjLogic);
+        await this.onCreateAdjLogic(oCreated, oAdjLogic)
       }
-      console.log("OMODEL ADJ LOGIC: ", oModel?.getProperty("/adjlogic"))
-      console.log("OMODEL FILTER: ", oModel?.getProperty("/filter"))
+
+      this._applyAdjLogicForCurrentRule(oCreated)
       this.byId("dlgAddAdjLogic")?.close();
     },
 
@@ -870,26 +892,28 @@ sap.ui.define([
     },
 
     onEditAdjLogic: async function () {
-      const oTable = this.byId("tblAdjLogic");
+      const oModel = this.getView()?.getModel("rules")
+      const oTable = this.byId("tblAdjLogic2");
       const aSelectedItems = oTable?.getSelectedItems() || [];
+
       if (aSelectedItems.length !== 1) { this._toast("SELECT_ONE_ROW_TO_EDIT_MSG"); return; }
 
-      const oModel = this.getView()?.getModel("app");
-      const oContext = aSelectedItems[0].getBindingContext("app");
-      const sPath = oContext?.getPath();
-      if (!sPath) { this._toast("UNABLE_RETRIEVE_CONTEXT_MSG"); return; }
+      const oItem = aSelectedItems[0];
+      const oCtx = oItem.getBindingContext("rules");
+      const oRow = oCtx?.getObject();
 
-      this._iEditAdjIndex = parseInt(sPath.split("/").pop() ?? "-1", 10);
-      const oRow = oModel?.getProperty(sPath);
+      console.log("Row data:", oRow);
 
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
 
-      if (sItemKey === "PRO" && sRuleKey === "AV") {
+      if (sItemKey === "1" && sRuleKey === "1") {
+        oModel?.setProperty("/editlogic", oRow)
+
         await this._ensureDialog("_pAdjLogicDialog", "managerules.view.AddAdjLogicDialog");
 
-        this.byId("selLogic")?.setSelectedKey(this._mapLogicKey(oRow.Logic));
-        this.byId("selLogicValue")?.setSelectedKey(this._mapValueKey(oRow.Value));
+        this.byId("selLogic")?.setSelectedKey(oRow.Logic);
+        this.byId("selLogicValue")?.setSelectedKey(oRow.Value);
         this.byId("selLogicUoM")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
 
         const oDialog = await this._pAdjLogicDialog;
@@ -1081,7 +1105,7 @@ sap.ui.define([
     _applyFiltersForCurrentRule: async function (oCreated) {
       const oModel = this.getView().getModel("rules");
 
-      if (oCreated != null ) {      
+      if (oCreated != null) {      
         const aFilter = await this.onGetFilter(oCreated)
         oModel?.setProperty("/filter", aFilter)
       }

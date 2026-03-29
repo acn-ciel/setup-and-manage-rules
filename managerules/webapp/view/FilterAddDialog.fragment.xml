@@ -18,43 +18,39 @@
           width="100%"
           showSeparators="None">
         <columns>
-          <Column id="_IDGenColumn15" width="130%"><Text id="_IDGenText29" text="Characteristic"/></Column>
-          <Column id="_IDGenColumn16" width="90%"><Text id="_IDGenText34" text="Operator"/></Column>
-          <Column id="_IDGenColumn17" width="90%"><Text id="_IDGenText35" text="Values"/></Column>
-          <Column id="_IDGenColumn18" width="90%"><Text id="_IDGenText36" text="Value UoM"/></Column>
+          <Column id="_IDGenColumn15" width="130%"><Label id="_IDGenText29" text="Characteristic" required="true"/></Column>
+          <Column id="_IDGenColumn16" width="90%"><Label id="_IDGenText34" text="Operator" required="true"/></Column>
+          <Column id="_IDGenColumn17" width="90%"><Label id="_IDGenText35" text="Values" required="true"/></Column>
+          <Column id="_IDGenColumn18" width="90%"><Label id="_IDGenText36" text="Value UoM"/></Column>
         </columns>
         <items>
           <ColumnListItem id="_IDGenColumnListItem3">
             <cells>
               <ComboBox id="selCharacteristic"
                       class="select"
+                      required="true"
                       placeholder="Select characteristic to apply"
-                      selectedKey=""
                       width="100%">
-                <core:Item id="_IDGenItem25" key="001" text="Product"/>
-                <core:Item id="_IDGenItem26" key="002" text="Product group"/>
+                <core:Item id="_IDGenItem25" key="1" text="Product"/>
+                <core:Item id="_IDGenItem26" key="2" text="Product group"/>
               </ComboBox>
 
               <ComboBox id="selOperator" 
                       class="select"
                       placeholder="Select operator"
-                      selectedKey=""
                       width="100%">
-                <core:Item id="_IDGenItem28" key="01" text="Equal to"/>
+                <core:Item id="_IDGenItem28" key="1" text="Equal to"/>
               </ComboBox>
 
               <ComboBox id= "inpValue" 
                       class="select"
                       placeholder="Select 1"
-                      selectedKey=""
                       width="100%" >
                 <core:Item id="_IDGenItem16" key="VAL" text="All" />    
               </ComboBox>
 
-
               <ComboBox id="selUoM"
                       placeholder="Select 1"
-                      selectedKey=""
                       width="100%">
                 <core:Item id="_IDGenItem31" key="NA" text="Not applicable"/>
               </ComboBox>
