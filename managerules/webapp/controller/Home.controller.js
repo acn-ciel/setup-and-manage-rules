@@ -30,7 +30,7 @@ sap.ui.define([
 
       // Current view model
       const oRuleModel = new JSONModel({
-        currentRule: {},
+        currentRule: null,
         ruleSummary: aRuleSummary,
         genInfo: null,
         filter: null,
@@ -39,6 +39,7 @@ sap.ui.define([
 
         editfilter: null,
         editlogic: null,
+        editscope: null,
 
         // Scope values for selection
         scopeFilters: {
@@ -159,9 +160,10 @@ sap.ui.define([
       const oStepFilter  = this._byAnyId(["idGenStepFilters", "StepFilters"]);
       const oStepAdj     = this._byAnyId(["idGenStepAdjLogic", "StepAdjLogic"]);
 
-      const oModel = this.getView().getModel("rules") || [];
+      const oView = this.getView();
+      const oModel = oView.getModel("rules") || [];
+      const oScope = oModel.getProperty("/editscope") || null
       var oCreated = oModel.getProperty("/currentRule") || null;
-      console.log("SAVE and NEXT OCreated: ", oCreated)
 
       /* Step 1: General Information */
       if (sCurrentStepId === oStepGeneral?.getId()) {
@@ -190,13 +192,30 @@ sap.ui.define([
           IsActiveEntity : true
         };
 
+        console.log("oCreated: ", oCreated)
+
         if (oCreated != null) {
           // Edit rule
-          await this.onPatchGenInfo(oCreated, oNewRule)
+          oView.setBusy(true)
+          try {
+            await this.onPatchGenInfo(oCreated, oNewRule)
+          } catch (e) {
+            this._toast(`${e}`)
+          } finally {
+            oView.setBusy(false);
+          }
+          
         } else {
           // Create new rule
-          oCreated = await this.onCreateGenInfo(oNewRule)
-          oModel?.setProperty("/currentRule", oCreated)
+          oView.setBusy(true)
+          try {
+            oCreated = await this.onCreateGenInfo(oNewRule)
+            oModel?.setProperty("/currentRule", oCreated)
+          } catch (e) {
+            this._toast(`${e}`)
+          } finally {
+            oView.setBusy(false);
+          }
         }
 
         this._applyFiltersForCurrentRule(oCreated);
@@ -223,12 +242,26 @@ sap.ui.define([
           IsActiveEntity : true
         };
 
-        if (oCreated != null) {
+        if (oScope != null) {
           // Edit scope
-          // await this.onPatchScope(oCreated, oNewScope)
+          oView.setBusy(true)
+          try {
+            // await this.onPatchScope(oCreated, oNewScope)
+          } catch (e) {
+            this._toast(`${e}`)
+          } finally {
+            oView.setBusy(false);
+          }
         } else {
           // Create scope
-          await this.onCreateScope(oCreated, oNewScope)
+          oView.setBusy(true)
+          try {
+            await this.onCreateScope(oCreated, oNewScope)
+          } catch (e) {
+            this._toast(`${e}`)
+          } finally {
+            oView.setBusy(false);
+          }
         }
 
         oWizard?.validateStep(oStepScope);
@@ -381,10 +414,10 @@ sap.ui.define([
     onCreateScope: async function (oCreated, oPayload) {
       const oModel = this.getOwnerComponent().getModel();
       const oList = oModel.bindList(
-        `/ZC_RULESHEADER(Id=${oCreated.Id},
-        RuleId='${oCreated.RuleId}',
-        DraftUUID=${oCreated.DraftUUID},
-        IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`
+        `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+        `RuleId='${oCreated.RuleId}',`+
+        `DraftUUID=${oCreated.DraftUUID},`+
+        `IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`
       );
 
       try {
@@ -556,9 +589,20 @@ sap.ui.define([
 
       // Step 2: Scope
       if (aObj._RuleScope.length > 0) {      
-        this.byId("_IDGenSelect")?.setSelectedKey(aObj._RuleScope[0].InventoryScope || "");
+        const aInvScope = aObj._RuleScope[0].InventoryScope || "";
         const aPlants = (aObj._RuleScope.map(s => s.Plant) || "")
+
+        this.byId("_IDGenSelect")?.setSelectedKey(aInvScope);
         this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
+
+        console.log("Inventory Scope: ", aInvScope)
+
+        const aScope = {
+          InventoryScope: aInvScope,
+          Plant: aPlants
+        }
+
+        oModel.setProperty("/editscope", aScope)
       }
 
       this.byId("editIconScope")?.setVisible(true);
@@ -632,7 +676,8 @@ sap.ui.define([
         return;
       }
 
-      const oModel = this.getView()?.getModel("rules");
+      const oView = this.getView();
+      const oModel = oView?.getModel("rules");
       const oCreated = oModel?.getProperty("/currentRule");
       const aFilter = oModel?.getProperty("/editfilter") || null;
 
@@ -645,17 +690,32 @@ sap.ui.define([
         IsActiveEntity : true
       };
 
+      this.byId("dlgAddFilter")?.close();
+
       if (aFilter != null) {
         // Edit filter
-        await this.onPatchFilter(aFilter, oEntry)
-        await oModel?.setProperty("/editfilter", null)
+        oView.setBusy(true)
+        try {
+          await this.onPatchFilter(aFilter, oEntry)
+          oModel?.setProperty("/editfilter", null)
+        } catch (e) {
+          this._toast(`${e}`)
+        } finally {
+          await this._applyFiltersForCurrentRule(oCreated)
+          oView.setBusy(false);
+        }
       } else {
         // Create filter
-        await this.onCreateFilter(oCreated, oEntry)
+        oView.setBusy(true)
+        try {
+          await this.onCreateFilter(oCreated, oEntry)
+        } catch (e) {
+          this._toast(`${e}`)
+        } finally {
+          await this._applyFiltersForCurrentRule(oCreated)
+          oView.setBusy(false);
+        }
       }
-
-      this._applyFiltersForCurrentRule(oCreated)
-      this.byId("dlgAddFilter")?.close();
     },
 
     onCancelAddFilter: function () { this._closeDialogPromise("_pAddDialog"); },
@@ -823,13 +883,10 @@ sap.ui.define([
         return; 
       }
 
-      console.log("LOGIC VALUE UOM: ", sLogic, sValue, sUoM)
-
-      const oModel = this.getView()?.getModel("rules");
+      const oView = this.getView();
+      const oModel = oView?.getModel("rules");
       const oCreated = oModel?.getProperty("/currentRule");
       const aLogic = oModel?.getProperty("/editlogic") || null;
-
-      console.log("ALOGIC: ", aLogic)
       
       if (!oCreated.RuleId) { this._toast("NO_ACTIVE_RULE_MSG"); }
 
@@ -840,17 +897,32 @@ sap.ui.define([
         IsActiveEntity: true
       };
 
+      this.byId("dlgAddAdjLogic")?.close();
+
       if (aLogic != null) {
         // Edit adj logic
-        await this.onPatchAdjLogic(aLogic, oAdjLogic)
-        oModel?.setProperty("/editlogic", null)
+        oView.setBusy(true)
+          try {
+            await this.onPatchAdjLogic(aLogic, oAdjLogic)
+            oModel?.setProperty("/editlogic", null)
+          } catch (e) {
+            this._toast(`${e}`)
+          } finally {
+            await this._applyAdjLogicForCurrentRule(oCreated)
+            oView.setBusy(false);
+          }
       } else {
         // Create adj logic
-        await this.onCreateAdjLogic(oCreated, oAdjLogic)
+        oView.setBusy(true)
+          try {
+            await this.onCreateAdjLogic(oCreated, oAdjLogic)
+          } catch (e) {
+            this._toast(`${e}`)
+          } finally {
+            await this._applyAdjLogicForCurrentRule(oCreated)
+            oView.setBusy(false);
+          }
       }
-
-      this._applyAdjLogicForCurrentRule(oCreated)
-      this.byId("dlgAddAdjLogic")?.close();
     },
 
     onCancelAddAdjLogic: function () {
