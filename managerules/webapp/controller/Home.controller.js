@@ -11,54 +11,54 @@ sap.ui.define([
     return Controller.extend("managerules.controller.Home", {
     /* ===================== LIFECYCLE ===================== */
     onInit: async function () {
+      
+      try {
+        const oTable = this.byId("_IDGenTable");
 
-      // Fetch data from backend
-      const aDataRule = await this.onGetRule()
-      const aRuleSummary = aDataRule.map(rule => ({
-        Id: rule.Id,
-        DraftUUID: rule.DraftUUID,
-        RuleId: rule.RuleId,
-        RuleName: rule.RuleName,
-        RuleDescription: rule.RuleDescription,
-        ValidFrom: rule.ValidFrom,
-        ValidTo: rule.ValidTo,
-        ItemType: rule.ItemType,
-        RuleType: rule.RuleType,
-        Plant: rule._RuleScope?.map(scope => scope.Plant) ?? [],
-        IsActiveEntity: rule.IsActiveEntity
-      }))
+        // show busy immediately for initial load
+        oTable.setBusyIndicatorDelay(0);
+        oTable.setBusy(true);
 
-      // Current view model
-      const oRuleModel = new JSONModel({
-        currentRule: null,
-        ruleSummary: aRuleSummary,
-        genInfo: null,
-        filter: null,
-        scope: null,
-        adjlogic: null,
+        // Hide busy once rows are updated (first data rendered)
+        oTable.attachEventOnce("rowsUpdated", function () {
+          oTable.setBusy(false);
+        });
 
-        editfilter: null,
-        editlogic: null,
-        editscope: null,
+        // // Current view model
+        const oRuleModel = new JSONModel({
+          currentRule: null,
+          ruleSummary: null,
+          genInfo: null,
+          filter: null,
+          scope: null,
+          adjlogic: null,
 
-        // Scope values for selection
-        scopeFilters: {
-          scopes: {
-            list: null,
-            allKeys: null,
-            selectAll: false 
-          }
-        },
-        // Plants values for selection
-        plantsFilters: {
-          plants: {
-            list: null,
-            allKeys: null,
-            selectAll: false  
-          }
-        },
-      });
-      this.getView()?.setModel(oRuleModel, "rules");
+          editfilter: null,
+          editlogic: null,
+          editscope: null,
+
+          // Scope values for selection
+          scopeFilters: {
+            scopes: {
+              list: null,
+              allKeys: null,
+              selectAll: false 
+            }
+          },
+          // Plants values for selection
+          plantsFilters: {
+            plants: {
+              list: null,
+              allKeys: null,
+              selectAll: false  
+            }
+          },
+        });
+        this.getView()?.setModel(oRuleModel, "rules");
+      } catch (e) {
+        this._toast(`${e}`)
+      }
+
     },
 
     onPatchRuleTest: async function () {
@@ -247,6 +247,7 @@ sap.ui.define([
           oView.setBusy(true)
           try {
             // await this.onPatchScope(oCreated, oNewScope)
+            oModel?.setProperty("/editscope", null)
           } catch (e) {
             this._toast(`${e}`)
           } finally {
@@ -291,9 +292,6 @@ sap.ui.define([
         oWizard?.validateStep(oStepAdj);
         this._iEditRuleIndex = undefined;
         oModel?.setProperty("/currentRule", null)
-        
-        const oTable = this.byId("_IDGenTable");
-        await oTable.getBinding("rows").refresh();
 
         MessageBox.success(this._i18n("RULE_SAVED_SUCCESS"), {
           title: this._i18n("SUCCESS_TITLE"),
@@ -302,6 +300,20 @@ sap.ui.define([
             this.byId("_IDGenNavContainer")?.backToTop();
           }.bind(this)
         });
+
+        const oTable = this.byId("_IDGenTable");
+        oTable.setBusyIndicatorDelay(0);
+        oTable.setBusy(true);
+
+        try {
+          await oTable.getBinding("rows").refresh();
+        } catch (e) {
+          this._toast(`${e}`)
+        } finally {
+          oTable.attachEventOnce("rowsUpdated", function () {
+            oTable.setBusy(false);
+          });
+        }
       }
     },
 
@@ -342,8 +354,6 @@ sap.ui.define([
     onPatchScope: async function (oCreated, oPayload) {
       const oModel = this.getOwnerComponent().getModel();
       const aScopes = oCreated._RuleScope || [];
-
-      console.log("ASCOPE: ", aScopes)
 
       const sGroupId = "ruleUpdates";
       if (!aRowsToDelete.length) {
@@ -595,8 +605,6 @@ sap.ui.define([
         this.byId("_IDGenSelect")?.setSelectedKey(aInvScope);
         this.byId("_IDGenMultiComboBox")?.setSelectedKeys(aPlants);
 
-        console.log("Inventory Scope: ", aInvScope)
-
         const aScope = {
           InventoryScope: aInvScope,
           Plant: aPlants
@@ -666,6 +674,8 @@ sap.ui.define([
     },
 
     onConfirmAddFilter: async function () {
+      const oTable = this.byId("tblFilters");
+
       const sCharText = this.byId("selCharacteristic")?.getSelectedKey();
       const sOperKey = this.byId("selOperator")?.getSelectedKey();
       const sValText = this.byId("inpValue")?.getSelectedKey();
@@ -680,13 +690,14 @@ sap.ui.define([
       const oModel = oView?.getModel("rules");
       const oCreated = oModel?.getProperty("/currentRule");
       const aFilter = oModel?.getProperty("/editfilter") || null;
+      const sLogOp = (aFilter && aFilter.LogicalOperator) ? aFilter.LogicalOperator : "2";
 
       const oEntry = {
         Characteristic: sCharText,
         Operator: this._mapOperatorText(sOperKey),
         Value: sValText,
         ValueUom: sUoMKey,
-        LogicalOperator: "002",
+        LogicalOperator:  sLogOp,
         IsActiveEntity : true
       };
 
@@ -694,7 +705,7 @@ sap.ui.define([
 
       if (aFilter != null) {
         // Edit filter
-        oView.setBusy(true)
+        oTable.setBusy(true)
         try {
           await this.onPatchFilter(aFilter, oEntry)
           oModel?.setProperty("/editfilter", null)
@@ -702,18 +713,18 @@ sap.ui.define([
           this._toast(`${e}`)
         } finally {
           await this._applyFiltersForCurrentRule(oCreated)
-          oView.setBusy(false);
+          oTable.setBusy(false);
         }
       } else {
         // Create filter
-        oView.setBusy(true)
+        oTable.setBusy(true)
         try {
           await this.onCreateFilter(oCreated, oEntry)
         } catch (e) {
           this._toast(`${e}`)
         } finally {
           await this._applyFiltersForCurrentRule(oCreated)
-          oView.setBusy(false);
+          oTable.setBusy(false);
         }
       }
     },
@@ -808,7 +819,7 @@ sap.ui.define([
         this.byId("selCharacteristic").setSelectedKey(oRow.Characteristic);
         this.byId("selOperator")?.setSelectedKey(oRow.Operator);
         this.byId("inpValue")?.setSelectedKey(oRow.Value);
-        this.byId("selUoM")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
+        this.byId("selUoM")?.setSelectedKey(oRow.ValueUom === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.ValueUom);
 
         const oDialog = await this._pAddDialog;
         oDialog.setTitle(this._i18n("FILTER_EDIT_TITLE"));
@@ -821,7 +832,7 @@ sap.ui.define([
         setTimeout(function () {
           this.byId("selOperator2")?.setSelectedKey(this._mapOperatorKey(oRow.Operator));
           this.byId("inpValue2")?.setSelectedKey(this._mapFilterValues(oRow.Value));
-          this.byId("selUoM2")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
+          this.byId("selUoM2")?.setSelectedKey(oRow.ValueUom === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.ValueUom);
         }.bind(this), 0);
 
         await this._ensureDialog("_pAddDialog2", "managerules.view.FilterAdd2Dialog");
@@ -883,8 +894,8 @@ sap.ui.define([
         return; 
       }
 
-      const oView = this.getView();
-      const oModel = oView?.getModel("rules");
+      const oTable = this.byId("tblAdjLogic2")
+      const oModel = this.getView()?.getModel("rules");
       const oCreated = oModel?.getProperty("/currentRule");
       const aLogic = oModel?.getProperty("/editlogic") || null;
       
@@ -901,7 +912,7 @@ sap.ui.define([
 
       if (aLogic != null) {
         // Edit adj logic
-        oView.setBusy(true)
+        oTable.setBusy(true)
           try {
             await this.onPatchAdjLogic(aLogic, oAdjLogic)
             oModel?.setProperty("/editlogic", null)
@@ -909,18 +920,18 @@ sap.ui.define([
             this._toast(`${e}`)
           } finally {
             await this._applyAdjLogicForCurrentRule(oCreated)
-            oView.setBusy(false);
+            oTable.setBusy(false);
           }
       } else {
         // Create adj logic
-        oView.setBusy(true)
+        oTable.setBusy(true)
           try {
             await this.onCreateAdjLogic(oCreated, oAdjLogic)
           } catch (e) {
             this._toast(`${e}`)
           } finally {
             await this._applyAdjLogicForCurrentRule(oCreated)
-            oView.setBusy(false);
+            oTable.setBusy(false);
           }
       }
     },
@@ -955,7 +966,7 @@ sap.ui.define([
       } else {
         aLogic.push(oEntry);
       }
-      oModel?.setProperty("/adjLogic", aLogic);
+      oModel?.setProperty("/adjlogic", aLogic);
       this.byId("dlgAddAdjLogic2")?.close();
     },
 
@@ -986,7 +997,7 @@ sap.ui.define([
 
         this.byId("selLogic")?.setSelectedKey(oRow.Logic);
         this.byId("selLogicValue")?.setSelectedKey(oRow.Value);
-        this.byId("selLogicUoM")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
+        this.byId("selLogicUoM")?.setSelectedKey(oRow.ValueUom === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.ValueUom);
 
         const oDialog = await this._pAdjLogicDialog;
         oDialog.setTitle(this._i18n("ADJ_EDIT_TITLE"));
@@ -995,7 +1006,7 @@ sap.ui.define([
       } else if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
         this.byId("selLogic2")?.setSelectedKey(oRow.Logic);
         this.byId("InpVal")?.setValue(oRow.Value);
-        this.byId("selLogicUoM2")?.setSelectedKey(oRow.UoM === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.UoM);
+        this.byId("selLogicUoM2")?.setSelectedKey(oRow.ValueUom === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.ValueUom);
 
         await this._ensureDialog("_pAdjLogicDialog2", "managerules.view.AddAdjLogic2Dialog");
         const oDialog2 = await this._pAdjLogicDialog2;
@@ -1238,41 +1249,43 @@ sap.ui.define([
       this._syncRuleTypeAvailability();
     },
 
-    onLogicalOperatorChange: function (oEvent) {
-      const oComboBox = oEvent.getSource();                 
-      const sKey = oComboBox.getSelectedKey() || "";       
 
-      const oRowItem = oComboBox.getParent();             
-      const sPath = oRowItem.getBindingContext("app")?.getPath(); 
+    onLogicalOperatorChange: async function (oEvent) {
+      const oComboBox = oEvent.getSource();
+      const sKey = oComboBox.getSelectedKey();
+      const oItem = oComboBox.getParent();
 
-      if (!sPath) return;
+      const oCtx = oItem.getBindingContext("rules");
 
-      const oModel = this.getView().getModel("app");
-      oModel.setProperty(`${sPath}/LogOp`, sKey);
-    },
-
-    onLogicalOperatorChangeFilter: function (oEvent) {
-
-      const sSelectedKey = oEvent.getSource().getSelectedKey();
-
-      const oTable = this.byId("tblFilters");
-      const oBinding = oTable.getBinding("items");
-      if (!oBinding) return;
-
-      if (!sSelectedKey) {
-        oBinding.filter([]);
+      if (!oCtx) {
+        console.warn("No binding context found");
         return;
       }
 
-      const oOrFilter = new sap.ui.model.Filter({
-        filters: [
-          new sap.ui.model.Filter("LogOp", sap.ui.model.FilterOperator.EQ, sSelectedKey),
-          new sap.ui.model.Filter("LogOp", sap.ui.model.FilterOperator.EQ, "")
-        ],
-        and: false
-      });
+      const oRowData = oCtx.getObject();
+      console.log("Row data:", oRowData);
 
-      oBinding.filter([oOrFilter]);
+      const sPath = oCtx.getPath();
+      console.log("Path:", sPath);
+
+      const oEntry = {
+        LogicalOperator: sKey,
+        IsActiveEntity : true
+      };
+
+      const oTable = this.byId("tblFilters")
+      oTable.setBusy(true)
+      
+      try {
+        await this.onPatchFilter(oRowData, oEntry)
+      } catch (e) {
+        this._toast(`${e}`)
+      } finally {
+        oTable.setBusy(false)
+      }
+
+      // const oModel = oCtx.getModel();
+      // oModel.setProperty(`${sPath}/LogOp`, sKey);
     },
 
     _syncRuleTypeAvailability: function () {

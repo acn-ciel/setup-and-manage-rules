@@ -36,9 +36,9 @@ xmlns:l="sap.ui.layout.form"
       <Text id="_IDGenText24" text="{rules>Operator}" />
       <Text id="_IDGenText25" text="{rules>Value}" />
       <Text id="_IDGenText26" text="{rules>ValueUom}" />
-      <ComboBox id="_IDGenComboBox2" width="10rem" placeholder="AND / OR" selectionChange=".onLogicalOperatorChange" selectedKey="{app>LogOp}">
-        <core:Item id="_IDGenItem52" key="AND" text="AND"></core:Item>
-        <core:Item id="_IDGenItem53" key="OR" text="OR"></core:Item>
+      <ComboBox id="_IDGenComboBox2" selectedKey="{rules>LogicalOperator}" width="10rem" placeholder="AND / OR" selectionChange=".onLogicalOperatorChange">
+        <core:Item id="_IDGenItem52" key="1" text="AND"></core:Item>
+        <core:Item id="_IDGenItem53" key="2" text="OR"></core:Item>
       </ComboBox>
      </cells>
     </ColumnListItem>
