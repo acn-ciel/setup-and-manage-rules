@@ -5,7 +5,7 @@
         <Toolbar id="idGenToolbar">
           <Text id="idGenCreateText" text="{i18n>GENINFO_CREATE_TEXT}" class="create"/>
           <ToolbarSpacer id="idGenToolbarSpacer"/>
-          <Button id="idGenSaveNextBtn" text="{i18n>GENINFO_SAVE_NEXT_BTN}" type="Emphasized" press="onSaveAndNext"/>
+          <Button id="idGenSaveNextBtn" text="{i18n>GENINFO_SAVE_NEXT_BTN}" type="Emphasized" press="onValidateNextStep"/>
         </Toolbar>
 
         <l:SimpleForm id="idGenSimpleForm" editable="true" class="GenInfo" layout="ResponsiveGridLayout" labelSpanL="3" labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
@@ -60,5 +60,14 @@
       <core:Fragment fragmentName="managerules.view.Filter" type="XML"/>
       <core:Fragment fragmentName="managerules.view.AdjustmentLogic" type="XML"/>
     </Wizard>
+
+    <FlexBox id="msgStackContainer" class="1.5rem sapUiSmallPadding sapUiSmallMargin" justifyContent="Start">
+      <VBox
+        id="msgStack"
+        class="msgStack"
+        renderType="Bare">
+      </VBox>
+    </FlexBox>
+
   </VBox>
 </core:FragmentDefinition>

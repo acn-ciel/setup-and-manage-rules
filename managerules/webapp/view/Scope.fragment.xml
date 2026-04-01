@@ -7,7 +7,7 @@
     <Toolbar id="_IDGenToolbar1">
       <Text id="_IDGenText9" text="Define plants for which the product footprints should be averaged" />
       <ToolbarSpacer id="_IDGenToolbarSpacer3" />
-      <Button id="_IDGenButton5" text="Save and next" type="Emphasized" press="onSaveAndNext"/>
+      <Button id="_IDGenButton5" text="{i18n>GENINFO_SAVE_NEXT_BTN}" type="Emphasized" press="onValidateNextStep"/>
     </Toolbar>    
 
     <l:SimpleForm id="_IDGenSimpleForm1"

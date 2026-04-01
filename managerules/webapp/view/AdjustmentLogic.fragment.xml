@@ -11,14 +11,14 @@ xmlns:l="sap.ui.layout.form"
     <Button id="_IDGenButton16" text="Add" type="Emphasized" press="onAddAdjLogic" />
     <Button id="_IDGenButton10" text="Edit" type="Emphasized" press="onEditAdjLogic" />
     <Button id="_IDGenButton11" text="Delete" type="Emphasized" press="onDeleteAdjLogic" />
-    <Button id="_IDGenButton12" text="Save rule" type="Emphasized" press="onSaveAndNext" />
+    <Button id="_IDGenButton12" text="Save rule" type="Emphasized" press="onValidateNextStep" />
   </Toolbar>
   
   <Table id="tblAdjLogic2" 
           mode="MultiSelect"
           inset="false"
           width="100%"
-          items="{rules>/adjlogic}">
+          items="{rules>/draftadjlogic}">
       <columns>
         <Column id="_IDGenColumn" ><Text id="_IDGenText31" text="Logic" /></Column>
         <Column id="_IDGenColumn13" ><Text id="_IDGenText32" text="Value" /></Column>

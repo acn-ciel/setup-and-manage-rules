@@ -12,14 +12,14 @@ xmlns:l="sap.ui.layout.form"
    <Button id="_IDGenButton6" text="Add" type="Emphasized" press="onAddFilter" />
    <Button id="_IDGenButton7" text="Edit" type="Emphasized" press="onEditFilter" />
    <Button id="_IDGenButton8" text="Delete" type="Emphasized" press="onDeleteFilter" />
-   <Button id="_IDGenButton9" text="Save and Next" type="Emphasized" press="onSaveAndNext" />  
+   <Button id="_IDGenButton9" text="{i18n>GENINFO_SAVE_NEXT_BTN}" type="Emphasized" press="onValidateNextStep" />  
 </Toolbar>
 
 <Table id="tblFilters"
        mode="MultiSelect"
        inset="false"
        width="100%" 
-       items="{rules>/filter}">
+       items="{rules>/draftfilter}">
 
    <columns>
      <Column id="_IDGenColumn9" ><Text id="_IDGenText19" text="Characteristic" /></Column>
