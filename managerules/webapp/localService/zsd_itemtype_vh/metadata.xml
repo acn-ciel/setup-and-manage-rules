@@ -56,9 +56,8 @@
             <Annotation Term="SAP__core.SchemaVersion" String="1.0.0"/>
             <EntityType Name="ZI_ITEMTYPE_VHType">
                 <Key>
-                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="ItemType"/>
                 </Key>
-                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
                 <Property Name="ItemType" Type="Edm.String" Nullable="false" MaxLength="2"/>
                 <Property Name="ItemTypeName" Type="Edm.String" Nullable="false" MaxLength="255"/>
             </EntityType>
@@ -80,7 +79,7 @@
                         <PropertyValue Property="FilterExpressionRestrictions">
                             <Collection>
                                 <Record>
-                                    <PropertyValue Property="Property" PropertyPath="ID"/>
+                                    <PropertyValue Property="Property" PropertyPath="ItemType"/>
                                     <PropertyValue Property="AllowedExpressions" String="SingleValue"/>
                                 </Record>
                             </Collection>
@@ -163,10 +162,6 @@
                 </Annotation>
                 <Annotation Term="SAP__capabilities.KeyAsSegmentSupported"/>
                 <Annotation Term="SAP__capabilities.AsynchronousRequestsSupported"/>
-            </Annotations>
-            <Annotations Target="SAP__self.ZI_ITEMTYPE_VHType/ID">
-                <Annotation Term="SAP__common.Label" String="UUID"/>
-                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
             </Annotations>
         </Schema>
     </edmx:DataServices>

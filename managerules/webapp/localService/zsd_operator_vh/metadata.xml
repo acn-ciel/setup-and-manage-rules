@@ -56,24 +56,14 @@
             <Annotation Term="SAP__core.SchemaVersion" String="1.0.0"/>
             <EntityType Name="ZI_OPERATOR_VHType">
                 <Key>
-                    <PropertyRef Name="DevID"/>
-                    <PropertyRef Name="IndexNo"/>
-                    <PropertyRef Name="ValidFrom"/>
-                    <PropertyRef Name="ValidTo"/>
+                    <PropertyRef Name="Operator"/>
                 </Key>
-                <Property Name="DevID" Type="Edm.String" Nullable="false" MaxLength="20"/>
-                <Property Name="IndexNo" Type="Edm.String" Nullable="false" MaxLength="3"/>
-                <Property Name="ValidFrom" Type="Edm.Date" Nullable="false"/>
-                <Property Name="ValidTo" Type="Edm.Date" Nullable="false"/>
                 <Property Name="Operator" Type="Edm.String" Nullable="false" MaxLength="60"/>
                 <Property Name="OperatorDesc" Type="Edm.String" Nullable="false" MaxLength="255"/>
             </EntityType>
             <EntityContainer Name="Container">
                 <EntitySet Name="ZI_OPERATOR_VH" EntityType="com.sap.gateway.srvd_a2x.zsd_operator_vh.v0001.ZI_OPERATOR_VHType"/>
             </EntityContainer>
-            <Annotations Target="SAP__self.ZI_OPERATOR_VHType/IndexNo">
-                <Annotation Term="SAP__common.IsDigitSequence"/>
-            </Annotations>
             <Annotations Target="SAP__self.ZI_OPERATOR_VHType">
                 <Annotation Term="SAP__common.Label" String="Value Help for Operator"/>
             </Annotations>
@@ -159,14 +149,6 @@
                 </Annotation>
                 <Annotation Term="SAP__capabilities.KeyAsSegmentSupported"/>
                 <Annotation Term="SAP__capabilities.AsynchronousRequestsSupported"/>
-            </Annotations>
-            <Annotations Target="SAP__self.ZI_OPERATOR_VHType/ValidFrom">
-                <Annotation Term="SAP__common.Label" String="Date"/>
-                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=DATUM"/>
-            </Annotations>
-            <Annotations Target="SAP__self.ZI_OPERATOR_VHType/ValidTo">
-                <Annotation Term="SAP__common.Label" String="Date"/>
-                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=DATUM"/>
             </Annotations>
         </Schema>
     </edmx:DataServices>

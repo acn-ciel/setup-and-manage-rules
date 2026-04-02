@@ -80,6 +80,8 @@ sap.ui.define([
           product: product, // values column
           valueUom: valueUom,
 
+          productValue: null,
+
           /** Adjustment Logic */
           logic: logic,
           values: values,
@@ -1539,6 +1541,104 @@ sap.ui.define([
       this.byId("_IDGenMultiComboBox")?.removeAllSelectedItems();
     },
 
+    _renderValueField: function (sMode) {
+      const oHost = this.byId("fieldHost");
+      oHost.removeAllItems();
+
+      if (sMode === "combo") {
+        oHost.addItem(this._oCombo);
+      } else {
+        oHost.addItem(this._oInput);
+      }
+    },
+
+    /* ===================== SELECTION DEPENDENCIES HELPERS ===================== */
+    onPlantsSelectionChange: function (oEvent) {
+      const oMCB = oEvent.getSource();
+      const oModel = this.getView().getModel("app");
+
+      const oChangedItem = oEvent.getParameter("changedItem");
+      const bSelected = oEvent.getParameter("selected");
+      const sChangedKey = oChangedItem && oChangedItem.getKey();
+
+      let aSelectedKeys = oMCB.getSelectedKeys();
+      const aAllKeys = ["001", "002", "003"]
+
+      // --- "All Plants" (selected) ---
+      if (sChangedKey === "*" && bSelected) {
+        aSelectedKeys = ["*", ...aAllKeys];
+
+        oMCB.setSelectedKeys(aSelectedKeys);
+        return;
+      }
+
+      // --- unclicked "All Plants" (deselected) ---
+      if (sChangedKey === "*" && !bSelected) {
+        aSelectedKeys = [];
+
+        oMCB.setSelectedKeys(aSelectedKeys);
+        return;
+      }
+
+      // --- changed an individual plant ---
+      const bAllSelected =
+        aAllKeys.length > 0 &&
+        aAllKeys.every(k => aSelectedKeys.includes(k));
+
+      if (!bAllSelected && aSelectedKeys.includes("*")) {
+        aSelectedKeys = aSelectedKeys.filter(k => k !== "*");
+        oMCB.setSelectedKeys(aSelectedKeys);
+      }
+
+      if (bAllSelected && !aSelectedKeys.includes("*")) {
+        aSelectedKeys = ["*", ...aSelectedKeys];
+        oMCB.setSelectedKeys(aSelectedKeys);
+      }
+    },
+
+    onCharacteristicsChange: function (oEvent) {
+      const sKey = oEvent.getSource().getSelectedKey();
+      this._renderField(sKey === "4" ? "input" : "combo");
+    },
+
+    onItemTypeSelectionChange: function () {
+      this._syncRuleTypeAvailability();
+    },
+
+    onLogicalOperatorChange: async function (oEvent) {
+      const oComboBox = oEvent.getSource();
+      const sKey = oComboBox.getSelectedKey();
+      const oItem = oComboBox.getParent();
+
+      const oCtx = oItem.getBindingContext("rules");
+
+      if (!oCtx) {
+        console.warn("No binding context found");
+        return;
+      }
+
+      const oRowData = oCtx.getObject();
+      const sPath = oCtx.getPath();
+      const oEntry = {
+        LogicalOperator: sKey,
+        IsActiveEntity : true
+      };
+
+      const oTable = this.byId("tblFilters")
+      oTable.setBusy(true)
+      
+      try {
+        await this.onPatchFilter(oRowData, oEntry)
+      } catch (e) {
+        this._toast(`${e}`)
+      } finally {
+        oTable.setBusy(false)
+      }
+
+      // const oModel = oCtx.getModel();
+      // oModel.setProperty(`${sPath}/LogOp`, sKey);
+    },
+
     /* ===================== FIELD VALIDATIONS ===================== */
     _isGeneralInfoValid: function () {
       const bNameOk = !!this._input("idGenNameInput", "inpName")?.getValue()?.trim();
@@ -1702,88 +1802,6 @@ sap.ui.define([
         oModel?.setProperty("/draftadjlogic", aAdLogic)
       }
     },
-
-    onPlantsSelectionChange: function (oEvent) {
-      const oMCB = oEvent.getSource();
-      const oModel = this.getView().getModel("app");
-
-      const oChangedItem = oEvent.getParameter("changedItem");
-      const bSelected = oEvent.getParameter("selected");
-      const sChangedKey = oChangedItem && oChangedItem.getKey();
-
-      let aSelectedKeys = oMCB.getSelectedKeys();
-      const aAllKeys = ["001", "002", "003"]
-
-      // --- "All Plants" (selected) ---
-      if (sChangedKey === "*" && bSelected) {
-        aSelectedKeys = ["*", ...aAllKeys];
-
-        oMCB.setSelectedKeys(aSelectedKeys);
-        return;
-      }
-
-      // --- unclicked "All Plants" (deselected) ---
-      if (sChangedKey === "*" && !bSelected) {
-        aSelectedKeys = [];
-
-        oMCB.setSelectedKeys(aSelectedKeys);
-        return;
-      }
-
-      // --- changed an individual plant ---
-      const bAllSelected =
-        aAllKeys.length > 0 &&
-        aAllKeys.every(k => aSelectedKeys.includes(k));
-
-      if (!bAllSelected && aSelectedKeys.includes("*")) {
-        aSelectedKeys = aSelectedKeys.filter(k => k !== "*");
-        oMCB.setSelectedKeys(aSelectedKeys);
-      }
-
-      if (bAllSelected && !aSelectedKeys.includes("*")) {
-        aSelectedKeys = ["*", ...aSelectedKeys];
-        oMCB.setSelectedKeys(aSelectedKeys);
-      }
-    },
-
-    onItemTypeSelectionChange: function () {
-      this._syncRuleTypeAvailability();
-    },
-
-    onLogicalOperatorChange: async function (oEvent) {
-      const oComboBox = oEvent.getSource();
-      const sKey = oComboBox.getSelectedKey();
-      const oItem = oComboBox.getParent();
-
-      const oCtx = oItem.getBindingContext("rules");
-
-      if (!oCtx) {
-        console.warn("No binding context found");
-        return;
-      }
-
-      const oRowData = oCtx.getObject();
-      const sPath = oCtx.getPath();
-      const oEntry = {
-        LogicalOperator: sKey,
-        IsActiveEntity : true
-      };
-
-      const oTable = this.byId("tblFilters")
-      oTable.setBusy(true)
-      
-      try {
-        await this.onPatchFilter(oRowData, oEntry)
-      } catch (e) {
-        this._toast(`${e}`)
-      } finally {
-        oTable.setBusy(false)
-      }
-
-      // const oModel = oCtx.getModel();
-      // oModel.setProperty(`${sPath}/LogOp`, sKey);
-    },
-
     _syncRuleTypeAvailability: function () {
       const oItemTypeMCB = this.byId("idGenItemTypeMCB");
       const oRuleTypeMCB = this.byId("idGenRuleTypeMCB");

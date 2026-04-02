@@ -56,22 +56,14 @@
             <Annotation Term="SAP__core.SchemaVersion" String="1.0.0"/>
             <EntityType Name="ZI_INVENTORYSCOPE_VHType">
                 <Key>
-                    <PropertyRef Name="Id"/>
-                    <PropertyRef Name="RuleUUID"/>
-                    <PropertyRef Name="RuleId"/>
+                    <PropertyRef Name="InventoryScope"/>
                 </Key>
-                <Property Name="Id" Type="Edm.Guid" Nullable="false"/>
-                <Property Name="RuleUUID" Type="Edm.Guid" Nullable="false"/>
-                <Property Name="RuleId" Type="Edm.String" Nullable="false" MaxLength="10"/>
-                <Property Name="InventoryScope" Type="Edm.String" Nullable="false" MaxLength="255"/>
+                <Property Name="InventoryScope" Type="Edm.String" Nullable="false" MaxLength="60"/>
+                <Property Name="InventoryScopeName" Type="Edm.String" Nullable="false" MaxLength="255"/>
             </EntityType>
             <EntityContainer Name="Container">
                 <EntitySet Name="ZI_INVENTORYSCOPE_VH" EntityType="com.sap.gateway.srvd_a2x.zsd_inventoryscope_vh.v0001.ZI_INVENTORYSCOPE_VHType"/>
             </EntityContainer>
-            <Annotations Target="SAP__self.ZI_INVENTORYSCOPE_VHType/RuleId">
-                <Annotation Term="SAP__common.IsDigitSequence"/>
-                <Annotation Term="SAP__common.Label" String="Rule ID"/>
-            </Annotations>
             <Annotations Target="SAP__self.ZI_INVENTORYSCOPE_VHType">
                 <Annotation Term="SAP__common.Label" String="Value Help for Inventory Scope"/>
             </Annotations>
@@ -157,14 +149,6 @@
                 </Annotation>
                 <Annotation Term="SAP__capabilities.KeyAsSegmentSupported"/>
                 <Annotation Term="SAP__capabilities.AsynchronousRequestsSupported"/>
-            </Annotations>
-            <Annotations Target="SAP__self.ZI_INVENTORYSCOPE_VHType/Id">
-                <Annotation Term="SAP__common.Label" String="UUID"/>
-                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
-            </Annotations>
-            <Annotations Target="SAP__self.ZI_INVENTORYSCOPE_VHType/RuleUUID">
-                <Annotation Term="SAP__common.Label" String="UUID"/>
-                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
             </Annotations>
         </Schema>
     </edmx:DataServices>

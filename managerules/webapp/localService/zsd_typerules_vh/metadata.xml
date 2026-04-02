@@ -56,23 +56,21 @@
             <Annotation Term="SAP__core.SchemaVersion" String="1.0.0"/>
             <EntityType Name="ZI_TYPERULES_VHType">
                 <Key>
-                    <PropertyRef Name="Id"/>
-                    <PropertyRef Name="RuleId"/>
+                    <PropertyRef Name="DevID"/>
+                    <PropertyRef Name="IndexNo"/>
+                    <PropertyRef Name="ValidFrom"/>
+                    <PropertyRef Name="ValidTo"/>
                 </Key>
-                <Property Name="Id" Type="Edm.Guid" Nullable="false"/>
-                <Property Name="RuleId" Type="Edm.String" Nullable="false" MaxLength="10"/>
-                <Property Name="RuleName" Type="Edm.String" Nullable="false" MaxLength="255"/>
-                <Property Name="RuleDescription" Type="Edm.String" Nullable="false" MaxLength="255"/>
-                <Property Name="RuleType" Type="Edm.String" Nullable="false" MaxLength="3"/>
+                <Property Name="DevID" Type="Edm.String" Nullable="false" MaxLength="20"/>
+                <Property Name="IndexNo" Type="Edm.String" Nullable="false" MaxLength="3"/>
+                <Property Name="ValidFrom" Type="Edm.Date" Nullable="false"/>
+                <Property Name="ValidTo" Type="Edm.Date" Nullable="false"/>
+                <Property Name="TypeOfRules" Type="Edm.String" Nullable="false" MaxLength="255"/>
             </EntityType>
             <EntityContainer Name="Container">
                 <EntitySet Name="ZI_TYPERULES_VH" EntityType="com.sap.gateway.srvd_a2x.zsd_typerules_vh.v0001.ZI_TYPERULES_VHType"/>
             </EntityContainer>
-            <Annotations Target="SAP__self.ZI_TYPERULES_VHType/RuleId">
-                <Annotation Term="SAP__common.IsDigitSequence"/>
-                <Annotation Term="SAP__common.Label" String="Rule ID"/>
-            </Annotations>
-            <Annotations Target="SAP__self.ZI_TYPERULES_VHType/RuleType">
+            <Annotations Target="SAP__self.ZI_TYPERULES_VHType/IndexNo">
                 <Annotation Term="SAP__common.IsDigitSequence"/>
             </Annotations>
             <Annotations Target="SAP__self.ZI_TYPERULES_VHType">
@@ -161,9 +159,13 @@
                 <Annotation Term="SAP__capabilities.KeyAsSegmentSupported"/>
                 <Annotation Term="SAP__capabilities.AsynchronousRequestsSupported"/>
             </Annotations>
-            <Annotations Target="SAP__self.ZI_TYPERULES_VHType/Id">
-                <Annotation Term="SAP__common.Label" String="UUID"/>
-                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            <Annotations Target="SAP__self.ZI_TYPERULES_VHType/ValidFrom">
+                <Annotation Term="SAP__common.Label" String="Date"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=DATUM"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZI_TYPERULES_VHType/ValidTo">
+                <Annotation Term="SAP__common.Label" String="Date"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=DATUM"/>
             </Annotations>
         </Schema>
     </edmx:DataServices>

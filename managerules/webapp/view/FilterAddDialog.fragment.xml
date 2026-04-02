@@ -43,13 +43,18 @@
                 <core:Item id="_IDGenItem28" key="{rules>IndexNo}" text="{rules>OperatorDesc}"/>
               </ComboBox>
 
-              <ComboBox id= "inpValue" 
+              <VBox id="InputValueContainer">
+                <ComboBox id= "inpValue" 
                       class="select"
                       placeholder="Select 1"
                       items="{rules>/Product}"
+                      visible="false"
                       width="100%" >
                 <core:Item id="_IDGenItem16" key="VAL" text="All" />    
-              </ComboBox>
+                </ComboBox>
+                
+                <Input id="_IDGenInput" />
+              </VBox>
 
               <ComboBox id="selUoM"
                       placeholder="Select 1"
