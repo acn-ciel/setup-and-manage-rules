@@ -30,29 +30,32 @@
                       class="select"
                       required="true"
                       placeholder="Select characteristic to apply"
+                      items="{rules>/characteristics}"
                       width="100%">
-                <core:Item id="_IDGenItem25" key="1" text="Product"/>
-                <core:Item id="_IDGenItem26" key="2" text="Product group"/>
+                <core:Item id="_IDGenItem25" key="{rules>IndexNo}" text="{rules>Characteristic}"/>
               </ComboBox>
 
               <ComboBox id="selOperator" 
                       class="select"
                       placeholder="Select operator"
+                      items="{rules>/operator}"
                       width="100%">
-                <core:Item id="_IDGenItem28" key="1" text="Equal to"/>
+                <core:Item id="_IDGenItem28" key="{rules>IndexNo}" text="{rules>OperatorDesc}"/>
               </ComboBox>
 
               <ComboBox id= "inpValue" 
                       class="select"
                       placeholder="Select 1"
+                      items="{rules>/Product}"
                       width="100%" >
                 <core:Item id="_IDGenItem16" key="VAL" text="All" />    
               </ComboBox>
 
               <ComboBox id="selUoM"
                       placeholder="Select 1"
+                      items="{rules>/valueUom}"
                       width="100%">
-                <core:Item id="_IDGenItem31" key="NA" text="Not applicable"/>
+                <core:Item id="_IDGenItem31" key="{rules>UnitOfMeasure}" text="{rules>UnitOfMeasureLongName}"/>
               </ComboBox>
             </cells>
           </ColumnListItem>

@@ -33,6 +33,36 @@ server:
           - url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
             destination: ZSAP_BAS
             path: /sap
+          - path: /sap/opu/odata4/sap/zapi_characteristic_v4/srvd_a2x/sap/zsd_characteristic_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_inventoryscope_v4/srvd_a2x/sap/zsd_inventoryscope_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_itemtype_v4/srvd_a2x/sap/zsd_itemtype_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_logic_v4/srvd_a2x/sap/zsd_logic_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_operator_v4/srvd_a2x/sap/zsd_operator_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_plant_v4/srvd_a2x/sap/zsd_plant_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_product_v4/srvd_a2x/sap/zsd_product_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_typerules_v4/srvd_a2x/sap/zsd_typerules_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_uom_v4/srvd_a2x/sap/zsd_uom_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zapi_values_v4/srvd_a2x/sap/zsd_values_vh/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
     - name: sap-fe-mockserver
       beforeMiddleware: csp
       configuration:
@@ -41,5 +71,45 @@ server:
           - urlPath: /sap/opu/odata4/sap/zsb_rules/srvd/sap/zsd_rules/0001
             metadataPath: ./webapp/localService/mainService/metadata.xml
             mockdataPath: ./webapp/localService/mainService/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_characteristic_v4/srvd_a2x/sap/zsd_characteristic_vh/0001
+            metadataPath: ./webapp/localService/zsd_characteristic_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_characteristic_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_inventoryscope_v4/srvd_a2x/sap/zsd_inventoryscope_vh/0001
+            metadataPath: ./webapp/localService/zsd_inventoryscope_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_inventoryscope_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_itemtype_v4/srvd_a2x/sap/zsd_itemtype_vh/0001
+            metadataPath: ./webapp/localService/zsd_itemtype_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_itemtype_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_logic_v4/srvd_a2x/sap/zsd_logic_vh/0001
+            metadataPath: ./webapp/localService/zsd_logic_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_logic_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_operator_v4/srvd_a2x/sap/zsd_operator_vh/0001
+            metadataPath: ./webapp/localService/zsd_operator_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_operator_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_plant_v4/srvd_a2x/sap/zsd_plant_vh/0001
+            metadataPath: ./webapp/localService/zsd_plant_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_plant_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_product_v4/srvd_a2x/sap/zsd_product_vh/0001
+            metadataPath: ./webapp/localService/zsd_product_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_product_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_typerules_v4/srvd_a2x/sap/zsd_typerules_vh/0001
+            metadataPath: ./webapp/localService/zsd_typerules_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_typerules_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_uom_v4/srvd_a2x/sap/zsd_uom_vh/0001
+            metadataPath: ./webapp/localService/zsd_uom_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_uom_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zapi_values_v4/srvd_a2x/sap/zsd_values_vh/0001
+            metadataPath: ./webapp/localService/zsd_values_vh/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_values_vh/data
             generateMockData: true
         annotations: []

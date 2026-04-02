@@ -24,17 +24,37 @@ sap.ui.define([
           oTable.setBusy(false);
         });
         
-        // const charFilters = await this.onGetCharFilter();
-        // console.log("CHAR filters: ", charFilters)
+        const genInfoView = this.byId("idGenStepGeneral")
+        genInfoView.setBusy(true)
+        
+        const itemType = await this.getItemType();
+        const ruleType = await this.getTypeRule();
+
+        const invScope = await this.getInventoryScope();
+        const plant = await this.getPlant();
+
+        const charFilters = await this.getCharacteristics();
+        const operator = await this.getOperator();
+        const product = await this.getProduct();
+
+        const values = await this.getValue();
+        const valueUom = await this.getValueUom();
+        const logic = await this.getLogic();
+
+        console.log("itemType: ", itemType)
+        console.log("ruleType: ", ruleType)
+        console.log("product: ", product)
+        console.log("invScope: ", invScope)
+        console.log("plant: ", plant)
+        console.log("charFilters: ", charFilters)
+        console.log("operator: ", operator)
+        console.log("values: ", values)
+        console.log("valueUom: ", valueUom)
+        console.log("logic: ", logic)
 
         // // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
-          ruleSummary: null,
-          genInfo: null,
-          filter: null,
-          scope: null,
-          adjlogic: null,
 
           editscope: null,
           editgeninfo: null,     
@@ -45,29 +65,102 @@ sap.ui.define([
           draftfilter: [],
           draftadjlogic: [],
 
-          /** Scope */
-          // Scope values for selection
-          invScopeFilters: [],
+          /** Gen Info */
+          itemType: itemType,
+          ruleType: ruleType,
+          
 
-          // Plants values for selection
-          plantsFilters: [],
+          /** Scope */
+          invScope: invScope,
+          plants: plant,
 
           /** Filters */
-          // Characteristics values for selection
-          charFilters: [],
+          characteristics: charFilters,
+          operator: operator,
+          product: product, // values column
+          valueUom: valueUom,
+
+          /** Adjustment Logic */
+          logic: logic,
+          values: values,
+          // Value UoM is not applicable
         });
         this.getView()?.setModel(oRuleModel, "rules");
+        genInfoView.setBusy(false)
       } catch (e) {
         this._toast(`${e}`)
       }
     },
 
-    /* ===================== GET METHOD ===================== */
-    onGetCharFilter: async function () {
-      const oModel = this.getOwnerComponent().getModel();
+    /* ================== GET VALUE HELP DATA: General Info ================== */
+    getItemType: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_itemtype_vh");
+      try {
+        const oList = oModel.bindList("/ZI_ITEMTYPE_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    getTypeRule: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_typerules_vh");
+      try {
+        const oList = oModel.bindList("/ZI_TYPERULES_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    getProduct: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_product_vh");
+      try {
+        const oList = oModel.bindList("/ZI_PRODUCT_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    /* ================== GET VALUE HELP DATA: Scope ================== */
+    getInventoryScope: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_uom_vh");
+      try {
+        const oList = oModel.bindList("/ZI_UOM_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    getPlant: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_plant_vh");
+      try {
+        const oList = oModel.bindList("/zi_plant_vh");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    /* ================== GET VALUE HELP DATA: Filter ================== */
+
+    getCharacteristics: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_characteristic_vh");
       try {
         const oList = oModel.bindList("/ZI_CHARACTERISTIC_VH");
-        const aContexts = await oList.requestContexts(0, 1000);
+        const aContexts = await oList.requestContexts();
         return aContexts.map(c => c.getObject());
       } catch (e) {
         console.error("Failed to load characteristics VH", e);
@@ -75,6 +168,120 @@ sap.ui.define([
       }
     },
 
+    getOperator: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_operator_vh");
+      try {
+        const oList = oModel.bindList("/ZI_OPERATOR_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load characteristics VH", e);
+        return [];
+      }
+    },
+
+    getValue: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_values_vh");
+      try {
+        const oList = oModel.bindList("/ZI_VALUES_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    getValueUom: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_uom_vh");
+      try {
+        const oList = oModel.bindList("/ZI_UOM_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    getLogic: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_logic_vh");
+      try {
+        const oList = oModel.bindList("/ZI_LOGIC_VH");
+        const aContexts = await oList.requestContexts();
+        return aContexts.map(c => c.getObject());
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    /* ===================== DELETE METHOD ===================== */
+    onDeleteRule: async function () 
+    {
+      const oTable = this.byId("_IDGenTable");
+      const aIdx = oTable.getSelectedIndices();
+
+      if (!aIdx.length) {
+        sap.m.MessageToast.show("Please select a rule.");
+        return;
+      }
+
+      const oCtx = oTable.getContextByIndex(aIdx[0]);
+      const oModel = this.getOwnerComponent().getModel();
+
+      try {
+        const aNavProps = [
+          "_RuleScope",
+          "_RuleFilter",
+          "_RuleLogic"
+        ];
+
+        for (const sNav of aNavProps) {
+          const oChildList = oModel.bindList(sNav, oCtx);
+          const aChildContexts = await oChildList.requestContexts();
+
+          for (const oChildCtx of aChildContexts) {
+            await oChildCtx.delete("$auto");
+          }
+        }
+
+        sap.m.MessageToast.show("All child entries deleted.");
+
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e?.message || "Failed to delete child entries.");
+      }
+
+      // try {
+      //   if (oRow.IsActiveEntity === false) {
+      //     const oDiscardCtx = oModel.bindContext("Discard(...)", oCtx);
+
+      //     if (oDiscardCtx.invoke) {
+      //       await oDiscardCtx.invoke("$auto");
+      //     } else {
+      //       await oDiscardCtx.execute("$auto");
+      //     }
+
+      //     sap.m.MessageToast.show("Draft discarded.");
+      //   } else {
+      //     await oCtx.delete("$auto");
+      //     sap.m.MessageToast.show("Rule deleted.");
+      //   }
+
+      //   oTable.clearSelection();
+      //   const oRowsBinding = oTable.getBinding("rows");
+      //   if (oRowsBinding) {
+      //     oRowsBinding.refresh();
+      //   }
+
+      // } catch (e) {
+      //   console.error(e);
+      //   sap.m.MessageBox.error(e?.message || "Operation failed.");
+      // }
+    },
+
+    /* ===================== GET METHOD ===================== */
     onGetRule: async function () {
       const oModel = this.getOwnerComponent().getModel();
       const oList = oModel.bindList("/ZC_RULESHEADER", null, null, null, {
@@ -159,11 +366,6 @@ sap.ui.define([
       this.byId("idGenValidToEditBtn")?.setVisible(false);
       this.byId("editIconScope")?.setVisible(false);
       this.byId("editIconPlants")?.setVisible(false);
-
-      const oModel = this.getView()?.getModel("rules");
-      // const aRules = oModel?.getProperty("/rules");
-      // const generatedRuleId = String(aRules.length + 1).padStart(3, "0"); // will be removed
-      // oModel?.setProperty("/currentRuleId", generatedRuleId)
 
       this._applyFiltersForCurrentRule();
       this._applyAdjLogicForCurrentRule();
@@ -771,14 +973,13 @@ sap.ui.define([
       return oCtx.getObject();
     },
 
-    onDeleteRule: async function () {
+    onDeleteSelectedRule: async function () {
       const oTable = this.byId("_IDGenTable");
       const aIdx = oTable.getSelectedIndices();
       if (!aIdx.length) return;
 
       const oRow = oTable.getContextByIndex(aIdx[0]).getObject();
       const oModel = this.getOwnerComponent().getModel();
-
 
       const sPath = this._buildRulesHeaderPath(oRow);
 

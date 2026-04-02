@@ -48,9 +48,8 @@
 
           <!-- Type of rule -->
           <Label id="idGenRuleTypeLabel" text="{i18n>GENINFO_RULETYPE_LBL}" required="true" class="label"/>
-          <MultiComboBox id="idGenRuleTypeMCB" width="500px" placeholder="{i18n>GENINFO_RULETYPE_PH}">
-            <core:Item id="idGenRuleTypeAV" key="1" text="{i18n>GENINFO_RULETYPE_AV}"/>
-            <!-- <core:Item id="idGenRuleTypeIN" key="IN" text="{i18n>GENINFO_RULETYPE_IN}"/> -->
+          <MultiComboBox id="idGenRuleTypeMCB" width="500px" placeholder="{i18n>GENINFO_RULETYPE_PH}" items="{rules>/ruleType}">
+            <core:Item id="idGenRuleTypeAV" key="{rules>IndexNo}" text="{rules>TypeOfRules}" />
           </MultiComboBox>
 
         </l:SimpleForm>

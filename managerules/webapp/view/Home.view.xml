@@ -49,7 +49,8 @@
                               parameters: {
                                  $select: 'RuleId,RuleName,RuleDescription,ValidFrom,ValidTo,ItemType,RuleType',
                                  $expand: '_RuleScope($select=Plant,InventoryScope),_RuleFilter,_RuleLogic',
-                                 $orderby: 'RuleId desc'
+                                 $orderby: 'RuleId desc',
+                                 $filter: 'IsActiveEntity eq true'
                               }
                            }"
                            selectionMode="MultiToggle"
