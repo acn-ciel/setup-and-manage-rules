@@ -108,75 +108,6 @@ sap.ui.define([
       }
     },
 
-    plantFormatter: async function (plant) {
-      const plantList = await this.getPlant();
-      const plantLookup = plantList
-        .map(p => ({
-          ...p, 
-          Plant: this.trimPlantKey(p.Plant)
-        }))
-
-      return (plant || []).map(plant => {
-        const oMatch = plantLookup.find(p => p.Plant === plant.Plant);
-        return oMatch ? oMatch.PlantName : plant.Plant;
-      });
-    },
-
-    characteristicFormatter: function (char) {
-      const oModel = this.getView().getModel("rules");
-      const charLookup = oModel.getProperty("/characteristics")
-
-      const oMatch = charLookup.find(c => c.IndexNo == char);
-      return oMatch ? oMatch.Characteristic : char;
-    },
-
-    operatorFormatter: function (operator) {
-      const oModel = this.getView().getModel("rules");
-      const opLookup = oModel.getProperty("/operator")
-
-      const oMatch = opLookup.find(o => o.Operator == operator);
-      return oMatch ? oMatch.OperatorDesc : operator;
-    },
-
-    productFormatter: function (product) {
-      const oModel = this.getView().getModel("rules");
-      const prodLookup = oModel.getProperty("/product")
-
-      const oMatch = prodLookup.find(p => p.Product == product);
-      return oMatch ? oMatch.ProductName : product;
-    },
-
-    valueUomFormatter: function (valueUom) {
-      const oModel = this.getView().getModel("rules");
-      const valLookup = oModel.getProperty("/valueUom")
-
-      const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
-      return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
-    },
-
-    logicFormatter: function (logic) {
-      const oModel = this.getView().getModel("rules");
-      const logicLookup = oModel.getProperty("/logic")
-
-      const oMatch = logicLookup.find(v => v.IndexNo == logic);
-      return oMatch ? oMatch.Logic : logic;
-    },
-
-    valAdjLogFormatter: function (values) {
-      const oModel = this.getView().getModel("rules");
-      const valLookup = oModel.getProperty("/values")
-
-      const oMatch = valLookup.find(v => v.IndexNo == values);
-      return oMatch ? oMatch.LogicValues : values;
-    },
-    
-    valUomAdjLogicFormatter: function (valueUom) {
-      const oModel = this.getView().getModel("rules");
-      const valLookup = oModel.getProperty("/valueUom")
-
-      const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
-      return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
-    },
     /* ================== GET VALUE HELP DATA: General Info ================== */
     getItemType: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_itemtype_vh");
@@ -313,57 +244,35 @@ sap.ui.define([
       }
 
       const oCtx = oTable.getContextByIndex(aIdx[0]);
+      const oRow = oCtx.getObject();
       const oModel = this.getOwnerComponent().getModel();
 
       try {
-        const aNavProps = [
-          "_RuleScope",
-          "_RuleFilter",
-          "_RuleLogic"
-        ];
+        if (oRow.IsActiveEntity === false) {
+          const oDiscardCtx = oModel.bindContext("Discard(...)", oCtx);
 
-        for (const sNav of aNavProps) {
-          const oChildList = oModel.bindList(sNav, oCtx);
-          const aChildContexts = await oChildList.requestContexts();
-
-          for (const oChildCtx of aChildContexts) {
-            await oChildCtx.delete("$auto");
+          if (oDiscardCtx.invoke) {
+            await oDiscardCtx.invoke("$auto");
+          } else {
+            await oDiscardCtx.execute("$auto");
           }
+
+          sap.m.MessageToast.show("Draft discarded.");
+        } else {
+          await oCtx.delete("$auto");
+          sap.m.MessageToast.show("Rule deleted.");
         }
 
-        sap.m.MessageToast.show("All child entries deleted.");
+        oTable.clearSelection();
+        const oRowsBinding = oTable.getBinding("rows");
+        if (oRowsBinding) {
+          oRowsBinding.refresh();
+        }
 
       } catch (e) {
         console.error(e);
-        sap.m.MessageBox.error(e?.message || "Failed to delete child entries.");
+        sap.m.MessageBox.error(e?.message || "Operation failed.");
       }
-
-      // try {
-      //   if (oRow.IsActiveEntity === false) {
-      //     const oDiscardCtx = oModel.bindContext("Discard(...)", oCtx);
-
-      //     if (oDiscardCtx.invoke) {
-      //       await oDiscardCtx.invoke("$auto");
-      //     } else {
-      //       await oDiscardCtx.execute("$auto");
-      //     }
-
-      //     sap.m.MessageToast.show("Draft discarded.");
-      //   } else {
-      //     await oCtx.delete("$auto");
-      //     sap.m.MessageToast.show("Rule deleted.");
-      //   }
-
-      //   oTable.clearSelection();
-      //   const oRowsBinding = oTable.getBinding("rows");
-      //   if (oRowsBinding) {
-      //     oRowsBinding.refresh();
-      //   }
-
-      // } catch (e) {
-      //   console.error(e);
-      //   sap.m.MessageBox.error(e?.message || "Operation failed.");
-      // }
     },
 
     /* ===================== GET METHOD ===================== */
@@ -1770,23 +1679,23 @@ sap.ui.define([
         return;
       }
 
-      const oRowData = oCtx.getObject();
-      const sPath = oCtx.getPath();
-      const oEntry = {
-        LogicalOperator: sKey,
-        IsActiveEntity : true
-      };
+      // const oRowData = oCtx.getObject();
+      // const sPath = oCtx.getPath();
+      // const oEntry = {
+      //   LogicalOperator: sKey,
+      //   IsActiveEntity : true
+      // };
 
-      const oTable = this.byId("tblFilters")
-      oTable.setBusy(true)
+      // const oTable = this.byId("tblFilters")
+      // oTable.setBusy(true)
       
-      try {
-        await this.onPatchFilter(oRowData, oEntry)
-      } catch (e) {
-        this._toast(`${e}`)
-      } finally {
-        oTable.setBusy(false)
-      }
+      // try {
+      //   await this.onPatchFilter(oRowData, oEntry)
+      // } catch (e) {
+      //   this._toast(`${e}`)
+      // } finally {
+      //   oTable.setBusy(false)
+      // }
 
       // const oModel = oCtx.getModel();
       // oModel.setProperty(`${sPath}/LogOp`, sKey);
@@ -1872,79 +1781,77 @@ sap.ui.define([
       }
     },
 
-    /* ===================== MAP KEY TO VALUE ===================== */
-    _mapCharacteristicKey: function (sText) {
-      switch (sText) {
-        case "Product": return "Product";
-        case "Product group": return "ProductGroup";
-        case "Footprint value": return "FootprintValue";
-        case "Footprint type": return "FootprintType";
-        default: return sText;
-      }
+    /* ===================== KEY TO VALUE FORMATTER ===================== */
+    plantFormatter: async function (plant) {
+      const plantList = await this.getPlant();
+      const plantLookup = plantList
+        .map(p => ({
+          ...p, 
+          Plant: this.trimPlantKey(p.Plant)
+        }))
+
+      return (plant || []).map(plant => {
+        const oMatch = plantLookup.find(p => p.Plant === plant.Plant);
+        return oMatch ? oMatch.PlantName : plant.Plant;
+      });
     },
-    _mapItemTypeKey: function (sText) {
-      switch (sText) {
-        case "Product": return "PRO";
-        default: return sText;
-      }
+
+    characteristicFormatter: function (char) {
+      const oModel = this.getView().getModel("rules");
+      const charLookup = oModel.getProperty("/characteristics")
+
+      const oMatch = charLookup.find(c => c.IndexNo == char);
+      return oMatch ? oMatch.Characteristic : char;
     },
-    _mapRuleTypeKey: function (sText) {
-      switch (sText) {
-        case "Average calculated product footprint": return "AV";
-        default: return sText;
-      }
+
+    operatorFormatter: function (operator) {
+      const oModel = this.getView().getModel("rules");
+      const opLookup = oModel.getProperty("/operator")
+
+      const oMatch = opLookup.find(o => o.Operator == operator);
+      return oMatch ? oMatch.OperatorDesc : operator;
     },
-    _mapOperatorText: function (sKey) {
-      switch (sKey) {
-        case "EQ": return this._i18n("OP_EQ");
-        case "NE": return this._i18n("OP_NE");
-        case "LT": return this._i18n("OP_LT");
-        case "GT": return this._i18n("OP_GT");
-        default: return sKey;
-      }
+
+    productFormatter: function (product) {
+      const oModel = this.getView().getModel("rules");
+      const prodLookup = oModel.getProperty("/product")
+
+      const oMatch = prodLookup.find(p => p.Product == product);
+      return oMatch ? oMatch.ProductName : product;
     },
-    _mapOperatorKey: function (sText) {
-      switch (sText) {
-        case "Equal to": return "EQ";
-        case "Not equal to": return "NE";
-        case "Less than": return "LT";
-        case "Greater than": return "GT";
-        default: return sText;
-      }
+
+    valueUomFormatter: function (valueUom) {
+      const oModel = this.getView().getModel("rules");
+      const valLookup = oModel.getProperty("/valueUom")
+
+      const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
+      return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
     },
-    _mapLogicKey: function (sText) {
-      switch (sText) {
-        case "Rolling average": return "ROLLAVG";
-        default: return sText;
-      }
+
+    logicFormatter: function (logic) {
+      const oModel = this.getView().getModel("rules");
+      const logicLookup = oModel.getProperty("/logic")
+
+      const oMatch = logicLookup.find(v => v.IndexNo == logic);
+      return oMatch ? oMatch.Logic : logic;
     },
-    _mapFilterValues: function (sText) {
-      switch (sText) {
-        case "All": return "VAL";
-        default: return sText;
-      }
+
+    valAdjLogFormatter: function (values) {
+      const oModel = this.getView().getModel("rules");
+      const valLookup = oModel.getProperty("/values")
+
+      const oMatch = valLookup.find(v => v.IndexNo == values);
+      return oMatch ? oMatch.LogicValues : values;
     },
-    _mapValueKey: function (sText) {
-      switch (sText) {
-        case "Last 3 months": return "3";
-        case "Last 6 months": return "6";
-        case "Last 12 months": return "12";
-        default: return sText;
-      }
+    
+    valUomAdjLogicFormatter: function (valueUom) {
+      const oModel = this.getView().getModel("rules");
+      const valLookup = oModel.getProperty("/valueUom")
+
+      const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
+      return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
     },
-    _mapPlantKey: function (sText) {
-      switch(sText) {
-        case "001": return "Plant 1";
-        case "002": return "Plant 2";
-        case "003": return "Plant 3";
-        default: return sText;
-      }
-    },
-    _mapPlantKey2: function (sPlantKey, mPlantLookup) {
-      if (sPlantKey == null || sPlantKey === "") return "";
-      const k = String(sPlantKey);
-      return (mPlantLookup && mPlantLookup[k]) ? mPlantLookup[k] : k;
-    },
+
     _applyFiltersForCurrentRule: async function (oCreated) {
       const oModel = this.getView().getModel("rules");
 
