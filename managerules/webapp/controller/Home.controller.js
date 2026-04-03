@@ -61,7 +61,6 @@ sap.ui.define([
         // // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
-          logOpEnabled: false,
 
           editscope: null,
           editgeninfo: null,     

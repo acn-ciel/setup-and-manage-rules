@@ -52,7 +52,7 @@ xmlns:l="sap.ui.layout.form"
         path: 'rules>ValueUom',
         formatter: '.valueUomFormatter'
         }" />
-      <ComboBox id="_IDGenComboBox2" selectedKey="{rules>LogicalOperator}" width="10rem" placeholder="AND / OR" selectionChange=".onLogicalOperatorChange" enabled="{rules>logOpEnabled}">
+      <ComboBox id="_IDGenComboBox2" selectedKey="{rules>LogicalOperator}" width="10rem" placeholder="AND / OR" selectionChange=".onLogicalOperatorChange">
         <core:Item id="_IDGenItem52" key="1" text="AND"></core:Item>
         <core:Item id="_IDGenItem53" key="2" text="OR"></core:Item>
       </ComboBox>
