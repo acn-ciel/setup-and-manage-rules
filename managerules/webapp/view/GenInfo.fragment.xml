@@ -39,18 +39,19 @@
 
           <!-- Item type -->
           <Label id="idGenItemTypeLabel" text="{i18n>GENINFO_ITEMTYPE_LBL}" required="true" class="label"/>
-          <MultiComboBox id="idGenItemTypeMCB" width="500px" placeholder="{i18n>GENINFO_ITEMTYPE_PH}" selectionChange=".onItemTypeSelectionChange">
-            <core:Item id="idGenItemTypePRO" key="1" text="{i18n>GENINFO_ITEMTYPE_PRO}"/>
-            <!-- <core:Item id="idGenItemTypeREC" key="REC" text="{i18n>GENINFO_ITEMTYPE_REC}"/>
-            <core:Item id="idGenItemTypeSUP" key="SUP" text="{i18n>GENINFO_ITEMTYPE_SUP}"/>
-            <core:Item id="idGenItemTypeES"  key="ES"  text="{i18n>GENINFO_ITEMTYPE_ES}"/> -->
+          <MultiComboBox id="idGenItemTypeMCB" 
+              width="500px" 
+              placeholder="{i18n>GENINFO_ITEMTYPE_PH}" 
+              selectionChange=".onItemTypeSelectionChange" 
+              items="{rules>/itemType}">
+            <core:Item id="idGenItemTypePRO" key="{rules>ItemType}" text="{rules>ItemTypeName}"/>
           </MultiComboBox>
 
           <!-- Type of rule -->
           <Label id="idGenRuleTypeLabel" text="{i18n>GENINFO_RULETYPE_LBL}" required="true" class="label"/>
-          <MultiComboBox id="idGenRuleTypeMCB" width="500px" placeholder="{i18n>GENINFO_RULETYPE_PH}" items="{rules>/ruleType}">
+          <ComboBox id="idGenRuleTypeMCB" width="500px" placeholder="{i18n>GENINFO_RULETYPE_PH}" items="{rules>/ruleType}" selectedKey="{rules>/ruleTypeKey}">
             <core:Item id="idGenRuleTypeAV" key="{rules>IndexNo}" text="{rules>TypeOfRules}" />
-          </MultiComboBox>
+          </ComboBox>
 
         </l:SimpleForm>
       </WizardStep>

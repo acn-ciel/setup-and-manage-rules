@@ -27,9 +27,20 @@ xmlns:l="sap.ui.layout.form"
       <items>
         <ColumnListItem id="_IDGenColumnListItem1" >
           <cells>
-            <Text id="_IDGenText40" text="{rules>Logic}" />
-            <Text id="_IDGenText41"  text="{rules>Value}" />
-            <Text id="_IDGenText42"  text="{rules>ValueUom}" />
+            <Text id="_IDGenText40" 
+            text="{
+            path: 'rules>Logic',
+            formatter: '.logicFormatter'
+            }" />
+            <Text id="_IDGenText41"  
+            text="{
+            path: 'rules>Value',
+            formatter: '.valAdjLogFormatter'
+            }" />
+            <Text id="_IDGenText42"  
+            text="{
+            path: 'rules>ValueUom',
+            formatter: '.valUomAdjLogicFormatter'}" />
           </cells>
         </ColumnListItem>
       </items>

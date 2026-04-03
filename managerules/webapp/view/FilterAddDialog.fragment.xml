@@ -21,7 +21,7 @@
           <Column id="_IDGenColumn15" width="130%"><Label id="_IDGenText29" text="Characteristic" required="true"/></Column>
           <Column id="_IDGenColumn16" width="90%"><Label id="_IDGenText34" text="Operator" required="true"/></Column>
           <Column id="_IDGenColumn17" width="90%"><Label id="_IDGenText35" text="Values" required="true"/></Column>
-          <Column id="_IDGenColumn18" width="90%"><Label id="_IDGenText36" text="Value UoM"/></Column>
+          <Column id="_IDGenColumn18" width="90%"><Label id="_IDGenText36" text="Value UoM" required="{= ${rules>/selectChar} !== '1' }"/></Column>
         </columns>
         <items>
           <ColumnListItem id="_IDGenColumnListItem3">
@@ -30,7 +30,9 @@
                       class="select"
                       required="true"
                       placeholder="Select characteristic to apply"
+                      selectedKey="{rules>/selectChar}"
                       items="{rules>/characteristics}"
+                      selectionChange=".onCharacteristicsChange"
                       width="100%">
                 <core:Item id="_IDGenItem25" key="{rules>IndexNo}" text="{rules>Characteristic}"/>
               </ComboBox>
@@ -40,25 +42,29 @@
                       placeholder="Select operator"
                       items="{rules>/operator}"
                       width="100%">
-                <core:Item id="_IDGenItem28" key="{rules>IndexNo}" text="{rules>OperatorDesc}"/>
+                <core:Item id="_IDGenItem28" key="{rules>Operator}" text="{rules>OperatorDesc}"/>
               </ComboBox>
 
               <VBox id="InputValueContainer">
                 <ComboBox id= "inpValue" 
                       class="select"
                       placeholder="Select 1"
-                      items="{rules>/Product}"
+                      items="{rules>/product}"
                       visible="false"
                       width="100%" >
-                <core:Item id="_IDGenItem16" key="VAL" text="All" />    
+                <core:Item id="_IDGenItem16" key="{rules>Product}" text="{rules>ProductName}" />    
                 </ComboBox>
                 
-                <Input id="_IDGenInput" />
+                <Input
+                  id="_IDGenInput"
+                  visible="false"
+                  type="Number" />
               </VBox>
 
               <ComboBox id="selUoM"
                       placeholder="Select 1"
                       items="{rules>/valueUom}"
+                      enabled="{= ${rules>/selectChar} !== '1' }"
                       width="100%">
                 <core:Item id="_IDGenItem31" key="{rules>UnitOfMeasure}" text="{rules>UnitOfMeasureLongName}"/>
               </ComboBox>

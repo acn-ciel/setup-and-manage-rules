@@ -32,7 +32,7 @@
         id="_IDGenMultiComboBox"
         width="400px"
         placeholder="Select one/multiple/All plants for this rule"
-        selectionChange=".onPlantsSelectionChange"
+        selectionChange=".onPlantSelectionChange"
         items="{rules>/plants}">
         <core:Item id="_IDGenItem9" key="{rules>Plant}" text="{rules>PlantName}" />
       </MultiComboBox>

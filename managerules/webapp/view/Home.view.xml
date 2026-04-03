@@ -24,7 +24,9 @@
                      press="onCreateNewRule"
                      class="sapUiSmallMarginTop" />
 
-            <Button id="_IDGenButton2" text="Edit selected rule"
+            <Button id="_IDGenButton2"
+                     text="{= ${load>/loadingBackend} ? 'Loading…' : 'Edit selected rule' }"
+                     enabled="{= !${load>/loadingBackend} }"
                      type="Emphasized"
                      press="onEditRule"
                      class="sapUiSmallMarginTop" />  
@@ -116,7 +118,7 @@
                                     text="{
                                     path: '_RuleScope',
                                     targetType: 'any',
-                                    formatter: '.formatPlants'
+                                    formatter: '.plantFormatter'
                                     }"
                                     wrapping="true"
                                  />

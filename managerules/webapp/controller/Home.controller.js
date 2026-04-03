@@ -23,15 +23,21 @@ sap.ui.define([
         oTable.attachEventOnce("rowsUpdated", function () {
           oTable.setBusy(false);
         });
-        
-        const genInfoView = this.byId("idGenStepGeneral")
-        genInfoView.setBusy(true)
+
+        const oLoadModel = new JSONModel ({
+          loadingBackend: true,
+        })
+
+        this.getView().setModel(oLoadModel, "load")
         
         const itemType = await this.getItemType();
         const ruleType = await this.getTypeRule();
 
         const invScope = await this.getInventoryScope();
         const plant = await this.getPlant();
+        const plantWithAll = [{ 
+          Plant: "*", PlantName: "All" },
+          ...plant];
 
         const charFilters = await this.getCharacteristics();
         const operator = await this.getOperator();
@@ -46,15 +52,16 @@ sap.ui.define([
         console.log("product: ", product)
         console.log("invScope: ", invScope)
         console.log("plant: ", plant)
-        console.log("charFilters: ", charFilters)
+        console.log("charFilters: ", charFilters.filter(c => (["1", "3", "4"].includes(c.IndexNo))))
         console.log("operator: ", operator)
-        console.log("values: ", values)
+        console.log("values: ", values.filter(v => (v.Logic == "1")))
         console.log("valueUom: ", valueUom)
-        console.log("logic: ", logic)
+        console.log("logic filter: ", logic.filter(l => (l.RuleType=="001")))
 
         // // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
+          logOpEnabled: false,
 
           editscope: null,
           editgeninfo: null,     
@@ -65,17 +72,22 @@ sap.ui.define([
           draftfilter: [],
           draftadjlogic: [],
 
-          /** Gen Info */
-          itemType: itemType,
-          ruleType: ruleType,
-          
+          /** Selection keys */
+          selectChar: null,
 
+          /** Gen Info */
+          itemType: itemType.filter(i => (i.ItemType == "PR")),
+          ruleType: ruleType.filter(r => (r.IndexNo == "1")),
+          
           /** Scope */
           invScope: invScope,
-          plants: plant,
+          plants: plantWithAll.map(p => ({
+            ...p, 
+            Plant: this.trimPlantKey(p.Plant)
+          })),
 
           /** Filters */
-          characteristics: charFilters,
+          characteristics: charFilters.filter(c => (["1", "3", "4"].includes(c.IndexNo))),
           operator: operator,
           product: product, // values column
           valueUom: valueUom,
@@ -83,17 +95,88 @@ sap.ui.define([
           productValue: null,
 
           /** Adjustment Logic */
-          logic: logic,
-          values: values,
+          logic: logic.filter(l => (l.RuleType == "001")),
+          values: values.filter(v => (v.Logic == "1")),
           // Value UoM is not applicable
         });
         this.getView()?.setModel(oRuleModel, "rules");
-        genInfoView.setBusy(false)
+
+        const oModel = this.getView()?.getModel("load")
+        oModel.setProperty("/loadingBackend", false)
       } catch (e) {
         this._toast(`${e}`)
       }
     },
 
+    plantFormatter: async function (plant) {
+      const plantList = await this.getPlant();
+      const plantLookup = plantList
+        .map(p => ({
+          ...p, 
+          Plant: this.trimPlantKey(p.Plant)
+        }))
+
+      return (plant || []).map(plant => {
+        const oMatch = plantLookup.find(p => p.Plant === plant.Plant);
+        return oMatch ? oMatch.PlantName : plant.Plant;
+      });
+    },
+
+    characteristicFormatter: function (char) {
+      const oModel = this.getView().getModel("rules");
+      const charLookup = oModel.getProperty("/characteristics")
+
+      const oMatch = charLookup.find(c => c.IndexNo == char);
+      return oMatch ? oMatch.Characteristic : char;
+    },
+
+    operatorFormatter: function (operator) {
+      const oModel = this.getView().getModel("rules");
+      const opLookup = oModel.getProperty("/operator")
+
+      const oMatch = opLookup.find(o => o.Operator == operator);
+      return oMatch ? oMatch.OperatorDesc : operator;
+    },
+
+    productFormatter: function (product) {
+      const oModel = this.getView().getModel("rules");
+      const prodLookup = oModel.getProperty("/product")
+
+      const oMatch = prodLookup.find(p => p.Product == product);
+      return oMatch ? oMatch.ProductName : product;
+    },
+
+    valueUomFormatter: function (valueUom) {
+      const oModel = this.getView().getModel("rules");
+      const valLookup = oModel.getProperty("/valueUom")
+
+      const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
+      return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
+    },
+
+    logicFormatter: function (logic) {
+      const oModel = this.getView().getModel("rules");
+      const logicLookup = oModel.getProperty("/logic")
+
+      const oMatch = logicLookup.find(v => v.IndexNo == logic);
+      return oMatch ? oMatch.Logic : logic;
+    },
+
+    valAdjLogFormatter: function (values) {
+      const oModel = this.getView().getModel("rules");
+      const valLookup = oModel.getProperty("/values")
+
+      const oMatch = valLookup.find(v => v.IndexNo == values);
+      return oMatch ? oMatch.LogicValues : values;
+    },
+    
+    valUomAdjLogicFormatter: function (valueUom) {
+      const oModel = this.getView().getModel("rules");
+      const valLookup = oModel.getProperty("/valueUom")
+
+      const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
+      return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
+    },
     /* ================== GET VALUE HELP DATA: General Info ================== */
     getItemType: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_itemtype_vh");
@@ -392,6 +475,8 @@ sap.ui.define([
       const oModel = oView.getModel("rules") || [];
       const oScope = oModel.getProperty("/editscope") || null
       var oCreated = oModel.getProperty("/currentRule") || null;
+      
+      this.showLogOpOptions()
 
       /* Step 1: General Information */
       if (sCurrentStepId === oStepGeneral?.getId()) {
@@ -407,7 +492,7 @@ sap.ui.define([
 
         const aItemTypeItems = this._mcb("idGenItemTypeMCB", "selItemType")
           ?.getSelectedKeys()
-        const aRuleTypeItems = this._mcb("idGenRuleTypeMCB", "selRuleType")
+        const aRuleTypeItems = this._byAnyId("idGenRuleTypeMCB", "selRuleType")
           ?.getSelectedKeys()
         
         const oNewRule = {
@@ -551,8 +636,8 @@ sap.ui.define([
 
       const aItemTypeItems = this._mcb("idGenItemTypeMCB", "selItemType")
         ?.getSelectedKeys()
-      const aRuleTypeItems = this._mcb("idGenRuleTypeMCB", "selRuleType")
-        ?.getSelectedKeys()
+      const aRuleTypeItem = this.byId("idGenRuleTypeMCB")
+        ?.getSelectedKey()
 
       const oNewRule = {
         RuleName: sName,
@@ -560,7 +645,7 @@ sap.ui.define([
         ValidFrom: sFrom,
         ValidTo: sTo,
         ItemType: aItemTypeItems.join(","),
-        RuleType: aRuleTypeItems.join(","),
+        RuleType: aRuleTypeItem,
         IsActiveEntity : true
       };
 
@@ -1043,6 +1128,8 @@ sap.ui.define([
       const oModel = this.getView()?.getModel("rules");
       oModel?.setProperty("/currentRule", aObj);
 
+      console.log("aObj: ", aObj)
+
       this._iEditRuleIndex = aSelectedIndices[0];
       this._navToWizardPage();
 
@@ -1053,12 +1140,7 @@ sap.ui.define([
       this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue(aObj.ValidTo || "");
 
       this.byId("idGenItemTypeMCB")?.setSelectedKeys(`${aObj.ItemType}`)
-      this.byId("idGenRuleTypeMCB")?.setSelectedKeys(`${aObj.RuleType}`)
-    
-      this.byId("idGenNameEditBtn")?.setVisible(true);
-      this.byId("idGenDescEditBtn")?.setVisible(true);
-      this.byId("idGenValidFromEditBtn")?.setVisible(true);
-      this.byId("idGenValidToEditBtn")?.setVisible(true);
+      this.byId("idGenRuleTypeMCB")?.setSelectedKey(`${aObj.RuleType}`)
 
       // Step 2: Scope
       if (aObj._RuleScope.length > 0) {      
@@ -1073,6 +1155,7 @@ sap.ui.define([
           Plant: aPlants
         }
 
+        console.log("ASCOPE: ", aScope)
         oModel.setProperty("/editscope", aScope)
       }
 
@@ -1087,12 +1170,15 @@ sap.ui.define([
     /* ===================== FILTER DIALOGS ===================== */
     onAddFilter: async function () {
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
-      const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
+      const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey() || "";
 
-      if (sItemKey === "1" && sRuleKey === "1") {
-      await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
-      (await this._pAddDialog)?.open();
-      return;
+      console.log("ITEMSKEY: ", sItemKey)
+      console.log("sRuleKey: ", sRuleKey)
+
+      if (sItemKey === "PR" && sRuleKey === "1") {
+        await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
+        (await this._pAddDialog)?.open();
+        return;
       }
       // if (["PRO", "REC", "SUP", "ES"].includes(sItemKey) && sRuleKey === "IN") {
       //   await this._ensureDialog("_pAddDialog2", "managerules.view.FilterAdd2Dialog");
@@ -1141,12 +1227,22 @@ sap.ui.define([
 
       const sCharText = this.byId("selCharacteristic")?.getSelectedKey();
       const sOperKey = this.byId("selOperator")?.getSelectedKey();
-      const sValText = this.byId("inpValue")?.getSelectedKey();
-      const sUoMKey = this.byId("selUoM")?.getSelectedKey();
+      var valText = null
+      var sUoMKey = this.byId("selUoM")?.getSelectedKey();
 
-      if (!sCharText || !sOperKey || !sValText) {
-        this._toast("FILTERS_REQUIRED_MSG");
-        return;
+      if (sCharText == "1") {
+        valText = this.byId("inpValue")?.getSelectedKey();
+        sUoMKey = ""
+        if (!sCharText || !sOperKey || !valText) {
+          this._toast("FILTERS_REQUIRED_MSG");
+          return;
+        }
+      } else {
+        valText = this.byId("_IDGenInput")?.getValue();
+        if (!sCharText || !sOperKey || !valText || !sUoMKey) {
+          this._toast("FILTERS_REQUIRED_MSG_2");
+          return;
+        }
       }
 
       const oView = this.getView();
@@ -1157,8 +1253,8 @@ sap.ui.define([
 
       const oEntry = {
         Characteristic: sCharText,
-        Operator: this._mapOperatorText(sOperKey),
-        Value: sValText,
+        Operator: sOperKey,
+        Value: valText,
         ValueUom: sUoMKey,
         LogicalOperator:  sLogOp,
         IsActiveEntity : true
@@ -1173,6 +1269,7 @@ sap.ui.define([
         // add
         aFilter.push(oEntry)
         oModel.setProperty("/draftfilter", aFilter)
+        this.showLogOpOptions()
       }
 
       this.byId("dlgAddFilter")?.close();
@@ -1201,6 +1298,31 @@ sap.ui.define([
       //     oTable.setBusy(false);
       //   }
       // }
+    },
+
+    showLogOpOptions: function () {
+      const oModel = this.getView().getModel("rules")
+      const aFilter = oModel.getProperty("/draftfilter")
+
+      const distinctChars = new Set(aFilter.map(r => r.Characteristic));
+      const bEnable = distinctChars.size > 1; // True if it has more than 1 characteristics
+
+      const aCBs = this.getView().findAggregatedObjects(true, (oCtrl) => {
+        return oCtrl.isA("sap.m.ComboBox") && oCtrl.getId().includes("_IDGenComboBox2");
+      });
+
+      if (!bEnable) {
+        aCBs.forEach((oCB) => {
+          oCB.setEnabled(false);
+          if (!bEnable) {
+            oCB.setSelectedKey("2");
+          }
+        });
+      } else {
+        aCBs.forEach((oCB) => {
+          oCB.setEnabled(true);
+        });
+      }
     },
 
     onCancelAddFilter: function () { this._closeDialogPromise("_pAddDialog"); },
@@ -1279,18 +1401,30 @@ sap.ui.define([
       const oCtx = oItem.getBindingContext("rules");
       const oRow = oCtx?.getObject();
 
+      console.log("OROW: ", oRow)
+
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
-      const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
+      const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey()?.[0] || "";
 
       await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
 
       // temporary values for product=1 and average=1
-      if (this._mapItemTypeKey(sItemKey) === "1" && this._mapRuleTypeKey(sRuleKey) === "1") {
+      if (sItemKey == "PR" && sRuleKey == "1") {
         oModel?.setProperty("/editfilter", oCtx)
 
         this.byId("selCharacteristic").setSelectedKey(oRow.Characteristic);
         this.byId("selOperator")?.setSelectedKey(oRow.Operator);
-        this.byId("inpValue")?.setSelectedKey(oRow.Value);
+
+        if (oRow.Characteristic == "1") {
+          this.byId("inpValue")?.setVisible(true)
+          this.byId("_IDGenInput")?.setVisible(false)
+          this.byId("inpValue")?.setSelectedKey(oRow.Value);
+        } else {
+          this.byId("inpValue")?.setVisible(false)
+          this.byId("_IDGenInput")?.setVisible(true)
+          this.byId("_IDGenInput")?.setValue(oRow.Value);
+        }
+
         this.byId("selUoM")?.setSelectedKey(oRow.ValueUom === this._i18n("UOM_NOT_APPLICABLE") ? "NA" : oRow.ValueUom);
 
         const oDialog = await this._pAddDialog;
@@ -1328,7 +1462,7 @@ sap.ui.define([
         emphasizedAction: MessageBox.Action.YES,
         onClose: function (sAction) {
           if (sAction === MessageBox.Action.YES) { 
-            this._performFilterDeletion(aSelectedItems); 
+            this._performFilterDeletion(aSelectedItems);
           }
         }.bind(this)
       });
@@ -1337,9 +1471,9 @@ sap.ui.define([
     /* ===================== ADJUSTMENT LOGIC DIALOGS ===================== */
     onAddAdjLogic: async function () {
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
-      const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
+      const sRuleKey = this.byId("idGenRuleTypeMCB", "selRuleType")?.getSelectedKey()?.[0] || "";
 
-      if (sItemKey === "1" && sRuleKey === "1") {
+      if (sItemKey === "PR" && sRuleKey === "1") {
         await this._ensureDialog("_pAdjLogicDialog", "managerules.view.AddAdjLogicDialog");
         const oDialog = await this._pAdjLogicDialog;
         oDialog.setTitle(this._i18n("ADJ_DEFINE_TITLE"));
@@ -1363,7 +1497,7 @@ sap.ui.define([
       const sValue = this.byId("selLogicValue")?.getSelectedKey();
       const sUoM = this.byId("selLogicUoM")?.getSelectedKey();
 
-      if (!sLogic || !sValue || !sUoM) { 
+      if (!sLogic || !sValue) { 
         this._toast("FILL_ALL_FIELDS_MSG"); 
         return; 
       }
@@ -1470,9 +1604,9 @@ sap.ui.define([
       const oRow = oCtx?.getObject();
 
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
-      const sRuleKey = this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedKeys()?.[0] || "";
+      const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey() || "";
 
-      if (sItemKey === "1" && sRuleKey === "1") {
+      if (sItemKey === "PR" && sRuleKey === "1") {
         oModel?.setProperty("/editadjlogic", oCtx)
 
         await this._ensureDialog("_pAdjLogicDialog", "managerules.view.AddAdjLogicDialog");
@@ -1529,7 +1663,7 @@ sap.ui.define([
       this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue("");
 
       const oItemTypeMCB = this._mcb("idGenItemTypeMCB", "selItemType");
-      const oRuleTypeMCB = this._mcb("idGenRuleTypeMCB", "selRuleType");
+      const oRuleTypeMCB = this._byAnyId("idGenRuleTypeMCB", "selRuleType");
       oItemTypeMCB?.removeAllSelectedItems();
       oRuleTypeMCB?.removeAllSelectedItems();
       if (typeof bEnableCombos === "boolean") {
@@ -1552,35 +1686,44 @@ sap.ui.define([
       }
     },
 
+    trimPlantKey: function (sPlant) {
+      if (!sPlant) {
+        return "";
+      }
+
+      // Max length should be 4, trim excess
+      return sPlant.length > 4
+        ? sPlant.slice(0, 4)
+        : sPlant;
+    },
+
     /* ===================== SELECTION DEPENDENCIES HELPERS ===================== */
-    onPlantsSelectionChange: function (oEvent) {
+    onPlantSelectionChange: function (oEvent) {
       const oMCB = oEvent.getSource();
-      const oModel = this.getView().getModel("app");
 
       const oChangedItem = oEvent.getParameter("changedItem");
       const bSelected = oEvent.getParameter("selected");
       const sChangedKey = oChangedItem && oChangedItem.getKey();
 
       let aSelectedKeys = oMCB.getSelectedKeys();
-      const aAllKeys = ["001", "002", "003"]
 
-      // --- "All Plants" (selected) ---
+      const aAllKeys = oMCB.getItems()
+        .map(i => i.getKey())
+        .filter(k => k && k !== "*");
+
+      // --- "All" selected ---
       if (sChangedKey === "*" && bSelected) {
         aSelectedKeys = ["*", ...aAllKeys];
-
         oMCB.setSelectedKeys(aSelectedKeys);
         return;
       }
 
-      // --- unclicked "All Plants" (deselected) ---
+      // --- "All" deselected ---
       if (sChangedKey === "*" && !bSelected) {
-        aSelectedKeys = [];
-
-        oMCB.setSelectedKeys(aSelectedKeys);
+        oMCB.setSelectedKeys([]);
         return;
       }
 
-      // --- changed an individual plant ---
       const bAllSelected =
         aAllKeys.length > 0 &&
         aAllKeys.every(k => aSelectedKeys.includes(k));
@@ -1591,14 +1734,24 @@ sap.ui.define([
       }
 
       if (bAllSelected && !aSelectedKeys.includes("*")) {
-        aSelectedKeys = ["*", ...aSelectedKeys];
-        oMCB.setSelectedKeys(aSelectedKeys);
+        oMCB.setSelectedKeys(["*", ...aSelectedKeys]);
       }
     },
 
     onCharacteristicsChange: function (oEvent) {
       const sKey = oEvent.getSource().getSelectedKey();
-      this._renderField(sKey === "4" ? "input" : "combo");
+      this.byId("_IDGenInput").setValue("")
+      this._renderField(sKey === "1" ? "combo" : "input");
+    },
+
+    _renderField: function (sMode) {
+      if (sMode === "combo") {
+        this.byId("inpValue").setVisible(true)
+        this.byId("_IDGenInput").setVisible(false)
+      } else {
+        this.byId("_IDGenInput").setVisible(true)
+        this.byId("inpValue").setVisible(false)
+      }
     },
 
     onItemTypeSelectionChange: function () {
@@ -1641,17 +1794,17 @@ sap.ui.define([
 
     /* ===================== FIELD VALIDATIONS ===================== */
     _isGeneralInfoValid: function () {
-      const bNameOk = !!this._input("idGenNameInput", "inpName")?.getValue()?.trim();
-      const bDescOk = !!this._input("idGenDescInput", "inpDesc")?.getValue()?.trim();
-      const bItemOk = !!this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedItems()?.length;
-      const bRuleOk = !!this._mcb("idGenRuleTypeMCB", "selRuleType")?.getSelectedItems()?.length;
+      const bNameOk = this.byId("idGenNameInput")?.getValue()?.trim();
+      const bDescOk = this.byId("idGenDescInput")?.getValue()?.trim();
+      const bItemOk = this.byId("idGenItemTypeMCB")?.getSelectedItems()?.length;
+      const bRuleOk = this.byId("idGenRuleTypeMCB")?.getSelectedKey()?.length;
 
-      const bItemTypeOk = !!this._mcb("idGenItemTypeMCB", "selItemType")
-        ?.getSelectedKeys().length;
-      const bTuleTypeOk = !!this._mcb("idGenRuleTypeMCB", "selRuleType")
-        ?.getSelectedKeys()?.length;
+      const sFrom = this.byId("idGenValidFromDP")?.getValue()?.trim() || "";
+      const sTo   = this.byId("idGenValidToDP")?.getValue()?.trim() || "";
 
-      return bNameOk && bDescOk && bItemOk && bRuleOk && bItemTypeOk && bTuleTypeOk;
+      console.log("GENERAL info valid: ", bNameOk, bDescOk, bItemOk, bRuleOk, sFrom, sTo)
+
+      return bNameOk && bDescOk && bItemOk && bRuleOk && sFrom && sTo;
     },
 
     _isScopeValid: function () {
@@ -1680,6 +1833,7 @@ sap.ui.define([
 
       aIndices.forEach(function (iIndex) { aExisting.splice(iIndex, 1); });
       oModel?.setProperty("/draftfilter", aExisting);
+      this.showLogOpOptions()
       this.byId("tblFilters")?.removeSelections();
       this._toast("FILTERS_DELETED_SUCCESS_MSG");
     },
@@ -1786,6 +1940,11 @@ sap.ui.define([
         default: return sText;
       }
     },
+    _mapPlantKey2: function (sPlantKey, mPlantLookup) {
+      if (sPlantKey == null || sPlantKey === "") return "";
+      const k = String(sPlantKey);
+      return (mPlantLookup && mPlantLookup[k]) ? mPlantLookup[k] : k;
+    },
     _applyFiltersForCurrentRule: async function (oCreated) {
       const oModel = this.getView().getModel("rules");
 
@@ -1816,9 +1975,9 @@ sap.ui.define([
       }
 
       // If AV is selected but PRO is no longer selected -> remove AV from selection
-      if (!bHasPRO && oRuleTypeMCB.getSelectedKeys().includes("AV")) {
-        const aNewRuleKeys = oRuleTypeMCB.getSelectedKeys().filter(k => k !== "AV");
-        oRuleTypeMCB.setSelectedKeys(aNewRuleKeys);
+      if (!bHasPRO && oRuleTypeMCB.getSelectedKey().includes("AV")) {
+        const aNewRuleKeys = oRuleTypeMCB.getSelectedKey().filter(k => k !== "AV");
+        oRuleTypeMCB.setSelectedKey(aNewRuleKeys);
       }
 
       // Optional: show a ValueState message when AV is disabled and user had it selected

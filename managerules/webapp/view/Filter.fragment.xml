@@ -32,11 +32,27 @@ xmlns:l="sap.ui.layout.form"
    <items>
     <ColumnListItem id="_IDGenColumnListItem2" >
      <cells>
-      <Text id="_IDGenText23" text="{rules>Characteristic}" />
-      <Text id="_IDGenText24" text="{rules>Operator}" />
-      <Text id="_IDGenText25" text="{rules>Value}" />
-      <Text id="_IDGenText26" text="{rules>ValueUom}" />
-      <ComboBox id="_IDGenComboBox2" selectedKey="{rules>LogicalOperator}" width="10rem" placeholder="AND / OR" selectionChange=".onLogicalOperatorChange">
+      <Text id="_IDGenText23" 
+        text="{
+        path: 'rules>Characteristic',
+        formatter: '.characteristicFormatter'
+        }" />
+      <Text id="_IDGenText24" 
+        text="{
+        path: 'rules>Operator',
+        formatter: '.operatorFormatter'
+        }" />
+      <Text id="_IDGenText25" 
+        text="{
+        path: 'rules>Value',
+        formatter: '.productFormatter'
+        }" />
+      <Text id="_IDGenText26" 
+        text="{
+        path: 'rules>ValueUom',
+        formatter: '.valueUomFormatter'
+        }" />
+      <ComboBox id="_IDGenComboBox2" selectedKey="{rules>LogicalOperator}" width="10rem" placeholder="AND / OR" selectionChange=".onLogicalOperatorChange" enabled="{rules>logOpEnabled}">
         <core:Item id="_IDGenItem52" key="1" text="AND"></core:Item>
         <core:Item id="_IDGenItem53" key="2" text="OR"></core:Item>
       </ComboBox>
