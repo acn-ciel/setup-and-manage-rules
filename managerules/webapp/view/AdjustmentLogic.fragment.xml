@@ -9,8 +9,8 @@ xmlns:l="sap.ui.layout.form"
     <Text id="_IDGenText30" text="Define adjustment logic to filtered item records. " />
     <ToolbarSpacer id="_IDGenToolbarSpacer6"/>
     <Button id="_IDGenButton16" text="Add" type="Emphasized" press="onAddAdjLogic" />
-    <Button id="_IDGenButton10" text="Edit" type="Emphasized" press="onEditAdjLogic" />
-    <Button id="_IDGenButton11" text="Delete" type="Emphasized" press="onDeleteAdjLogic" />
+    <Button id="_IDGenButton10" text="Edit" press="onEditAdjLogic" />
+    <Button id="_IDGenButton11" text="Delete" type="Reject" press="onDeleteAdjLogic" />
     <Button id="_IDGenButton12" text="Save rule" type="Emphasized" press="onValidateNextStep" />
   </Toolbar>
   

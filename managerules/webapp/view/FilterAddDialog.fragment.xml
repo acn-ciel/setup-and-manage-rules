@@ -6,7 +6,7 @@
           title="Define filter characteristics"
           draggable="true"
           resizable="true"
-          contentWidth="60%"
+          contentWidth="80%"
           contentHeight="auto"
           afterClose="onFilterDialogClose"
           >
@@ -18,10 +18,10 @@
           width="100%"
           showSeparators="None">
         <columns>
-          <Column id="_IDGenColumn15" width="130%"><Label id="_IDGenText29" text="Characteristic" required="true"/></Column>
+          <Column id="_IDGenColumn15" width="120%"><Label id="_IDGenText29" text="Characteristic" required="true"/></Column>
           <Column id="_IDGenColumn16" width="90%"><Label id="_IDGenText34" text="Operator" required="true"/></Column>
-          <Column id="_IDGenColumn17" width="90%"><Label id="_IDGenText35" text="Values" required="true"/></Column>
-          <Column id="_IDGenColumn18" width="90%"><Label id="_IDGenText36" text="Value UoM" required="{= ${rules>/selectChar} !== '1' }"/></Column>
+          <Column id="_IDGenColumn17" width="100%"><Label id="_IDGenText35" text="Values" required="true"/></Column>
+          <Column id="_IDGenColumn18" width="90%"><Label id="_IDGenText36" text="Value UoM" required="{rules>/selectChar}"/></Column>
         </columns>
         <items>
           <ColumnListItem id="_IDGenColumnListItem3">
@@ -30,7 +30,6 @@
                       class="select"
                       required="true"
                       placeholder="Select characteristic to apply"
-                      selectedKey="{rules>/selectChar}"
                       items="{rules>/characteristics}"
                       selectionChange=".onCharacteristicsChange"
                       width="100%">
@@ -59,12 +58,19 @@
                   id="_IDGenInput"
                   visible="false"
                   type="Number" />
+                
+                <DatePicker id="idFilterDP"
+                  visible="false"
+                  displayFormat="yyyy-MM-dd" 
+                  valueFormat="yyyy-MM-dd" 
+                  placeholder="{i18n>GENINFO_DATE_PH}" 
+                  width="150px"/>
               </VBox>
 
               <ComboBox id="selUoM"
                       placeholder="Select 1"
                       items="{rules>/valueUom}"
-                      enabled="{= ${rules>/selectChar} !== '1' }"
+                      enabled="{rules>/selectChar}"
                       width="100%">
                 <core:Item id="_IDGenItem31" key="{rules>UnitOfMeasure}" text="{rules>UnitOfMeasureLongName}"/>
               </ComboBox>
@@ -81,7 +87,7 @@
 
     <beginButton>
       <Button id="_IDGenButton14" text="Add" type="Emphasized"
-              press="onConfirmAddFilter"/>
+              press=".onConfirmAddFilter"/>
     </beginButton>
 
   </Dialog>

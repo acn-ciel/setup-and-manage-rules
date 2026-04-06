@@ -27,12 +27,11 @@
             <Button id="_IDGenButton2"
                      text="{= ${load>/loadingBackend} ? 'Loading…' : 'Edit selected rule' }"
                      enabled="{= !${load>/loadingBackend} }"
-                     type="Emphasized"
                      press="onEditRule"
                      class="sapUiSmallMarginTop" />  
 
             <Button id="_IDGenButton3" text="Delete selected rule"
-                     type="Emphasized"
+                     type="Reject"
                      press="onDeleteRule"
                      class="sapUiLargeMarginEnd sapUiSmallMarginTop" />                 
          </Toolbar>

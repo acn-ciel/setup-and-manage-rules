@@ -20,7 +20,7 @@
       <Label id="_IDGenLabel6" text="Inventory scope" required="true" class="label" />
       <HBox id="_IDGenHBox8">
         <ComboBox id="_IDGenSelect" width="400px" class="select" placeholder="Select 1" items="{rules>/invScope}">
-          <core:Item id="_IDGenItem8" key="{rules>UnitOfMeasure}" text="{rules>UnitOfMeasureLongName}" />
+          <core:Item id="_IDGenItem8" key="{rules>InventoryScope}" text="{rules>InventoryScopeName}" />
         </ComboBox>
         <Button id="editIconScope" icon="sap-icon://edit" type="Transparent" visible="false" />
       </HBox>

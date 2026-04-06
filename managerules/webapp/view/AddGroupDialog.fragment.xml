@@ -1,0 +1,29 @@
+<core:FragmentDefinition
+      xmlns="sap.m"
+      xmlns:core="sap.ui.core">
+
+  <Dialog id="dlgAddGroup"
+          title="Define Group Name"
+          draggable="true"
+          resizable="true"
+          contentWidth="20rem"
+          contentHeight="auto"
+          afterClose="onFilterDialogClose2"
+          >
+
+    <VBox id="_IDGenVBox12" class="sapUiSmallMargin">
+        <Input placeholder="e.g. Group 1" id="_IDGenInput1"/>
+    </VBox>
+
+    <endButton>
+      <Button id="_IDGenButton22"  text="Cancel" type="Transparent"
+              press="onCancelAddGroup"/>
+    </endButton>
+
+    <beginButton>
+      <Button id="_IDGenButton23"  text="Add" type="Emphasized"
+              press="onConfirmAddGroup"/>
+    </beginButton>
+
+  </Dialog>
+</core:FragmentDefinition>
