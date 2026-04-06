@@ -24,12 +24,17 @@ sap.ui.define([
           oTable.setBusy(false);
         });
 
+        // All lists will be moved here
         const oLoadModel = new JSONModel ({
           loadingBackend: true,
+          plantList: [],    
         })
 
         this.getView().setModel(oLoadModel, "load")
         
+        const plantList = await this.getPlant();
+        oLoadModel.setProperty("/plantList", plantList)
+
         const itemType = await this.getItemType();
         const ruleType = await this.getTypeRule();
 
@@ -52,12 +57,12 @@ sap.ui.define([
         console.log("product: ", product)
         console.log("invScope: ", invScope)
         console.log("plant: ", plant)
-        console.log("charFilters: ", charFilters.filter(c => (["1", "3", "4"].includes(c.IndexNo))))
+        console.log("charFilters: ", charFilters)
         console.log("operator: ", operator)
         console.log("values: ", values.filter(v => (v.Logic == "1")))
         console.log("valueUom: ", valueUom)
         console.log("logic filter: ", logic.filter(l => (l.RuleType=="001")))
-
+        
         // // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
@@ -65,6 +70,7 @@ sap.ui.define([
           editscope: null,
           editgeninfo: null,     
           editfilter: null,
+          groupsFilter: [],
           editadjlogic: null,
 
           draftscope: null,
@@ -86,7 +92,7 @@ sap.ui.define([
           })),
 
           /** Filters */
-          characteristics: charFilters.filter(c => (["1", "3", "4"].includes(c.IndexNo))),
+          characteristics: charFilters,
           operator: operator,
           product: product, // values column
           valueUom: valueUom,
@@ -97,14 +103,43 @@ sap.ui.define([
           logic: logic.filter(l => (l.RuleType == "001")),
           values: values.filter(v => (v.Logic == "1")),
           // Value UoM is not applicable
+        
         });
         this.getView()?.setModel(oRuleModel, "rules");
 
-        const oModel = this.getView()?.getModel("load")
-        oModel.setProperty("/loadingBackend", false)
+        const oModel = this.getView()?.getModel("load");
+
+        oModel.setProperty("/loadingBackend", false);
       } catch (e) {
-        this._toast(`${e}`)
+        this._toast(`${e}`);
       }
+    },
+
+    onAddGroup: async function () {
+      await this._ensureDialog("_pAddGrpDialog", "managerules.view.AddGroupDialog");
+      (await this._pAddGrpDialog)?.open();
+      return;
+    },
+
+    onCancelAddGroup: function () {
+      this._closeDialogPromise("_pAddGrpDialog");
+    },
+
+    onConfirmAddGroup: function () {
+      const oModel = this.getView().getModel("rules");
+      const aGroups = oModel.getProperty("/groupsFilter") || [];
+
+      const inpGrpName = this.byId("_IDGenInput1")?.getValue();
+
+      aGroups.push({
+        GroupName: inpGrpName,
+        RuleId: null,
+        IsActiveEntity: true,
+        _FilterCondition: []
+      });
+
+      oModel.setProperty("/groupsFilter", aGroups);
+      this._closeDialogPromise("_pAddGrpDialog");
     },
 
     /* ================== GET VALUE HELP DATA: General Info ================== */
@@ -146,9 +181,9 @@ sap.ui.define([
 
     /* ================== GET VALUE HELP DATA: Scope ================== */
     getInventoryScope: async function () {
-      const oModel = this.getOwnerComponent().getModel("zsd_uom_vh");
+      const oModel = this.getOwnerComponent().getModel("zsd_inventoryscope_vh");
       try {
-        const oList = oModel.bindList("/ZI_UOM_VH");
+        const oList = oModel.bindList("/ZI_INVENTORYSCOPE_VH");
         const aContexts = await oList.requestContexts();
         return aContexts.map(c => c.getObject());
       } catch (e) {
@@ -597,6 +632,8 @@ sap.ui.define([
       const oFilter = this.onGetFilter() || [];
       const oAdjLogic = this.onGetAdjLogic();
 
+      console.log("OSCOPE: ", oScope)
+
       var success = null
       const oView = this.getView();
       oView.setBusy(true)
@@ -968,53 +1005,6 @@ sap.ui.define([
       return oCtx.getObject();
     },
 
-    onDeleteSelectedRule: async function () {
-      const oTable = this.byId("_IDGenTable");
-      const aIdx = oTable.getSelectedIndices();
-      if (!aIdx.length) return;
-
-      const oRow = oTable.getContextByIndex(aIdx[0]).getObject();
-      const oModel = this.getOwnerComponent().getModel();
-
-      const sPath = this._buildRulesHeaderPath(oRow);
-
-      try {
-        const oCtx = oModel.bindContext(sPath).getBoundContext();
-
-        console.log("1) Queue delete");
-        const pDelete = oCtx.delete(); 
-
-        console.log("2) Submit batch");
-        await oModel.submitBatch("ruleUpdates");
-
-        console.log("3) Await delete resolution");
-        await pDelete;                 
-
-        this._toast("Deleted successfully.");
-        console.log("PDELETE: ", pDelete)
-
-        oTable.clearSelection();
-
-      } catch (e) {
-        oModel.resetChanges("ruleUpdates");
-        sap.m.MessageBox.error(e?.message || "Delete failed.");
-      }
-    },
-    
-    _buildRulesHeaderPath: function (o) {
-      // Adjust UUID formatting if your backend expects guid'...'
-      return `/ZC_RULESHEADER(` +
-        `Id=${o.Id},` +
-        `RuleId=${this._fmtStr(o.RuleId)},` +
-        `DraftUUID=${o.DraftUUID},` +
-        `IsActiveEntity=${o.IsActiveEntity}` +
-      `)`;
-    },
-  
-    _fmtStr: function (v) {
-      return `'${String(v).replace(/'/g, "''")}'`;
-    },
-
     onEditRule: async function () {
       const oTable = this.byId("_IDGenTable");
       const aSelectedIndices = oTable.getSelectedIndices();
@@ -1076,7 +1066,9 @@ sap.ui.define([
     },
 
     /* ===================== FILTER DIALOGS ===================== */
-    onAddFilter: async function () {
+    onAddFilter: async function (oEvent) {
+      const oCtx = oEvent.getSource().getBindingContext("rules"); // group / panel context
+
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey() || "";
 
@@ -1085,6 +1077,13 @@ sap.ui.define([
 
       if (sItemKey === "PR" && sRuleKey === "1") {
         await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
+      
+        const oDialog = await Fragment.byId(
+                        this.getView().getId(), 
+                        "dlgAddFilter"          
+                      );
+
+        oDialog.setBindingContext(oCtx, "rules");
         (await this._pAddDialog)?.open();
         return;
       }
@@ -1131,42 +1130,63 @@ sap.ui.define([
     },
 
     onConfirmAddFilter: async function () {
-      const oTable = this.byId("tblFilters");
+      const oView = this.getView();
+      const oModel = oView?.getModel("rules");
+
+      await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
+      
+      const oDialog = Fragment.byId(this.getView().getId(), "dlgAddFilter");
+      const oCtx = oDialog.getBindingContext("rules");
+
+      if (!oCtx) {
+        this._toast("Parent context not found");
+        return;
+      }
+
+      const sGroupPath = oCtx.getPath();
+
+      const sFilterCondPath = sGroupPath + "/_FilterCondition";
+      const aConditions = oModel.getProperty(sFilterCondPath) || [];
 
       const sCharText = this.byId("selCharacteristic")?.getSelectedKey();
       const sOperKey = this.byId("selOperator")?.getSelectedKey();
+
       var valText = null
       var sUoMKey = this.byId("selUoM")?.getSelectedKey();
 
       if (sCharText == "1") {
+        // Get value from selection
         valText = this.byId("inpValue")?.getSelectedKey();
         sUoMKey = ""
         if (!sCharText || !sOperKey || !valText) {
           this._toast("FILTERS_REQUIRED_MSG");
           return;
         }
-      } else {
+      } else if (["3", "4"].includes(sCharText)) {
+        // Get value from input
         valText = this.byId("_IDGenInput")?.getValue();
+        if (!sCharText || !sOperKey || !valText || !sUoMKey) {
+          this._toast("FILTERS_REQUIRED_MSG_2");
+          return;
+        }
+      } else if (["5", "6"].includes(sCharText)) {
+        // Get value from date picker
+        valText = this.byId("idFilterDP")?.getValue();
         if (!sCharText || !sOperKey || !valText || !sUoMKey) {
           this._toast("FILTERS_REQUIRED_MSG_2");
           return;
         }
       }
 
-      const oView = this.getView();
-      const oModel = oView?.getModel("rules");
-      const aFilter = oModel?.getProperty("/draftfilter") || [];
       const aEditFilter = oModel?.getProperty("/editfilter") || null;
-      const sLogOp = (aFilter && aFilter.LogicalOperator) ? aFilter.LogicalOperator : "2";
-
-      const oEntry = {
-        Characteristic: sCharText,
-        Operator: sOperKey,
-        Value: valText,
-        ValueUom: sUoMKey,
-        LogicalOperator:  sLogOp,
-        IsActiveEntity : true
-      };
+      const aFilterEntry = {
+          Characteristic: sCharText,
+          Operator: sOperKey,
+          IsActiveEntity: true,
+          _FilterValues: [
+            { Value: valText, ValueUom: sUoMKey, IsActiveEntity: true }
+          ]
+        }
 
       if (aEditFilter != null) {
         // edit
@@ -1175,9 +1195,9 @@ sap.ui.define([
         oModel.setProperty("/editfilter", null)
       } else {
         // add
-        aFilter.push(oEntry)
-        oModel.setProperty("/draftfilter", aFilter)
-        this.showLogOpOptions()
+        console.log("ACONDIITONS: ", aConditions)
+        aConditions.push(aFilterEntry)
+        oModel.setProperty(sFilterCondPath, aConditions)
       }
 
       this.byId("dlgAddFilter")?.close();
@@ -1647,17 +1667,38 @@ sap.ui.define([
     },
 
     onCharacteristicsChange: function (oEvent) {
+      const oModel = this.getView().getModel("rules");
       const sKey = oEvent.getSource().getSelectedKey();
+      
       this.byId("_IDGenInput").setValue("")
-      this._renderField(sKey === "1" ? "combo" : "input");
+      var inpVal = "";
+
+      if (sKey == "1") {
+        inpVal = "combo";
+        oModel.setProperty("/selectChar", false)
+      } else if (["3", "4"].includes(sKey)) {
+        inpVal = "input"
+        oModel.setProperty("/selectChar", true)
+      } else if (["5", "6"].includes(sKey)) {
+        inpVal = "datepicker"
+        oModel.setProperty("/selectChar", false)
+      }
+
+      this._renderField(inpVal);
     },
 
     _renderField: function (sMode) {
       if (sMode === "combo") {
         this.byId("inpValue").setVisible(true)
         this.byId("_IDGenInput").setVisible(false)
-      } else {
+        this.byId("idFilterDP").setVisible(false)
+      } else if (sMode == "input") {
         this.byId("_IDGenInput").setVisible(true)
+        this.byId("inpValue").setVisible(false)
+        this.byId("idFilterDP").setVisible(false)
+      } else if (sMode == "datepicker") {
+        this.byId("idFilterDP").setVisible(true)
+        this.byId("_IDGenInput").setVisible(false)
         this.byId("inpValue").setVisible(false)
       }
     },
@@ -1716,7 +1757,7 @@ sap.ui.define([
     },
 
     _isScopeValid: function () {
-      const bInvScopeOk = !!this.byId("_IDGenSelect")?.getValue()?.trim();
+      const bInvScopeOk = !!this.byId("_IDGenSelect")?.getSelectedKey()?.length;
       const bPlantsOk = !!this._mcb("_IDGenMultiComboBox")?.getSelectedItems()?.length;
       return bInvScopeOk && bPlantsOk;
     },
@@ -1782,7 +1823,8 @@ sap.ui.define([
 
     /* ===================== KEY TO VALUE FORMATTER ===================== */
     plantFormatter: async function (plant) {
-      const plantList = await this.getPlant();
+      const oModel = this.getView()?.getModel("load")
+      const plantList = oModel.getProperty("/plantList")
       const plantLookup = plantList
         .map(p => ({
           ...p, 
