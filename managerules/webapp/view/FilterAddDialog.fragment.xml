@@ -57,14 +57,16 @@
                 <Input
                   id="_IDGenInput"
                   visible="false"
-                  type="Number" />
+                  type="Number" 
+                  width="100%"
+                  />
                 
                 <DatePicker id="idFilterDP"
                   visible="false"
                   displayFormat="yyyy-MM-dd" 
                   valueFormat="yyyy-MM-dd" 
                   placeholder="{i18n>GENINFO_DATE_PH}" 
-                  width="150px"/>
+                  width="100%"/>
               </VBox>
 
               <ComboBox id="selUoM"

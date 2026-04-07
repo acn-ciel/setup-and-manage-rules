@@ -127,6 +127,15 @@
           "localUri": "localService/zsd_values_vh/metadata.xml",
           "odataVersion": "4.0"
         }
+      },
+      "zsd_filtersgroup": {
+        "uri": "/sap/opu/odata4/sap/zsb_filtersgroup/srvd/sap/zsd_filtersgroup/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/zsd_filtersgroup/metadata.xml",
+          "odataVersion": "4.0"
+        }
       }
     }
   },
@@ -258,6 +267,15 @@
       },
       "zsd_values_vh": {
         "dataSource": "zsd_values_vh",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "zsd_filtersgroup": {
+        "dataSource": "zsd_filtersgroup",
         "preload": true,
         "settings": {
           "operationMode": "Server",

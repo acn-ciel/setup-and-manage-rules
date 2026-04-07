@@ -9,7 +9,7 @@ xmlns:l="sap.ui.layout.form"
   <Toolbar id="_IDGenToolbar3" class="sapUiSmallMarginBottom">
     <Text id="_IDGenText18" text="Filter item records in SFM where adjustment needs to be applied" />
     <ToolbarSpacer id="_IDGenToolbarSpacer4" />
-    <Button id="_IDGenButton9" text="Add Group" type="Emphasized" press="onAddGroup" />  
+    <Button id="_IDGenButton9" text="Add Group" type="Emphasized" press=".onAddGroup" />  
     <Button id="_IDGenButton21" text="{i18n>GENINFO_SAVE_NEXT_BTN}" type="Emphasized" press="onValidateNextStep" />  
   </Toolbar>
 
@@ -24,8 +24,8 @@ xmlns:l="sap.ui.layout.form"
           <OverflowToolbar id="ToolBar">
             <Title id="Title" text="{rules>GroupName}" level="H4"/>
             <ToolbarSpacer id="_IDGenToolbarSpacer5" />
-            <Button id="btnEdit1" text="Edit Group Name" press="onEditGroupName"/>
-            <Button id="btnDelete1" text="Delete Group" type="Reject" press="onDeleteGroup"/>
+            <Button id="btnEdit1" text="Edit Group Name" press=".onEditGroupName"/>
+            <Button id="btnDelete1" text="Delete Group" type="Reject" press=".onDeleteGroup"/>
           </OverflowToolbar>
         </headerToolbar>
 
@@ -43,9 +43,9 @@ xmlns:l="sap.ui.layout.form"
             <Column id="colVal" hAlign="End">
               <header>
                 <HBox id="hdrActionsRow" width="100%" justifyContent="End">
-                  <Button id="btnAdd" icon="sap-icon://add" type="Transparent" press="onAddFilter"/>
-                  <Button id="btnEdit" icon="sap-icon://edit" type="Transparent" press="onEditFilter"/>
-                  <Button id="btnDelete" icon="sap-icon://delete" type="Transparent" press="onDeleteFilter"/>
+                  <Button id="btnAdd" icon="sap-icon://add" type="Transparent" press=".onAddFilter"/>
+                  <Button id="btnEdit" icon="sap-icon://edit" type="Transparent" press=".onEditFilter"/>
+                  <Button id="btnDelete" icon="sap-icon://delete" type="Transparent" press=".onDeleteFilter"/>
                 </HBox>
               </header>
             </Column>

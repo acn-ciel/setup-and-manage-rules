@@ -3,7 +3,7 @@
       xmlns:core="sap.ui.core">
 
   <Dialog id="dlgAddGroup"
-          title="Define Group Name"
+          title="{i18n>FILTER_GRP_ADD}"
           draggable="true"
           resizable="true"
           contentWidth="20rem"
