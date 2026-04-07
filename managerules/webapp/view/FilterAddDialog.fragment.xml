@@ -6,7 +6,7 @@
           title="Define filter characteristics"
           draggable="true"
           resizable="true"
-          contentWidth="80%"
+          contentWidth="60%"
           contentHeight="auto"
           afterClose="onFilterDialogClose"
           >

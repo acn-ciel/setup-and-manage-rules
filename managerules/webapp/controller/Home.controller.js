@@ -13,34 +13,31 @@ sap.ui.define([
     onInit: async function () {
       
       try {
-        this.onFetchFilter()
         const oTable = this.byId("_IDGenTable");
-
-        // show busy immediately for initial load
-        oTable.setBusyIndicatorDelay(0);
         oTable.setBusy(true);
 
-        // Hide busy once rows are updated (first data rendered)
-        oTable.attachEventOnce("rowsUpdated", function () {
-          oTable.setBusy(false);
-        });
-
-        // All lists will be moved here
         const oLoadModel = new JSONModel ({
           loadingBackend: true,
-          plantList: [],    
+          plantList: [],
+          itemType: [],
+          ruleType: []
         })
 
         this.getView().setModel(oLoadModel, "load")
-        
-        const plantList = await this.getPlant();
-        oLoadModel.setProperty("/plantList", plantList)
 
-        const itemType = await this.getItemType();
+        const plant = await this.getPlant();
+        oLoadModel.setProperty("/plantList", plant)
+
         const ruleType = await this.getTypeRule();
+        oLoadModel.setProperty("/ruleType", ruleType)
+      
+        const itemType = await this.getItemType();
+        oLoadModel.setProperty("/itemType", itemType)
+
+        // Set busy to false once the data and formatter is loaded
+        oTable.setBusy(false);
 
         const invScope = await this.getInventoryScope();
-        const plant = await this.getPlant();
         const plantWithAll = [{ 
           Plant: "*", PlantName: "All" },
           ...plant];
@@ -53,17 +50,6 @@ sap.ui.define([
         const valueUom = await this.getValueUom();
         const logic = await this.getLogic();
 
-        console.log("itemType: ", itemType)
-        console.log("ruleType: ", ruleType)
-        console.log("product: ", product)
-        console.log("invScope: ", invScope)
-        console.log("plant: ", plant)
-        console.log("charFilters: ", charFilters)
-        console.log("operator: ", operator)
-        console.log("values: ", values.filter(v => (v.Logic == "1")))
-        console.log("valueUom: ", valueUom)
-        console.log("logic filter: ", logic.filter(l => (l.RuleType=="001")))
-        
         // // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
@@ -1668,9 +1654,9 @@ sap.ui.define([
     },
 
     _resetFilterFields: function () {
-      this.byId("inpValue")
-      this.byId("_IDGenInput")
-      this.byId("idFilterDP")
+      this.byId("inpValue").setValue("")
+      this.byId("_IDGenInput").setValue("")
+      this.byId("idFilterDP").setValue("")
     },
 
     trimPlantKey: function (sPlant) {
@@ -1868,6 +1854,23 @@ sap.ui.define([
     },
 
     /* ===================== KEY TO VALUE FORMATTER ===================== */
+    itemTypeFormatter: function (itemType) {
+      const oModel = this.getView().getModel("load");
+      const itemLookup = oModel.getProperty("/itemType")
+
+      const oMatch = itemLookup.find(i => i.ItemType == itemType);
+      return oMatch ? oMatch.ItemTypeName : itemType;
+    },
+
+    ruleTypeFormatter: function (ruleType) {
+      const oModel = this.getView().getModel("load");
+      const ruleLookup = oModel.getProperty("/ruleType")
+
+      const oMatch = ruleLookup.find(r => r.IndexNo == ruleType);
+      return oMatch ? oMatch.TypeOfRules : ruleType;
+    },
+
+
     plantFormatter: async function (plant) {
       const oModel = this.getView()?.getModel("load")
       const plantList = oModel.getProperty("/plantList")
@@ -1930,7 +1933,7 @@ sap.ui.define([
       const oMatch = valLookup.find(v => v.IndexNo == values);
       return oMatch ? oMatch.LogicValues : values;
     },
-    
+
     valUomAdjLogicFormatter: function (valueUom) {
       const oModel = this.getView().getModel("rules");
       const valLookup = oModel.getProperty("/valueUom")
@@ -1938,7 +1941,7 @@ sap.ui.define([
       const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
       return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
     },
-
+  
     _applyFiltersForCurrentRule: async function (oCreated) {
       const oModel = this.getView().getModel("rules");
 

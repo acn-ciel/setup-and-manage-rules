@@ -44,8 +44,8 @@ xmlns:l="sap.ui.layout.form"
               <header>
                 <HBox id="hdrActionsRow" width="100%" justifyContent="End">
                   <Button id="btnAdd" icon="sap-icon://add" type="Transparent" press=".onAddFilter"/>
-                  <Button id="btnEdit" icon="sap-icon://edit" type="Transparent" press=".onEditFilter"/>
-                  <Button id="btnDelete" icon="sap-icon://delete" type="Transparent" press=".onDeleteFilter"/>
+                  <Button id="btnEdit" icon="sap-icon://edit" type="Transparent" press=".onEditFilter" class="sapUiTinyMarginBegin"/>
+                  <Button id="btnDelete" icon="sap-icon://delete" type="Transparent" press=".onDeleteFilter" class="sapUiTinyMarginBegin"/>
                 </HBox>
               </header>
             </Column>
@@ -54,10 +54,24 @@ xmlns:l="sap.ui.layout.form"
           <items>
             <ColumnListItem id="ColList1"> 
               <cells>
-                <Text id="Text5" text="{rules>Characteristic}" />
-                <Text id="Text6" text="{rules>Operator}"/>
-                <Text id="Text7" text="{rules>_FilterValues/0/Value}" wrapping="true"/>
-                <Text id="Text8" text="{rules>_FilterValues/0/ValueUom}" wrapping="true"/>
+                <Text id="Text5" 
+                  text="{
+                  path: 'rules>Characteristic',
+                  formatter: '.characteristicFormatter'
+                  }" />
+                <Text id="Text6" 
+                  text="{
+                  path: 'rules>Operator',
+                  formatter: '.operatorFormatter'}"/>
+                <Text id="Text7" 
+                  text="{
+                  path: 'rules>_FilterValues/0/Value',
+                  formatter: '.productFormatter'
+                  }" wrapping="true"/>
+                <Text id="Text8" 
+                  text="{
+                  path: 'rules>_FilterValues/0/ValueUom',
+                  formatter: '.valueUomFormatter'}" wrapping="true"/>
               </cells>
             </ColumnListItem>
           </items>

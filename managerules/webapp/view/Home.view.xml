@@ -19,7 +19,9 @@
 
             <ToolbarSpacer id="_IDGenToolbarSpacer" />
 
-            <Button id="_IDGenButton1" text="Create new rule"
+            <Button id="_IDGenButton1" 
+                     text="{= ${load>/loadingBackend} ? 'Loading…' : 'Create rule' }"
+                     enabled="{= !${load>/loadingBackend} }"
                      type="Emphasized"
                      press="onCreateNewRule"
                      class="sapUiSmallMarginTop" />
@@ -98,14 +100,22 @@
                               <t:Column id="_IDGenGridColumn6" width="6rem" resizable="true">
                               <Label id="_IDGenGridLabel6" text="Item type" />
                               <t:template>
-                                 <Text id="_IDGenGridText6" text="{ItemType}" />
+                                 <Text id="_IDGenGridText6" 
+                                 text="{
+                                 path: 'ItemType',
+                                 formatter: '.itemTypeFormatter'
+                                 }" />
                               </t:template>
                               </t:Column>
 
                               <t:Column id="_IDGenGridColumn7" resizable="true">
                               <Label id="_IDGenGridLabel7" text="Type of rule" />
                               <t:template>
-                                 <Text id="_IDGenGridText7" text="{RuleType}" />
+                                 <Text id="_IDGenGridText7" 
+                                 text="{
+                                 path: 'RuleType',
+                                 formatter: '.ruleTypeFormatter'
+                                 }" />
                               </t:template>
                               </t:Column>
 
