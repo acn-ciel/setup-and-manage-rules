@@ -37,6 +37,42 @@
           "localUri": "localService/mainService/metadata.xml",
           "odataVersion": "4.0"
         }
+      },
+      "zui_calcres_o4": {
+        "uri": "/sap/opu/odata4/sap/zui_calcres_v4/srvd/sap/zui_calcres_o4/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/zui_calcres_o4/metadata.xml",
+          "odataVersion": "4.0"
+        }
+      },
+      "zsd_plant_vh": {
+        "uri": "/sap/opu/odata4/sap/zapi_plant_v4/srvd_a2x/sap/zsd_plant_vh/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/zsd_plant_vh/metadata.xml",
+          "odataVersion": "4.0"
+        }
+      },
+      "zsd_itemtype_vh": {
+        "uri": "/sap/opu/odata4/sap/zapi_itemtype_v4/srvd_a2x/sap/zsd_itemtype_vh/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/zsd_itemtype_vh/metadata.xml",
+          "odataVersion": "4.0"
+        }
+      },
+      "zsd_typerules_vh": {
+        "uri": "/sap/opu/odata4/sap/zapi_typerules_v4/srvd_a2x/sap/zsd_typerules_vh/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/zsd_typerules_vh/metadata.xml",
+          "odataVersion": "4.0"
+        }
       }
     }
   },
@@ -78,6 +114,42 @@
       },
       "": {
         "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "zui_calcres_o4": {
+        "dataSource": "zui_calcres_o4",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "zsd_plant_vh": {
+        "dataSource": "zsd_plant_vh",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "zsd_itemtype_vh": {
+        "dataSource": "zsd_itemtype_vh",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "zsd_typerules_vh": {
+        "dataSource": "zsd_typerules_vh",
         "preload": true,
         "settings": {
           "operationMode": "Server",

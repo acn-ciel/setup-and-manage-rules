@@ -1,6 +1,7 @@
 <core:FragmentDefinition
       xmlns="sap.m"
-      xmlns:core="sap.ui.core">
+      xmlns:core="sap.ui.core"
+      >
 
   <Dialog id="dlgAddApplyRule"
           title="Define apply rules"
@@ -25,16 +26,12 @@
         <items>
           <ColumnListItem id="_IDGenColumnListItem6">
             <cells>
-              
-              <ComboBox id="_IDGenComboBox"
+            <Input
+                id="inpRuleId"
                 width="100%"
-                selectedKey="{app>/selectedRuleId}"
-                placeholder="Select rule ID to apply"
-                selectionChange=".onRuleSelectChange"
-                items="{app>/ruleSummary}">
-                <core:Item id="_IDGenItem50" key="{app>RuleId}" text="{app>RuleId}"/>
-              </ComboBox>
-
+                value="{app>/selectedRuleId}"
+                showValueHelp="true"
+                valueHelpRequest=".onRuleIdValueHelp"/>
               <Text id="inpName" width="200px" wrapping="true" text="{app>/selectedRule/RuleName}" />
               <Text id="inpDesc" width="200px" wrapping="true" text="{app>/selectedRule/RuleDescription}" />
             </cells>

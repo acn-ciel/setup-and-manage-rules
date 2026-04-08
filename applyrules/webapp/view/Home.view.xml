@@ -13,24 +13,14 @@
             <SearchField id="_IDGenSearchField1" width= "300px"
                             placeholder="{i18n>SEARCH_FIELD}"
                             liveChange="onSearch" 
-                            class="sapUiLargeMarginBegin sapUiSmallMarginTop"/>
+                            class="sapUiSmallMarginBegin sapUiSmallMarginTop"/>
 
             <ToolbarSpacer id="_IDGenToolbarSpacer1" />
-
-            <Button id="_IDGenButton21" text="{i18n>BUTTON_ADD}"
-                    type="Emphasized"
-                    press="onAddApplyRule"
-                    class="sapUiSmallMarginTop" />
-
-            <Button id="_IDGenButton22" text="{i18n>BUTTON_DELETE}"
-                    type="Emphasized"
-                    press="onDeleteSelectedApplyRules"
-                    class="sapUiSmallMarginTop" />  
 
             <Button id="_IDGenButton23" text="{i18n>BUTTON_EXEC}"
                     type="Emphasized"
                     press="onExecuteApplyRule"
-                    class="sapUiLargeMarginEnd sapUiSmallMarginTop"/>                 
+                    class="sapUiSmallMarginEnd sapUiSmallMarginTop"/>                 
         </Toolbar>
         <VBox id="_IDGenVBox11" class="sapUiSmallMargin">
             <f:Card id="_IDGenCard">
@@ -38,69 +28,80 @@
                     <VBox id="_IDGenVBox13">
                         <Toolbar id="_IDGenToolbar5" height="3rem" class="sapUiSmallPaddingBeginEnd sapUiSmallPaddingTop">
                             <Title id="_IDGenTitle4" text="Apply Rules" class="sapUiSmallMarginBegin" />
+                            <ToolbarSpacer id="_IDGenToolbarSpacer2" />
+                            <Button id="_IDGenButton21" text="{= ${app>/loadingBackend} ? 'Loading…' : ${i18n>BUTTON_ADD} }"
+                                    type="Emphasized"
+                                    press="onAddApplyRule"
+                                    enabled="{= !${app>/loadingBackend} }"
+                                    />
+
+                            <Button id="_IDGenButton22" text="{i18n>BUTTON_DELETE}"
+                                    type="Reject"
+                                    press="onDeleteSelectedApplyRules"
+                                    />  
                         </Toolbar>
 
                         <t:Table
                             id="_IDGenTable1"
-                            rows="{app>/applyrules}"
+                            rows="{app>/applyRules}"
                             selectionMode="MultiToggle"
                             width="100%"
                             class="table">
 
                             <t:columns>
-                                <t:Column id="_IDGenGridApplyCol23" width="4rem" resizable="true">
+                                <t:Column sortProperty="RuleId" id="_IDGenGridApplyCol23" width="4rem" resizable="true">
                                 <Label id="_IDGenGridApplyLbl23" text="{i18n>RULE_ID}" wrapping="true"/>
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt52" text="{app>GeneralInfo/ID}" wrapping="true"/>
+                                    <Text id="_IDGenGridApplyTxt52" text="{app>RuleId}" wrapping="true"/>
                                 </t:template>
                                 </t:Column>
                                 
-                                <t:Column id="_IDGenGridApplyCol24" resizable="true">
+                                <t:Column sortProperty="RuleName" id="_IDGenGridApplyCol24" resizable="true">
                                 <Label id="_IDGenGridApplyLbl24" text="{i18n>RULE_NAME}" wrapping="true"/>
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt53" text="{app>GeneralInfo/Name}" wrapping="true"/>
+                                    <Text id="_IDGenGridApplyTxt53" text="{app>RuleName}" wrapping="true"/>
                                 </t:template>
                                 </t:Column>
 
-                                <t:Column id="_IDGenGridApplyCol25" resizable="true">
+                                <t:Column sortProperty="RuleDescription" id="_IDGenGridApplyCol25" resizable="true">
                                 <Label id="_IDGenGridApplyLbl25" text="{i18n>RULE_DESCRIPTION}" wrapping="true"/>
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt54" text="{app>GeneralInfo/Description}" wrapping="true" />
+                                    <Text id="_IDGenGridApplyTxt54" text="{app>RuleDescription}" wrapping="true" />
                                 </t:template>
                                 </t:Column>
 
-                                <t:Column id="_IDGenGridApplyCol26" width="8rem" resizable="true">
+                                <t:Column sortProperty="ValidFrom" id="_IDGenGridApplyCol26" width="8rem" resizable="true">
                                 <Label id="_IDGenGridApplyLbl26" text="{i18n>RULE_VALID_FROM}" wrapping="true" />
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt55" text="{app>GeneralInfo/ValidFrom}" wrapping="true"/>
+                                    <Text id="_IDGenGridApplyTxt55" text="{app>ValidFrom}" wrapping="true"/>
                                 </t:template>
                                 </t:Column>
 
-                                <t:Column id="_IDGenGridApplyCol27" width="8rem" resizable="true">
+                                <t:Column sortProperty="ValidTo" id="_IDGenGridApplyCol27" width="8rem" resizable="true">
                                 <Label id="_IDGenGridApplyLbl27" text="{i18n>RULE_VALID_TO}" wrapping="true"/>
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt56" text="{app>GeneralInfo/ValidTo}" wrapping="true"/>
+                                    <Text id="_IDGenGridApplyTxt56" text="{app>ValidTo}" wrapping="true"/>
                                 </t:template>
                                 </t:Column>
 
-                                <t:Column id="_IDGenGridApplyCol28" width="6rem" resizable="true">
+                                <t:Column sortProperty="ItemTypeFormatted" id="_IDGenGridApplyCol28" width="6rem" resizable="true">
                                 <Label id="_IDGenGridApplyLbl28" text="{i18n>RULE_ITEM_TYPE}" wrapping="true"/>
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt57" text="{app>GeneralInfo/ItemType}" wrapping="true"/>
+                                    <Text id="_IDGenGridApplyTxt57" text="{app>ItemTypeFormatted}" wrapping="true"/>
                                 </t:template>
                                 </t:Column>
 
-                                <t:Column id="_IDGenGridApplyCol29" resizable="true">
+                                <t:Column sortProperty="RuleTypeFormatted" id="_IDGenGridApplyCol29" resizable="true">
                                 <Label id="_IDGenGridApplyLbl29" text="{i18n>RULE_RULETYPE}" wrapping="true"/>
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt58" text="{app>GeneralInfo/RuleType}" wrapping="true"/>
+                                    <Text id="_IDGenGridApplyTxt58" text="{app>RuleTypeFormatted}" wrapping="true"/>
                                 </t:template>
                                 </t:Column>
 
-                                <t:Column id="_IDGenGridApplyCol30" resizable="true">
+                                <t:Column sortProperty="PlantFormatted" id="_IDGenGridApplyCol30" resizable="true">
                                 <Label id="_IDGenGridApplyLbl30" text="{i18n>RULE_PLANTS}" wrapping="true"/>
                                 <t:template>
-                                    <Text id="_IDGenGridApplyTxt59" text="{app>Scope/Plants}" wrapping="true" />
+                                    <Text id="_IDGenGridApplyTxt59" text="{app>PlantFormatted}" wrapping="true" />
                                 </t:template>
                                 </t:Column>
                             </t:columns>
