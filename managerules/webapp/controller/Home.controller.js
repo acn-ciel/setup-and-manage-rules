@@ -1029,8 +1029,17 @@ sap.ui.define([
       this._byAnyId(["idGenValidFromDP", "dpFrom"])?.setValue(aObj.ValidFrom || "");
       this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue(aObj.ValidTo || "");
 
-      this.byId("idGenItemTypeMCB")?.setSelectedKeys(`${aObj.ItemType}`)
-      this.byId("idGenRuleTypeMCB")?.setSelectedKey(`${aObj.RuleType}`)
+      const aValidItemTypes = oModel.getProperty("/itemType")
+      const aValidRuleTypes = oModel.getProperty("/ruleType")
+
+      if ([aValidItemTypes[0].ItemType].includes(aObj.ItemType)) {
+        this.byId("idGenItemTypeMCB")?.setSelectedKeys([aObj.ItemType]);
+      }
+
+      if ([aValidRuleTypes[0].IndexNo].includes(aObj.RuleType)) {
+        this.byId("idGenRuleTypeMCB")?.setSelectedKey(aObj.RuleType);
+      }
+
 
       // Step 2: Scope
       if (aObj._RuleScope.length > 0) {      
@@ -1067,10 +1076,13 @@ sap.ui.define([
 
       oModel.setProperty("/editfilter", null)
 
-      const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
+      const sItemKey = this.byId("idGenItemTypeMCB")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey() || "";
 
-      if (sItemKey === "PR" && sRuleKey === "1") {
+      console.log("SITEMKEY: ", sItemKey)
+      console.log("sRuleKey: ", sRuleKey)
+
+      if (sItemKey == "PR" && sRuleKey == "1") {
         await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
       
         const oDialog = await Fragment.byId(
@@ -1386,14 +1398,8 @@ sap.ui.define([
 
     onAddGroup: async function () {
       await this._ensureDialog("_pAddGrpDialog", "managerules.view.AddGroupDialog");
-      console.log("GET FILTER: ", this.onGetFilter())
 
-      const oDialog = await this._pAddGrpDialog;
-
-      oDialog.setTitle(this._i18n("FILTER_GRP_ADD"));
-      oDialog.getBeginButton()?.setText(this._i18n("BTN_ADD"));
-      oDialog?.open();
-
+      this.onConfirmAddGroup()
       this.byId("_IDGenInput1")?.setValue("")
       return;
     },
@@ -1459,7 +1465,7 @@ sap.ui.define([
         oModel.setProperty("/editGroupsFilter", null)
       } else {
         aGroups.push({
-          GroupName: inpGrpName,
+          GroupName: `Condition Group ${aGroups.length + 1}`,
           RuleId: null,
           IsActiveEntity: true,
           _FilterCondition: []
