@@ -168,7 +168,7 @@
                            
                            <t:rowMode>
                               <rowmodes:Auto id="_IDGenRowMode"
-                                    minRowCount="9"/>
+                                    minRowCount="7"/>
                            </t:rowMode>
 
                            <t:columns>
