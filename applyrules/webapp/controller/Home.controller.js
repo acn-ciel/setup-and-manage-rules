@@ -41,28 +41,6 @@ sap.ui.define([
       oModel.setProperty("/loadingBackend", false);
     },
 
-    onExecRule: async function (aRuleIds) {
-      const oModel = this.getOwnerComponent().getModel("zui_calcres_o4");
-
-      const oList = oModel.bindList("/CalcRes", null, null, null, { $$groupId: "$direct" });
-      const oHeaderCtx = oList.getHeaderContext();
-
-      const sQualified = "com.sap.gateway.srvd.zui_calcres_o4.v0001.executeRules(...)";
-
-      const oAction = oModel.bindContext(sQualified, oHeaderCtx, { $$groupId: "$direct" });
-
-      try {
-        oAction.setParameter("action", "SAP__self.executeRules"); // or just "executeRules" depending on backend
-        oAction.setParameter("RuleIds", aRuleIds.RuleIds);
-        await oAction.execute();
-        return true
-      } catch (e) {
-        console.error(e);
-        sap.m.MessageBox.error(e.message || "Execute failed");
-        return false;
-      }
-    },
-
     /* ================== GET VALUE HELP DATA ================== */
     getItemType: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_itemtype_vh");
@@ -241,8 +219,8 @@ sap.ui.define([
 
       aApplyRule.push(selectedRule)
       oModel.setProperty("/applyRules", aApplyRule)
-      oModel.setProperty("/selectedRuleId", "")
       this.onCancelAddApplyRule()
+      this._resetFields()
     },
 
     onCancelAddApplyRule: function () {
@@ -314,7 +292,7 @@ sap.ui.define([
       try {
         const result = await this.onExecRule(oPayLoad)
         if (result) {
-          oModel.setProperty("/applyRules")
+          oModel.setProperty("/applyRules", [])
           MessageBox.success(this._i18n("APPLY_RULES_SUCCESS"), {
             title: this._i18n("SUCCESS")
           });
@@ -322,6 +300,34 @@ sap.ui.define([
       } catch (e) {
         this._toast(e)
       }
+    },
+
+    onExecRule: async function (aRuleIds) {
+      const oModel = this.getOwnerComponent().getModel("zui_calcres_o4");
+
+      const oList = oModel.bindList("/CalcRes", null, null, null, { $$groupId: "$direct" });
+      const oHeaderCtx = oList.getHeaderContext();
+
+      const sQualified = "com.sap.gateway.srvd.zui_calcres_o4.v0001.executeRules(...)";
+
+      const oAction = oModel.bindContext(sQualified, oHeaderCtx, { $$groupId: "$direct" });
+
+      try {
+        oAction.setParameter("action", "SAP__self.executeRules");
+        oAction.setParameter("RuleIds", aRuleIds.RuleIds);
+        await oAction.execute();
+        return true
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e.message || "Execute failed");
+        return false;
+      }
+    },
+
+    _resetFields: function () {
+      const oModel = this.getView().getModel("app")
+      oModel.setProperty("/selectedRuleId", null)
+      oModel.setProperty("/selectedRule", null)
     },
 
     _applySelectedRule: function (sRuleId) {
