@@ -20,7 +20,8 @@ sap.ui.define([
           loadingBackend: true,
           plantList: [],
           itemType: [],
-          ruleType: []
+          ruleType: [],
+          rules: []
         })
 
         this.getView().setModel(oLoadModel, "load")
@@ -34,8 +35,7 @@ sap.ui.define([
         const itemType = await this.getItemType();
         oLoadModel.setProperty("/itemType", itemType)
 
-        // Set busy to false once the data and formatter is loaded
-        oTable.setBusy(false);
+        this.loadRuleData();
 
         const invScope = await this.getInventoryScope();
         const plantWithAll = [{ 
@@ -50,8 +50,6 @@ sap.ui.define([
         const valueUom = await this.getValueUom();
         const logic = await this.getLogic();
 
-        const rules = await this.onGetRule();
-        console.log("RULES: ", rules)
         // // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
@@ -104,6 +102,25 @@ sap.ui.define([
       } catch (e) {
         this._toast(`${e}`);
       }
+    },
+
+    loadRuleData: async function () {
+      const oTable = this.byId("_IDGenTable");
+      const oLoadModel = this.getView().getModel("load")
+      
+      const rules = await this.onGetRule();
+      const formattedRule = await rules.map(r => ({
+        ...r,
+        ItemTypeFormatted: this.itemTypeFormatter(r.ItemType),
+        RuleTypeFormatted: this.ruleTypeFormatter(r.RuleType),
+        PlantFormatted: this.plantFormatter(r._RuleScope)
+        }))
+
+      oLoadModel.setProperty("/rules", formattedRule)
+      console.log("RULES: ", formattedRule)
+      
+      // Set busy to false once the data and formatter is loaded
+      oTable.setBusy(false);
     },
 
     /* ================== GET VALUE HELP DATA: General Info ================== */
@@ -169,7 +186,6 @@ sap.ui.define([
     },
 
     /* ================== GET VALUE HELP DATA: Filter ================== */
-
     getCharacteristics: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_characteristic_vh");
       try {
@@ -286,7 +302,8 @@ sap.ui.define([
           $filter: "IsActiveEntity eq true",
           $orderby: "RuleId asc",       
           $expand: {
-            _RuleScope: true
+            _RuleScope: true,
+            _RuleLogic: true
           }
         }
       );
@@ -773,9 +790,7 @@ sap.ui.define([
             } catch (e) {
               this._toast(`${e}`)
             } finally {
-              oTable.attachEventOnce("rowsUpdated", function () {
-                oTable.setBusy(false);
-              });
+              this.loadRuleData()
             }
         }
       }
@@ -1881,19 +1896,22 @@ sap.ui.define([
       return oMatch ? oMatch.TypeOfRules : ruleType;
     },
 
-    plantFormatter: async function (plant) {
-      const oModel = this.getView()?.getModel("load")
-      const plantList = oModel.getProperty("/plantList")
-      const plantLookup = plantList
-        .map(p => ({
-          ...p, 
-          Plant: this.trimPlantKey(p.Plant)
-        }))
+    plantFormatter: function (aScopes) {
+      const oModel = this.getView()?.getModel("load");
+      const plantList = oModel.getProperty("/plantList") || [];
 
-      return (plant || []).map(plant => {
-        const oMatch = plantLookup.find(p => p.Plant === plant.Plant);
-        return oMatch ? oMatch.PlantName : plant.Plant;
+      const plantLookup = plantList.map(p => ({
+        ...p,
+        Plant: this.trimPlantKey(p.Plant)
+      }));
+
+      const aNames = (aScopes || []).map(s => {
+        const sPlant = this.trimPlantKey(s.Plant);
+        const oMatch = plantLookup.find(p => p.Plant === sPlant);
+        return oMatch ? oMatch.PlantName : sPlant;
       });
+
+      return aNames.join(", ");
     },
 
     characteristicFormatter: function (char) {
@@ -2081,34 +2099,34 @@ sap.ui.define([
       const oBinding = oTable.getBinding("rows");
 
       if (!sQuery) {
-          oBinding.filter([]); // clear search
-          return;
+        oBinding.filter([]);
+        return;
       }
 
       const Filter = sap.ui.model.Filter;
       const Op = sap.ui.model.FilterOperator;
 
       const aFilters = [
-          // Rule ID (stringified)
-          new Filter("RuleId", Op.Contains, sQuery),
+        new Filter("RuleId", Op.Contains, sQuery),
+        new Filter("RuleName", Op.Contains, sQuery),
+        new Filter("RuleDescription", Op.Contains, sQuery),
 
-          // Name + Description
-          new Filter("RuleName", Op.Contains, sQuery),
-          new Filter("RuleDescription", Op.Contains, sQuery),
+        new Filter("ValidFrom", Op.Contains, sQuery),
+        new Filter("ValidTo", Op.Contains, sQuery),
 
-          // Raw enum fields
-          // new Filter("ItemType", Op.Contains, sQuery),
-          // new Filter("RuleType", Op.Contains, sQuery),
+        new Filter("ItemTypeFormatted", Op.Contains, sQuery),
+        new Filter("RuleTypeFormatted", Op.Contains, sQuery),
+
+        new Filter("PlantFormatted", Op.Contains, sQuery),
       ];
 
-      // OR across all searchable fields
       const oGlobalFilter = new Filter({
-          filters: aFilters,
-          and: false
+        filters: aFilters,
+        and: false // OR search
       });
 
       oBinding.filter(oGlobalFilter);
-  },
+    },
 
     /* ===================== UTIL (ID + i18n) ===================== */
     _byAnyId: function (aIds) {

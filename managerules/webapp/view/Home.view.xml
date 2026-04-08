@@ -19,11 +19,11 @@
                <fb:FilterBar id="filterbar" persistencyKey="myPersKey" useToolbar="true" search=".onSearch" filterChange=".onFilterChange" afterVariantLoad=".onAfterVariantLoad">
                   <fb:filterGroupItems>
                      <!-- Global Search -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup3" name="Search" label="Search" visibleInFilterBar="true" groupName="1">
+                     <fb:FilterGroupItem id="_IDGenFilterGroup3" name="SearchAll" label="Search All" visibleInFilterBar="true" groupName="1">
                         <fb:control>
                            <SearchField id="_IDGenSearchField" 
                               width= "200px"
-                              placeholder="Search ID, Name, Desc"
+                              placeholder="e.g. 4010"
                               liveChange="onSearch"
                               />
                         </fb:control>
@@ -37,7 +37,7 @@
                               name="Name"
                               selectionChange=".onSelectionChange"
                               items="{
-                                 path: '/ZC_RULESHEADER.RuleId',
+                                 path: '/load.rules.RuleId',
                                  templateShareable: true
                                  }"
                                  >
@@ -54,7 +54,7 @@
                               name="Name"
                               selectionChange=".onSelectionChange"
                               items="{
-                                 path: '/ZC_RULESHEADER.RuleName',
+                                 path: '/load.rules.RuleName',
                                  templateShareable: true
                                  }"
                                  >
@@ -159,15 +159,7 @@
                            </Toolbar>
                         <t:Table
                            id="_IDGenTable"              
-                           rows="{
-                              path: '/ZC_RULESHEADER',
-                              parameters: {
-                                 $select: 'RuleId,RuleName,RuleDescription,ValidFrom,ValidTo,ItemType,RuleType',
-                                 $expand: '_RuleScope($select=Plant,InventoryScope),_RuleFilter,_RuleLogic',
-                                 $orderby: 'RuleId desc',
-                                 $filter: 'IsActiveEntity eq true'
-                              }
-                           }"
+                           rows="{ path: 'load>/rules' }"
                            selectionMode="MultiToggle"
                            width="100%"
                            columnHeaderHeight="auto"
@@ -176,77 +168,72 @@
                            
                            <t:rowMode>
                               <rowmodes:Auto id="_IDGenRowMode"
-                                    minRowCount="7"
-                                    maxRowCount="9" />
+                                    minRowCount="9"/>
                            </t:rowMode>
 
                            <t:columns>
                               <t:Column sortProperty="RuleId" id="_IDGenGridColumn1" width="6rem" resizable="true">
                               <Label id="_IDGenGridLabel1" text="ID" />
                               <t:template>
-                                 <Text id="_IDGenGridText1" text="{RuleId}" />
+                                 <Text id="_IDGenGridText1" text="{load>RuleId}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column sortProperty="RuleName" id="_IDGenGridColumn2" resizable="true">
                               <Label id="_IDGenGridLabel2" text="Name" />
                               <t:template>
-                                 <Text id="_IDGenGridText2" text="{RuleName}" />
+                                 <Text id="_IDGenGridText2" text="{load>RuleName}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column sortProperty="RuleDescription" id="_IDGenGridColumn3" resizable="true">
                               <Label id="_IDGenGridLabel3" text="Description" />
                               <t:template>
-                                 <Text id="_IDGenGridText3" text="{RuleDescription}" wrapping="true" />
+                                 <Text id="_IDGenGridText3" text="{load>RuleDescription}" wrapping="true" />
                               </t:template>
                               </t:Column>
 
                               <t:Column sortProperty="ValidFrom" id="_IDGenGridColumn4" width="7rem" resizable="true">
                               <Label id="_IDGenGridLabel4" text="Valid from" />
                               <t:template>
-                                 <Text id="_IDGenGridText4" text="{ValidFrom}" />
+                                 <Text id="_IDGenGridText4" text="{load>ValidFrom}" />
                               </t:template>
                               </t:Column>
 
                               <t:Column sortProperty="ValidTo" id="_IDGenGridColumn5" width="7rem" resizable="true">
                               <Label id="_IDGenGridLabel5" text="Valid to" />
                               <t:template>
-                                 <Text id="_IDGenGridText5" text="{ValidTo}" />
+                                 <Text id="_IDGenGridText5" text="{load>ValidTo}" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column sortProperty="ItemType" id="_IDGenGridColumn6" width="6rem" resizable="true">
+                              <t:Column sortProperty="ItemTypeFormatted" id="_IDGenGridColumn6" width="6rem" resizable="true">
                               <Label id="_IDGenGridLabel6" text="Item type" />
                               <t:template>
                                  <Text id="_IDGenGridText6" 
                                  text="{
-                                 path: 'ItemType',
-                                 formatter: '.itemTypeFormatter'
+                                 path: 'load>ItemTypeFormatted'
                                  }" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column sortProperty="RuleType" id="_IDGenGridColumn7" resizable="true">
+                              <t:Column sortProperty="RuleTypeFormatted" id="_IDGenGridColumn7" resizable="true">
                               <Label id="_IDGenGridLabel7" text="Type of rule" />
                               <t:template>
                                  <Text id="_IDGenGridText7" 
                                  text="{
-                                 path: 'RuleType',
-                                 formatter: '.ruleTypeFormatter'
+                                 path: 'load>RuleTypeFormatted'
                                  }" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column id="_IDGenGridColumn8" resizable="true">
+                              <t:Column sortProperty="PlantFormatted" id="_IDGenGridColumn8" resizable="true">
                               <Label id="_IDGenGridLabel8" text="Plants" />
                               <t:template>
                                  <Text
                                     id="_IDGenGridText8"
                                     text="{
-                                    path: '_RuleScope',
-                                    targetType: 'any',
-                                    formatter: '.plantFormatter'
+                                    path: 'load>PlantFormatted'
                                     }"
                                     wrapping="true"
                                  />
