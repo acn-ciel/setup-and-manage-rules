@@ -29,6 +29,8 @@ sap.ui.define([
         const plant = await this.getPlant();
         oLoadModel.setProperty("/plantList", plant)
 
+        console.log("PLANT: ", plant)
+
         const ruleType = await this.getTypeRule();
         oLoadModel.setProperty("/ruleType", ruleType)
       
@@ -70,15 +72,12 @@ sap.ui.define([
           selectChar: null,
 
           /** Gen Info */
-          itemType: itemType.filter(i => (i.ItemType == "PR")),
-          ruleType: ruleType.filter(r => (r.IndexNo == "1")),
+          itemType: itemType,
+          ruleType: ruleType,
           
           /** Scope */
           invScope: invScope,
-          plants: plantWithAll.map(p => ({
-            ...p, 
-            Plant: this.trimPlantKey(p.Plant)
-          })),
+          plants: plantWithAll,
 
           /** Filters */
           characteristics: charFilters,
@@ -247,8 +246,7 @@ sap.ui.define([
     },
 
     /* ===================== DELETE METHOD ===================== */
-    onDeleteRule: async function () 
-    {
+    onDeleteRule: async function () {
       const oTable = this.byId("_IDGenTable");
       const aIdx = oTable.getSelectedIndices();
 
@@ -260,28 +258,20 @@ sap.ui.define([
       const oCtx = oTable.getContextByIndex(aIdx[0]);
       const oRow = oCtx.getObject();
       const oModel = this.getOwnerComponent().getModel();
+      const oRowsBinding = oTable.getBinding("rows");
 
       try {
         if (oRow.IsActiveEntity === false) {
           const oDiscardCtx = oModel.bindContext("Discard(...)", oCtx);
-
-          if (oDiscardCtx.invoke) {
-            await oDiscardCtx.invoke("$auto");
-          } else {
-            await oDiscardCtx.execute("$auto");
-          }
-
+          await (oDiscardCtx.invoke?.("$auto") ?? oDiscardCtx.execute("$auto"));
           sap.m.MessageToast.show("Draft discarded.");
         } else {
-          await oCtx.delete("$auto");
+          await oRowsBinding.delete(aIdx[0], "$auto");
           sap.m.MessageToast.show("Rule deleted.");
         }
 
         oTable.clearSelection();
-        const oRowsBinding = oTable.getBinding("rows");
-        if (oRowsBinding) {
-          oRowsBinding.refresh();
-        }
+        oRowsBinding.refresh();
 
       } catch (e) {
         console.error(e);
