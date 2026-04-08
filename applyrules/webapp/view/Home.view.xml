@@ -49,7 +49,7 @@
                             class="table">
 
                             <t:columns>
-                                <t:Column sortProperty="RuleId" id="_IDGenGridApplyCol23" width="4rem" resizable="true">
+                                <t:Column sortProperty="RuleId" id="_IDGenGridApplyCol23" width="6rem" resizable="true">
                                 <Label id="_IDGenGridApplyLbl23" text="{i18n>RULE_ID}" wrapping="true"/>
                                 <t:template>
                                     <Text id="_IDGenGridApplyTxt52" text="{app>RuleId}" wrapping="true"/>

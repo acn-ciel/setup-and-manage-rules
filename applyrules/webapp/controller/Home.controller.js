@@ -54,8 +54,7 @@ sap.ui.define([
       try {
         oAction.setParameter("action", "SAP__self.executeRules"); // or just "executeRules" depending on backend
         oAction.setParameter("RuleIds", aRuleIds.RuleIds);
-
-        const oResultCtx = await oAction.execute();
+        await oAction.execute();
         return true
       } catch (e) {
         console.error(e);
@@ -239,10 +238,10 @@ sap.ui.define([
       }
 
       const selectedRule = aRules.find(a => a.RuleId == sSelectedId)
-      console.log("SELECTED RULE: ", selectedRule)
 
       aApplyRule.push(selectedRule)
       oModel.setProperty("/applyRules", aApplyRule)
+      oModel.setProperty("/selectedRuleId", "")
       this.onCancelAddApplyRule()
     },
 
@@ -304,6 +303,7 @@ sap.ui.define([
     },
 
     _executeApplyRules: async function (aApplyRules) {
+      const oModel = this.getView().getModel("app")
       const aRuleIds = aApplyRules.map(r => ({ RuleID: r.RuleId}));
 
       const oPayLoad = {
@@ -314,6 +314,7 @@ sap.ui.define([
       try {
         const result = await this.onExecRule(oPayLoad)
         if (result) {
+          oModel.setProperty("/applyRules")
           MessageBox.success(this._i18n("APPLY_RULES_SUCCESS"), {
             title: this._i18n("SUCCESS")
           });
