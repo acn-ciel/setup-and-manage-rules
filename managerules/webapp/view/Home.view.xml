@@ -7,46 +7,158 @@
     xmlns:f="sap.f"
     xmlns:t="sap.ui.table"
     xmlns:plugins="sap.m.plugins"
+    xmlns:fb="sap.ui.comp.filterbar"
+	 xmlns:svm="sap.ui.comp.smartvariants"
+    xmlns:rowmodes="sap.ui.table.rowmodes"
     >
 
    <NavContainer id="_IDGenNavContainer">
-      <Page id="pageSummary" showHeader="false" >
-         <Toolbar id="_IDGenToolbar2" height="5rem" class="sapUiSmallPaddingBeginEnd">
-            <SearchField id="_IDGenSearchField" width= "300px"
-                           placeholder="Search rules"
-                           liveChange="onSearch" 
-                           class="sapUiLargeMarginBegin sapUiSmallMarginTop" />
+      <Page id="pageSummary" showHeader="false" enableScrolling="true">
+         <content>
+            <VBox id="_IDGenToolbar2" height="auto" class="sapUiSmallPaddingBeginEnd">                           
+               <fb:FilterBar id="filterbar" persistencyKey="myPersKey" useToolbar="true" search=".onSearch" filterChange=".onFilterChange" afterVariantLoad=".onAfterVariantLoad">
+                  <fb:filterGroupItems>
+                     <!-- Global Search -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup3" name="Search" label="Search" visibleInFilterBar="true" groupName="1">
+                        <fb:control>
+                           <SearchField id="_IDGenSearchField" 
+                              width= "200px"
+                              placeholder="Search ID, Name, Desc"
+                              liveChange="onSearch"
+                              />
+                        </fb:control>
+                     </fb:FilterGroupItem>
 
-            <ToolbarSpacer id="_IDGenToolbarSpacer" />
+                     <!-- Search by Rule ID -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup4" name="Rule ID" label="Rule ID" visibleInFilterBar="false" groupName="2">
+                        <fb:control>
+                           <MultiComboBox
+                              id="_IDGenMultiCB3"
+                              name="Name"
+                              selectionChange=".onSelectionChange"
+                              items="{
+                                 path: '/ZC_RULESHEADER.RuleId',
+                                 templateShareable: true
+                                 }"
+                                 >
+                              <core:Item id="_IDGenItem3" key="{RuleId}" text="{RuleId}"/>
+                           </MultiComboBox>
+                        </fb:control>
+                     </fb:FilterGroupItem>
 
-            <Button id="_IDGenButton1" 
-                     text="{= ${load>/loadingBackend} ? 'Loading…' : 'Create rule' }"
-                     enabled="{= !${load>/loadingBackend} }"
-                     type="Emphasized"
-                     press="onCreateNewRule"
-                     class="sapUiSmallMarginTop" />
+                     <!-- Search by Rule Name -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup" name="Name" label="Name" visibleInFilterBar="true" groupName="3">
+                        <fb:control>
+                           <MultiComboBox
+                              id="_IDGenMultiCB"
+                              name="Name"
+                              selectionChange=".onSelectionChange"
+                              items="{
+                                 path: '/ZC_RULESHEADER.RuleName',
+                                 templateShareable: true
+                                 }"
+                                 >
+                              <core:Item id="_IDGenItem" key="{RuleName}" text="{RuleName}"/>
+                           </MultiComboBox>
+                        </fb:control>
+                     </fb:FilterGroupItem>
 
-            <Button id="_IDGenButton2"
-                     text="{= ${load>/loadingBackend} ? 'Loading…' : 'Edit selected rule' }"
-                     enabled="{= !${load>/loadingBackend} }"
-                     press="onEditRule"
-                     class="sapUiSmallMarginTop" />  
+                     <!-- Search by Rule Description -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup8" name="Search" label="Search" visibleInFilterBar="false" groupName="4">
+                        <fb:control>
+                           <SearchField id="_IDGenSearchField8" 
+                              width= "200px"
+                              placeholder="Search rules"
+                              liveChange="onSearchRuleDesc" 
+                              />
+                        </fb:control>
+                     </fb:FilterGroupItem>
 
-            <Button id="_IDGenButton3" text="Delete selected rule"
-                     type="Reject"
-                     press="onDeleteRule"
-                     class="sapUiLargeMarginEnd sapUiSmallMarginTop" />                 
-         </Toolbar>
-         <VBox id="_IDGenVBox2" class="sapUiSmallMargin">
-            <f:Card id="_IDGenCard">
-               <f:content>
+                     <!-- Search by Date Valid From and Valid To -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup6"  name="ValidFromTo" label="Date Range Validity" visibleInFilterBar="false" groupName="5">
+                        <fb:control>
+                           <DateRangeSelection id="validFromTo"/>
+                        </fb:control>
+                     </fb:FilterGroupItem>
+
+                     <!-- Search by Item Type -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup5" name="ItemType" label="Item Type" visibleInFilterBar="true" groupName="7">
+                        <fb:control>
+                           <MultiComboBox
+                              id="_IDGenMultiCB5"
+                              name="ItemType"
+                              selectionChange=".onSelectionChange"
+                              items="{
+                                 path: '/ProductNames',
+                                 templateShareable: true
+                                 }"
+                                 >
+                              <core:Item id="_IDGenItem5" key="{key}" text="{name}"/>
+                           </MultiComboBox>
+                        </fb:control>
+                     </fb:FilterGroupItem>
+
+                     <!-- Search by Type of Rule -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup1" name="TypeOfRule" label="Type of Rule" visibleInFilterBar="true" groupName="8">
+                        <fb:control>
+                           <MultiComboBox
+                              id="_IDGenMultiCB1"
+                              name="TypeOfRule"
+                              selectionChange=".onSelectionChange"
+                              items="{
+                                 path: '/ProductCategories',
+                                 templateShareable: true
+                              }"
+                           >
+                              <core:Item id="_IDGenItem1"  key="{key}" text="{name}"/>
+                           </MultiComboBox>
+                        </fb:control>
+                     </fb:FilterGroupItem>
+
+                     <!-- Search by Plants -->
+                     <fb:FilterGroupItem id="_IDGenFilterGroup2" name="Plants" label="Plants" visibleInFilterBar="true" groupName="9">
+                        <fb:control>
+                           <MultiComboBox
+                              id="_IDGenMultiCB2"
+                              name="Plants"
+                              selectionChange=".onSelectionChange"
+                              items="{
+                                 path: '/ProductSuppliers',
+                                 templateShareable: true
+                              }"
+                           >
+                              <core:Item id="_IDGenItem2"  key="{key}" text="{name}"/>
+                           </MultiComboBox>
+                        </fb:control>
+                     </fb:FilterGroupItem>
+
+                  </fb:filterGroupItems>
+               </fb:FilterBar>
+            </VBox>
+            <VBox id="_IDGenVBox2" class="sapUiSmallMargin">
+               <f:Card id="_IDGenCard">
+                  <f:content>
                      <VBox id="_IDGenVBox11">
                         <Toolbar id="_IDGenToolbar4" height="3rem" class="sapUiSmallPaddingBeginEnd sapUiSmallPaddingTop">
                            <Title id="_IDGenTitle" text="Rules Summary" class="sapUiSmallMarginBegin" />
-                        </Toolbar>
+                           <ToolbarSpacer id="_IDGenToolbarSpacer" />  
+                           <Button id="_IDGenButton1" 
+                              text="{= ${load>/loadingBackend} ? 'Loading…' : 'Create rule' }"
+                              enabled="{= !${load>/loadingBackend} }"
+                              type="Emphasized"
+                              press="onCreateNewRule" />
 
+                           <Button id="_IDGenButton2"
+                              text="{= ${load>/loadingBackend} ? 'Loading…' : 'Edit selected rule' }"
+                              enabled="{= !${load>/loadingBackend} }"
+                              press="onEditRule" />  
+
+                           <Button id="_IDGenButton3" text="Delete selected rule"
+                              type="Reject"
+                              press="onDeleteRule" />     
+                           </Toolbar>
                         <t:Table
-                           id="_IDGenTable"                 
+                           id="_IDGenTable"              
                            rows="{
                               path: '/ZC_RULESHEADER',
                               parameters: {
@@ -58,46 +170,53 @@
                            }"
                            selectionMode="MultiToggle"
                            width="100%"
+                           columnHeaderHeight="auto"
                            class="table"
                            >
+                           
+                           <t:rowMode>
+                              <rowmodes:Auto id="_IDGenRowMode"
+                                    minRowCount="7"
+                                    maxRowCount="9" />
+                           </t:rowMode>
 
                            <t:columns>
-                              <t:Column id="_IDGenGridColumn1" width="6rem" resizable="true">
+                              <t:Column sortProperty="RuleId" id="_IDGenGridColumn1" width="6rem" resizable="true">
                               <Label id="_IDGenGridLabel1" text="ID" />
                               <t:template>
                                  <Text id="_IDGenGridText1" text="{RuleId}" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column id="_IDGenGridColumn2" resizable="true">
+                              <t:Column sortProperty="RuleName" id="_IDGenGridColumn2" resizable="true">
                               <Label id="_IDGenGridLabel2" text="Name" />
                               <t:template>
                                  <Text id="_IDGenGridText2" text="{RuleName}" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column id="_IDGenGridColumn3" resizable="true">
+                              <t:Column sortProperty="RuleDescription" id="_IDGenGridColumn3" resizable="true">
                               <Label id="_IDGenGridLabel3" text="Description" />
                               <t:template>
                                  <Text id="_IDGenGridText3" text="{RuleDescription}" wrapping="true" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column id="_IDGenGridColumn4" width="7rem" resizable="true">
+                              <t:Column sortProperty="ValidFrom" id="_IDGenGridColumn4" width="7rem" resizable="true">
                               <Label id="_IDGenGridLabel4" text="Valid from" />
                               <t:template>
                                  <Text id="_IDGenGridText4" text="{ValidFrom}" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column id="_IDGenGridColumn5" width="7rem" resizable="true">
+                              <t:Column sortProperty="ValidTo" id="_IDGenGridColumn5" width="7rem" resizable="true">
                               <Label id="_IDGenGridLabel5" text="Valid to" />
                               <t:template>
                                  <Text id="_IDGenGridText5" text="{ValidTo}" />
                               </t:template>
                               </t:Column>
 
-                              <t:Column id="_IDGenGridColumn6" width="6rem" resizable="true">
+                              <t:Column sortProperty="ItemType" id="_IDGenGridColumn6" width="6rem" resizable="true">
                               <Label id="_IDGenGridLabel6" text="Item type" />
                               <t:template>
                                  <Text id="_IDGenGridText6" 
@@ -108,7 +227,7 @@
                               </t:template>
                               </t:Column>
 
-                              <t:Column id="_IDGenGridColumn7" resizable="true">
+                              <t:Column sortProperty="RuleType" id="_IDGenGridColumn7" resizable="true">
                               <Label id="_IDGenGridLabel7" text="Type of rule" />
                               <t:template>
                                  <Text id="_IDGenGridText7" 
@@ -137,9 +256,10 @@
                            </t:columns>
                         </t:Table>
                      </VBox>
-               </f:content>
-            </f:Card>
-         </VBox>
+                  </f:content>
+               </f:Card>
+            </VBox>
+         </content>
       </Page>
 
       <Page id="pageGenInfo" showHeader="false" >

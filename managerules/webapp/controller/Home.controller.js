@@ -50,6 +50,8 @@ sap.ui.define([
         const valueUom = await this.getValueUom();
         const logic = await this.getLogic();
 
+        const rules = await this.onGetRule();
+        console.log("RULES: ", rules)
         // // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
@@ -280,7 +282,7 @@ sap.ui.define([
         }
       });
 
-      const aContexts = await oList.requestContexts();
+      const aContexts = await oList.requestContexts(0, 300);
       return aContexts.map(c => c.getObject());
     },
 
@@ -1870,7 +1872,6 @@ sap.ui.define([
       return oMatch ? oMatch.TypeOfRules : ruleType;
     },
 
-
     plantFormatter: async function (plant) {
       const oModel = this.getView()?.getModel("load")
       const plantList = oModel.getProperty("/plantList")
@@ -2063,6 +2064,42 @@ sap.ui.define([
       const aItems = oStack.removeAllItems();
       aItems.forEach(oItem => oItem.destroy());
     },
+
+    /* ===================== SORT AND FILTER FUNCTIONS ===================== */
+    onSearch: function (oEvent) {
+      const sQuery = oEvent.getParameter("newValue")?.trim();
+      const oTable = this.byId("_IDGenTable");
+      const oBinding = oTable.getBinding("rows");
+
+      if (!sQuery) {
+          oBinding.filter([]); // clear search
+          return;
+      }
+
+      const Filter = sap.ui.model.Filter;
+      const Op = sap.ui.model.FilterOperator;
+
+      const aFilters = [
+          // Rule ID (stringified)
+          new Filter("RuleId", Op.Contains, sQuery),
+
+          // Name + Description
+          new Filter("RuleName", Op.Contains, sQuery),
+          new Filter("RuleDescription", Op.Contains, sQuery),
+
+          // Raw enum fields
+          // new Filter("ItemType", Op.Contains, sQuery),
+          // new Filter("RuleType", Op.Contains, sQuery),
+      ];
+
+      // OR across all searchable fields
+      const oGlobalFilter = new Filter({
+          filters: aFilters,
+          and: false
+      });
+
+      oBinding.filter(oGlobalFilter);
+  },
 
     /* ===================== UTIL (ID + i18n) ===================== */
     _byAnyId: function (aIds) {
