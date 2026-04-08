@@ -1,0 +1,1804 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="SAP__aggregation"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="SAP__capabilities"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="SAP__common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CORE',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="Org.OData.Core.V1" Alias="SAP__core"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_HIERARCHY',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.Hierarchy.v1" Alias="SAP__hierarchy"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_HTML5',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.HTML5.v1" Alias="SAP__HTML5"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="Org.OData.Measures.V1" Alias="SAP__measures"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ODM',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.ODM.v1" Alias="SAP__ODM"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PDF',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.PDF.v1" Alias="SAP__PDF"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_SESSION',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.Session.v1" Alias="SAP__session"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_SUPPORT',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.Support.v1" Alias="SAP__support"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="SAP__UI"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='LOCAL')/$value">
+        <edmx:Include Namespace="Org.OData.Validation.V1" Alias="SAP__validation"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="com.sap.gateway.srvd.zsd_rules.v0001" Alias="SAP__self">
+            <Annotation Term="SAP__core.SchemaVersion" String="1.0.0"/>
+            <EntityType Name="ZC_RULESFILTERType">
+                <Key>
+                    <PropertyRef Name="Id"/>
+                    <PropertyRef Name="RuleUUID"/>
+                    <PropertyRef Name="RuleId"/>
+                    <PropertyRef Name="DraftUUID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="Id" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="RuleUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="RuleId" Type="Edm.String" Nullable="false" MaxLength="10"/>
+                <Property Name="Characteristic" Type="Edm.String" Nullable="false" MaxLength="3"/>
+                <Property Name="Operator" Type="Edm.String" Nullable="false" MaxLength="2"/>
+                <Property Name="Value" Type="Edm.String" Nullable="false" MaxLength="255"/>
+                <Property Name="ValueUom" Type="Edm.String" Nullable="false" MaxLength="10"/>
+                <Property Name="LogicalOperator" Type="Edm.String" Nullable="false" MaxLength="3"/>
+                <Property Name="LocalCreatedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalCreatedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LocalLastChangedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalLastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="ParentDraftUUID" Type="Edm.Guid"/>
+                <Property Name="DraftEntityCreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="DraftEntityLastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="__EntityControl" Type="com.sap.gateway.srvd.zsd_rules.v0001.EntityControl"/>
+                <Property Name="SAP__Messages" Type="Collection(com.sap.gateway.srvd.zsd_rules.v0001.SAP__Message)" Nullable="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="com.sap.gateway.srvd.zsd_rules.v0001.I_DraftAdministrativeDataType"/>
+                <NavigationProperty Name="SiblingEntity" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESFILTERType"/>
+                <NavigationProperty Name="_RuleHeader" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false" Partner="_RuleFilter">
+                    <ReferentialConstraint Property="RuleUUID" ReferencedProperty="Id"/>
+                    <ReferentialConstraint Property="RuleId" ReferencedProperty="RuleId"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="ZC_RULESLOGICType">
+                <Key>
+                    <PropertyRef Name="Id"/>
+                    <PropertyRef Name="RuleUUID"/>
+                    <PropertyRef Name="RuleId"/>
+                    <PropertyRef Name="DraftUUID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="Id" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="RuleUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="RuleId" Type="Edm.String" Nullable="false" MaxLength="10"/>
+                <Property Name="Logic" Type="Edm.String" Nullable="false" MaxLength="3"/>
+                <Property Name="Value" Type="Edm.String" Nullable="false" MaxLength="255"/>
+                <Property Name="ValueUom" Type="Edm.String" Nullable="false" MaxLength="10"/>
+                <Property Name="LocalCreatedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalCreatedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LocalLastChangedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalLastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="ParentDraftUUID" Type="Edm.Guid"/>
+                <Property Name="DraftEntityCreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="DraftEntityLastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="__EntityControl" Type="com.sap.gateway.srvd.zsd_rules.v0001.EntityControl"/>
+                <Property Name="SAP__Messages" Type="Collection(com.sap.gateway.srvd.zsd_rules.v0001.SAP__Message)" Nullable="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="com.sap.gateway.srvd.zsd_rules.v0001.I_DraftAdministrativeDataType"/>
+                <NavigationProperty Name="SiblingEntity" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESLOGICType"/>
+                <NavigationProperty Name="_RuleHeader" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false" Partner="_RuleLogic">
+                    <ReferentialConstraint Property="RuleUUID" ReferencedProperty="Id"/>
+                    <ReferentialConstraint Property="RuleId" ReferencedProperty="RuleId"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="I_DraftAdministrativeDataType">
+                <Key>
+                    <PropertyRef Name="DraftUUID"/>
+                    <PropertyRef Name="DraftEntityType"/>
+                </Key>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="DraftEntityType" Type="Edm.String" Nullable="false" MaxLength="30"/>
+                <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="CreatedByUser" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedByUser" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="DraftAccessType" Type="Edm.String" Nullable="false" MaxLength="1"/>
+                <Property Name="ProcessingStartDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="InProcessByUser" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="DraftIsKeptByUser" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="EnqueueStartDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="DraftIsLastChangedByMe" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="CreatedByUserDescription" Type="Edm.String" Nullable="false" MaxLength="80"/>
+                <Property Name="LastChangedByUserDescription" Type="Edm.String" Nullable="false" MaxLength="80"/>
+                <Property Name="InProcessByUserDescription" Type="Edm.String" Nullable="false" MaxLength="80"/>
+            </EntityType>
+            <EntityType Name="ZC_RULESHEADERType">
+                <Key>
+                    <PropertyRef Name="Id"/>
+                    <PropertyRef Name="RuleId"/>
+                    <PropertyRef Name="DraftUUID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="Id" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="RuleId" Type="Edm.String" Nullable="false" MaxLength="10"/>
+                <Property Name="RuleName" Type="Edm.String" Nullable="false" MaxLength="255"/>
+                <Property Name="RuleDescription" Type="Edm.String" Nullable="false" MaxLength="255"/>
+                <Property Name="RuleType" Type="Edm.String" Nullable="false" MaxLength="3"/>
+                <Property Name="ValidFrom" Type="Edm.Date"/>
+                <Property Name="ValidTo" Type="Edm.Date"/>
+                <Property Name="ItemType" Type="Edm.String" Nullable="false" MaxLength="2"/>
+                <Property Name="LocalCreatedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalCreatedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LocalLastChangedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalLastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="DraftEntityCreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="DraftEntityLastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="__CreateByAssociationControl" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERCbAControl"/>
+                <Property Name="__EntityControl" Type="com.sap.gateway.srvd.zsd_rules.v0001.EntityControl"/>
+                <Property Name="__OperationControl" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADEROperationControl"/>
+                <Property Name="SAP__Messages" Type="Collection(com.sap.gateway.srvd.zsd_rules.v0001.SAP__Message)" Nullable="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="com.sap.gateway.srvd.zsd_rules.v0001.I_DraftAdministrativeDataType"/>
+                <NavigationProperty Name="SiblingEntity" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType"/>
+                <NavigationProperty Name="_RuleFilter" Type="Collection(com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESFILTERType)" Partner="_RuleHeader">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="_RuleLogic" Type="Collection(com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESLOGICType)" Partner="_RuleHeader">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="_RuleScope" Type="Collection(com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESSCOPEType)" Partner="_RuleHeader">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="ZC_RULESSCOPEType">
+                <Key>
+                    <PropertyRef Name="Id"/>
+                    <PropertyRef Name="RuleUUID"/>
+                    <PropertyRef Name="RuleId"/>
+                    <PropertyRef Name="DraftUUID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="Id" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="RuleUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="RuleId" Type="Edm.String" Nullable="false" MaxLength="10"/>
+                <Property Name="InventoryScope" Type="Edm.String" Nullable="false" MaxLength="255"/>
+                <Property Name="Plant" Type="Edm.String" Nullable="false" MaxLength="4"/>
+                <Property Name="LocalCreatedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalCreatedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LocalLastChangedBy" Type="Edm.String" Nullable="false" MaxLength="12"/>
+                <Property Name="LocalLastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="ParentDraftUUID" Type="Edm.Guid"/>
+                <Property Name="DraftEntityCreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="DraftEntityLastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="__EntityControl" Type="com.sap.gateway.srvd.zsd_rules.v0001.EntityControl"/>
+                <Property Name="SAP__Messages" Type="Collection(com.sap.gateway.srvd.zsd_rules.v0001.SAP__Message)" Nullable="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="com.sap.gateway.srvd.zsd_rules.v0001.I_DraftAdministrativeDataType"/>
+                <NavigationProperty Name="SiblingEntity" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESSCOPEType"/>
+                <NavigationProperty Name="_RuleHeader" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false" Partner="_RuleScope">
+                    <ReferentialConstraint Property="RuleUUID" ReferencedProperty="Id"/>
+                    <ReferentialConstraint Property="RuleId" ReferencedProperty="RuleId"/>
+                </NavigationProperty>
+            </EntityType>
+            <ComplexType Name="ZC_RULESHEADERCbAControl">
+                <Property Name="_RuleFilter" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="_RuleLogic" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="_RuleScope" Type="Edm.Boolean" Nullable="false"/>
+            </ComplexType>
+            <ComplexType Name="ZC_RULESHEADEROperationControl">
+                <Property Name="Edit" Type="Edm.Boolean" Nullable="false"/>
+            </ComplexType>
+            <ComplexType Name="EntityControl">
+                <Property Name="Deletable" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="Updatable" Type="Edm.Boolean" Nullable="false"/>
+            </ComplexType>
+            <ComplexType Name="SAP__Message">
+                <Property Name="code" Type="Edm.String" Nullable="false"/>
+                <Property Name="message" Type="Edm.String" Nullable="false"/>
+                <Property Name="target" Type="Edm.String"/>
+                <Property Name="additionalTargets" Type="Collection(Edm.String)" Nullable="false"/>
+                <Property Name="transition" Type="Edm.Boolean" Nullable="false"/>
+                <Property Name="numericSeverity" Type="Edm.Byte" Nullable="false"/>
+                <Property Name="longtextUrl" Type="Edm.String"/>
+            </ComplexType>
+            <Action Name="Prepare" IsBound="true">
+                <Parameter Name="_it" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false"/>
+            </Action>
+            <Action Name="Activate" EntitySetPath="_it" IsBound="true">
+                <Parameter Name="_it" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false"/>
+                <ReturnType Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false"/>
+            </Action>
+            <Action Name="Edit" EntitySetPath="_it" IsBound="true">
+                <Parameter Name="_it" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false"/>
+                <Parameter Name="PreserveChanges" Type="Edm.Boolean" Nullable="false"/>
+                <ReturnType Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false"/>
+            </Action>
+            <Action Name="Discard" IsBound="true">
+                <Parameter Name="_it" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false"/>
+            </Action>
+            <Action Name="Resume" IsBound="true">
+                <Parameter Name="_it" Type="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType" Nullable="false"/>
+            </Action>
+            <EntityContainer Name="Container">
+                <EntitySet Name="I_DraftAdministrativeData" EntityType="com.sap.gateway.srvd.zsd_rules.v0001.I_DraftAdministrativeDataType"/>
+                <EntitySet Name="ZC_RULESFILTER" EntityType="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESFILTERType">
+                    <NavigationPropertyBinding Path="DraftAdministrativeData" Target="I_DraftAdministrativeData"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="ZC_RULESFILTER"/>
+                    <NavigationPropertyBinding Path="_RuleHeader" Target="ZC_RULESHEADER"/>
+                </EntitySet>
+                <EntitySet Name="ZC_RULESHEADER" EntityType="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESHEADERType">
+                    <NavigationPropertyBinding Path="DraftAdministrativeData" Target="I_DraftAdministrativeData"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="ZC_RULESHEADER"/>
+                    <NavigationPropertyBinding Path="_RuleFilter" Target="ZC_RULESFILTER"/>
+                    <NavigationPropertyBinding Path="_RuleLogic" Target="ZC_RULESLOGIC"/>
+                    <NavigationPropertyBinding Path="_RuleScope" Target="ZC_RULESSCOPE"/>
+                </EntitySet>
+                <EntitySet Name="ZC_RULESLOGIC" EntityType="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESLOGICType">
+                    <NavigationPropertyBinding Path="DraftAdministrativeData" Target="I_DraftAdministrativeData"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="ZC_RULESLOGIC"/>
+                    <NavigationPropertyBinding Path="_RuleHeader" Target="ZC_RULESHEADER"/>
+                </EntitySet>
+                <EntitySet Name="ZC_RULESSCOPE" EntityType="com.sap.gateway.srvd.zsd_rules.v0001.ZC_RULESSCOPEType">
+                    <NavigationPropertyBinding Path="DraftAdministrativeData" Target="I_DraftAdministrativeData"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="ZC_RULESSCOPE"/>
+                    <NavigationPropertyBinding Path="_RuleHeader" Target="ZC_RULESHEADER"/>
+                </EntitySet>
+            </EntityContainer>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/Id">
+                <Annotation Term="SAP__common.Label" String="ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="UUID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/RuleUUID">
+                <Annotation Term="SAP__common.Label" String="Rule UUID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="UUID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/RuleId">
+                <Annotation Term="SAP__common.Label" String="Rule ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__common.IsDigitSequence"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Rule ID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Rule ID"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/Characteristic">
+                <Annotation Term="SAP__common.Label" String="Characteristic"/>
+                <Annotation Term="SAP__common.IsDigitSequence"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_characteristic_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_rulesfilter.characteristic'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/Operator">
+                <Annotation Term="SAP__common.Label" String="Operator"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_operator_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_rulesfilter.operator'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/Value">
+                <Annotation Term="SAP__common.Label" String="Value"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/ValueUom">
+                <Annotation Term="SAP__common.Label" String="Value UoM"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/LogicalOperator">
+                <Annotation Term="SAP__common.Label" String="Logical Operator"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_logicaloperator_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_rulesfilter.logicaloperator'/$metadata</String>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/LocalCreatedBy">
+                <Annotation Term="SAP__common.Label" String="Created By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Created By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/LocalCreatedAt">
+                <Annotation Term="SAP__common.Label" String="Created At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Creation Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/LocalLastChangedBy">
+                <Annotation Term="SAP__common.Label" String="Last Changed By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Changed By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/LocalLastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/LastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed Timestamp"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/HasDraftEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has Draft"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has draft document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/DraftUUID">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Key"/>
+                <Annotation Term="SAP__common.QuickInfo" String="UUID serving as key (parent key, root key)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/ParentDraftUUID">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Key"/>
+                <Annotation Term="SAP__common.QuickInfo" String="UUID serving as key (parent key, root key)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/DraftEntityCreationDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Created On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/DraftEntityLastChangeDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/HasActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/IsActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Is active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Is active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType/__EntityControl">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Container/ZC_RULESFILTER">
+                <Annotation Term="SAP__capabilities.NavigationRestrictions">
+                    <Record>
+                        <PropertyValue Property="RestrictedProperties">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="SiblingEntity"/>
+                                    <PropertyValue Property="DeepUpdateSupport">
+                                        <Record>
+                                            <PropertyValue Property="Supported" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_RuleHeader"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                    <PropertyValue Property="DeepUpdateSupport">
+                                        <Record>
+                                            <PropertyValue Property="Supported" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__common.DraftNode"/>
+                <Annotation Term="SAP__common.DraftActivationVia">
+                    <Collection>
+                        <String>SAP__self.Container/ZC_RULESHEADER</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SearchRestrictions">
+                    <Record>
+                        <PropertyValue Property="Searchable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="Filterable" Bool="true"/>
+                        <PropertyValue Property="FilterExpressionRestrictions">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityCreationDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityLastChangeDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="NonFilterableProperties">
+                            <Collection>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SortRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonSortableProperties">
+                            <Collection>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.UpdateRestrictions">
+                    <Record>
+                        <PropertyValue Property="DeltaUpdateSupported" Bool="true"/>
+                        <PropertyValue Property="Updatable" Path="__EntityControl/Updatable"/>
+                        <PropertyValue Property="NonUpdatableNavigationProperties">
+                            <Collection>
+                                <PropertyPath>DraftAdministrativeData</PropertyPath>
+                                <PropertyPath>SiblingEntity</PropertyPath>
+                                <PropertyPath>_RuleHeader</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="QueryOptions">
+                            <Record>
+                                <PropertyValue Property="SelectSupported" Bool="true"/>
+                            </Record>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeepUpdateSupport">
+                    <Record>
+                        <PropertyValue Property="ContentIDSupported" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.InsertRestrictions">
+                    <Record>
+                        <PropertyValue Property="Insertable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeleteRestrictions">
+                    <Record>
+                        <PropertyValue Property="Deletable" Path="__EntityControl/Deletable"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESFILTERType">
+                <Annotation Term="SAP__common.Label" String="Rules Filter"/>
+                <Annotation Term="SAP__UI.Facets">
+                    <Collection>
+                        <Record Type="SAP__UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Rule Filter"/>
+                            <PropertyValue Property="ID" String="RulesFilter"/>
+                            <PropertyValue Property="Target" AnnotationPath="@SAP__UI.Identification"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.Identification">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Characteristic"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Operator"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Value"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ValueUom"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="LogicalOperator"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.LineItem">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Characteristic"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Operator"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Value"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ValueUom"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="LogicalOperator"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>RuleId</PropertyPath>
+                        <PropertyPath>Characteristic</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.Messages" Path="SAP__Messages"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/Id">
+                <Annotation Term="SAP__common.Label" String="ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="UUID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/RuleUUID">
+                <Annotation Term="SAP__common.Label" String="Rule UUID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="UUID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/RuleId">
+                <Annotation Term="SAP__common.Label" String="Rule ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__common.IsDigitSequence"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Rule ID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Rule ID"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/Logic">
+                <Annotation Term="SAP__common.Label" String="Logic"/>
+                <Annotation Term="SAP__common.IsDigitSequence"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_logic_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_ruleslogic.logic'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/Value">
+                <Annotation Term="SAP__common.Label" String="Value"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_values_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_ruleslogic.value'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/ValueUom">
+                <Annotation Term="SAP__common.Label" String="Value UoM"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/LocalCreatedBy">
+                <Annotation Term="SAP__common.Label" String="Created By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Created By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/LocalCreatedAt">
+                <Annotation Term="SAP__common.Label" String="Created At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Creation Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/LocalLastChangedBy">
+                <Annotation Term="SAP__common.Label" String="Last Changed By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Changed By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/LocalLastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/LastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed Timestamp"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/HasDraftEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has Draft"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has draft document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/DraftUUID">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Key"/>
+                <Annotation Term="SAP__common.QuickInfo" String="UUID serving as key (parent key, root key)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/ParentDraftUUID">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Key"/>
+                <Annotation Term="SAP__common.QuickInfo" String="UUID serving as key (parent key, root key)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/DraftEntityCreationDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Created On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/DraftEntityLastChangeDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/HasActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/IsActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Is active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Is active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType/__EntityControl">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Container/ZC_RULESLOGIC">
+                <Annotation Term="SAP__capabilities.NavigationRestrictions">
+                    <Record>
+                        <PropertyValue Property="RestrictedProperties">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="SiblingEntity"/>
+                                    <PropertyValue Property="DeepUpdateSupport">
+                                        <Record>
+                                            <PropertyValue Property="Supported" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_RuleHeader"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                    <PropertyValue Property="DeepUpdateSupport">
+                                        <Record>
+                                            <PropertyValue Property="Supported" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__common.DraftNode"/>
+                <Annotation Term="SAP__common.DraftActivationVia">
+                    <Collection>
+                        <String>SAP__self.Container/ZC_RULESHEADER</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SearchRestrictions">
+                    <Record>
+                        <PropertyValue Property="Searchable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="Filterable" Bool="true"/>
+                        <PropertyValue Property="FilterExpressionRestrictions">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityCreationDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityLastChangeDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="NonFilterableProperties">
+                            <Collection>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SortRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonSortableProperties">
+                            <Collection>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.UpdateRestrictions">
+                    <Record>
+                        <PropertyValue Property="DeltaUpdateSupported" Bool="true"/>
+                        <PropertyValue Property="Updatable" Path="__EntityControl/Updatable"/>
+                        <PropertyValue Property="NonUpdatableNavigationProperties">
+                            <Collection>
+                                <PropertyPath>DraftAdministrativeData</PropertyPath>
+                                <PropertyPath>SiblingEntity</PropertyPath>
+                                <PropertyPath>_RuleHeader</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="QueryOptions">
+                            <Record>
+                                <PropertyValue Property="SelectSupported" Bool="true"/>
+                            </Record>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeepUpdateSupport">
+                    <Record>
+                        <PropertyValue Property="ContentIDSupported" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.InsertRestrictions">
+                    <Record>
+                        <PropertyValue Property="Insertable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeleteRestrictions">
+                    <Record>
+                        <PropertyValue Property="Deletable" Path="__EntityControl/Deletable"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESLOGICType">
+                <Annotation Term="SAP__common.Label" String="Rules Logic"/>
+                <Annotation Term="SAP__UI.Facets">
+                    <Collection>
+                        <Record Type="SAP__UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Rule Logic"/>
+                            <PropertyValue Property="ID" String="RulesLogic"/>
+                            <PropertyValue Property="Target" AnnotationPath="@SAP__UI.Identification"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.Identification">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Logic"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Value"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ValueUom"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.LineItem">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Logic"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Value"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ValueUom"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>RuleId</PropertyPath>
+                        <PropertyPath>Logic</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.Messages" Path="SAP__Messages"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/DraftEntityType">
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Entity ID"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/CreatedByUser">
+                <Annotation Term="SAP__common.Text" Path="CreatedByUserDescription"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/i_draftadministrativeuservh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-i_draftadministrativedata.createdbyuser'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.Label" String="Draft Created By"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/LastChangedByUser">
+                <Annotation Term="SAP__common.Text" Path="LastChangedByUserDescription"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/i_draftadministrativeuservh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-i_draftadministrativedata.lastchangedbyuser'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed By"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/DraftAccessType">
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Access Type"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/InProcessByUser">
+                <Annotation Term="SAP__common.Text" Path="InProcessByUserDescription"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft In Process By"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType">
+                <Annotation Term="SAP__common.Label" String="Draft Administration Data"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Container/I_DraftAdministrativeData">
+                <Annotation Term="SAP__capabilities.SearchRestrictions">
+                    <Record>
+                        <PropertyValue Property="Searchable" Bool="true"/>
+                        <PropertyValue Property="UnsupportedExpressions" EnumMember="SAP__capabilities.SearchExpressions/AND SAP__capabilities.SearchExpressions/NOT SAP__capabilities.SearchExpressions/group "/>
+                        <PropertyValue Property="SearchSyntax" String="https://url.sap/odata-search"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="Filterable" Bool="true"/>
+                        <PropertyValue Property="FilterExpressionRestrictions">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="CreationDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="LastChangeDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.ReadRestrictions">
+                    <Record>
+                        <PropertyValue Property="Readable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.InsertRestrictions">
+                    <Record>
+                        <PropertyValue Property="Insertable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeleteRestrictions">
+                    <Record>
+                        <PropertyValue Property="Deletable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.UpdateRestrictions">
+                    <Record>
+                        <PropertyValue Property="Updatable" Bool="false"/>
+                        <PropertyValue Property="QueryOptions">
+                            <Record>
+                                <PropertyValue Property="SelectSupported" Bool="true"/>
+                            </Record>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/Id">
+                <Annotation Term="SAP__common.Label" String="ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="UUID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/RuleId">
+                <Annotation Term="SAP__common.Label" String="Rule ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__common.IsDigitSequence"/>
+                <Annotation Term="SAP__common.Heading" String="Rule ID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Rule ID"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/RuleName">
+                <Annotation Term="SAP__common.Label" String="Rule Name"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/RuleDescription">
+                <Annotation Term="SAP__common.Label" String="Rule Description"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/RuleType">
+                <Annotation Term="SAP__common.Label" String="Rule Type"/>
+                <Annotation Term="SAP__common.IsDigitSequence"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_typerules_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_rulesheader.ruletype'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/ValidFrom">
+                <Annotation Term="SAP__common.Label" String="Valid From"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/ValidTo">
+                <Annotation Term="SAP__common.Label" String="Valid To"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/ItemType">
+                <Annotation Term="SAP__common.Label" String="Item Type"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_itemtype_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_rulesheader.itemtype'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/LocalCreatedBy">
+                <Annotation Term="SAP__common.Label" String="Created By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Created By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/LocalCreatedAt">
+                <Annotation Term="SAP__common.Label" String="Created At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Creation Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/LocalLastChangedBy">
+                <Annotation Term="SAP__common.Label" String="Last Changed By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Changed By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/LocalLastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/LastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed Timestamp"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/HasDraftEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has Draft"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has draft document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/DraftUUID">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Key"/>
+                <Annotation Term="SAP__common.QuickInfo" String="UUID serving as key (parent key, root key)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/DraftEntityCreationDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Created On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/DraftEntityLastChangeDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/HasActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/IsActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Is active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Is active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/__CreateByAssociationControl">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/__EntityControl">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/__OperationControl">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Container/ZC_RULESHEADER">
+                <Annotation Term="SAP__capabilities.NavigationRestrictions">
+                    <Record>
+                        <PropertyValue Property="RestrictedProperties">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="SiblingEntity"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                    <PropertyValue Property="DeepUpdateSupport">
+                                        <Record>
+                                            <PropertyValue Property="Supported" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_RuleFilter"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Path="__CreateByAssociationControl/_RuleFilter"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_RuleLogic"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Path="__CreateByAssociationControl/_RuleLogic"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_RuleScope"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Path="__CreateByAssociationControl/_RuleScope"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__common.DraftRoot">
+                    <Record>
+                        <PropertyValue Property="PreparationAction" String="com.sap.gateway.srvd.zsd_rules.v0001.Prepare"/>
+                        <PropertyValue Property="ActivationAction" String="com.sap.gateway.srvd.zsd_rules.v0001.Activate"/>
+                        <PropertyValue Property="EditAction" String="com.sap.gateway.srvd.zsd_rules.v0001.Edit"/>
+                        <PropertyValue Property="DiscardAction" String="com.sap.gateway.srvd.zsd_rules.v0001.Discard"/>
+                        <PropertyValue Property="ResumeAction" String="com.sap.gateway.srvd.zsd_rules.v0001.Resume"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SearchRestrictions">
+                    <Record>
+                        <PropertyValue Property="Searchable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="Filterable" Bool="true"/>
+                        <PropertyValue Property="FilterExpressionRestrictions">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityCreationDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityLastChangeDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="NonFilterableProperties">
+                            <Collection>
+                                <PropertyPath>__CreateByAssociationControl</PropertyPath>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                                <PropertyPath>__OperationControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SortRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonSortableProperties">
+                            <Collection>
+                                <PropertyPath>__CreateByAssociationControl</PropertyPath>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                                <PropertyPath>__OperationControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.UpdateRestrictions">
+                    <Record>
+                        <PropertyValue Property="DeltaUpdateSupported" Bool="true"/>
+                        <PropertyValue Property="Updatable" Path="__EntityControl/Updatable"/>
+                        <PropertyValue Property="NonUpdatableNavigationProperties">
+                            <Collection>
+                                <PropertyPath>DraftAdministrativeData</PropertyPath>
+                                <PropertyPath>SiblingEntity</PropertyPath>
+                                <PropertyPath>_RuleFilter</PropertyPath>
+                                <PropertyPath>_RuleLogic</PropertyPath>
+                                <PropertyPath>_RuleScope</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="QueryOptions">
+                            <Record>
+                                <PropertyValue Property="SelectSupported" Bool="true"/>
+                            </Record>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeepUpdateSupport">
+                    <Record>
+                        <PropertyValue Property="ContentIDSupported" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeleteRestrictions">
+                    <Record>
+                        <PropertyValue Property="Deletable" Path="__EntityControl/Deletable"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/_RuleFilter">
+                <Annotation Term="SAP__common.Composition"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/_RuleLogic">
+                <Annotation Term="SAP__common.Composition"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType/_RuleScope">
+                <Annotation Term="SAP__common.Composition"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Edit(SAP__self.ZC_RULESHEADERType)/PreserveChanges">
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__common.Label" String="TRUE"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Data element for domain BOOLE: TRUE (='X') and FALSE (=' ')"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Edit(SAP__self.ZC_RULESHEADERType)">
+                <Annotation Term="SAP__core.OperationAvailable" Path="_it/__OperationControl/Edit"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERType">
+                <Annotation Term="SAP__common.Label" String="Rules Header"/>
+                <Annotation Term="SAP__UI.Facets">
+                    <Collection>
+                        <Record Type="SAP__UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Rule Header"/>
+                            <PropertyValue Property="ID" String="RuleHeader"/>
+                            <PropertyValue Property="Target" AnnotationPath="@SAP__UI.Identification"/>
+                        </Record>
+                        <Record Type="SAP__UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Rule Scope"/>
+                            <PropertyValue Property="ID" String="RuleScope"/>
+                            <PropertyValue Property="Target" AnnotationPath="_RuleScope/@SAP__UI.LineItem"/>
+                        </Record>
+                        <Record Type="SAP__UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Rule Filter"/>
+                            <PropertyValue Property="ID" String="RuleFilter"/>
+                            <PropertyValue Property="Target" AnnotationPath="_RuleFilter/@SAP__UI.LineItem"/>
+                        </Record>
+                        <Record Type="SAP__UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Rule Logic"/>
+                            <PropertyValue Property="ID" String="RuleLogic"/>
+                            <PropertyValue Property="Target" AnnotationPath="_RuleLogic/@SAP__UI.LineItem"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.Identification">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleName"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleDescription"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleType"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ItemType"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.Identification" Qualifier="RuleValidity">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ValidFrom"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ValidTo"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.LineItem">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleName"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleDescription"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleType"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="ItemType"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>RuleId</PropertyPath>
+                        <PropertyPath>RuleName</PropertyPath>
+                        <PropertyPath>RuleType</PropertyPath>
+                        <PropertyPath>ItemType</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.Messages" Path="SAP__Messages"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/Id">
+                <Annotation Term="SAP__common.Label" String="ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="UUID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/RuleUUID">
+                <Annotation Term="SAP__common.Label" String="Rule UUID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="UUID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/RuleId">
+                <Annotation Term="SAP__common.Label" String="Rule ID"/>
+                <Annotation Term="SAP__core.ComputedDefaultValue"/>
+                <Annotation Term="SAP__common.IsDigitSequence"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Rule ID"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Rule ID"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/InventoryScope">
+                <Annotation Term="SAP__common.Label" String="Inventory Scope"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_inventoryscope_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_rulesscope.inventoryscope'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/Plant">
+                <Annotation Term="SAP__common.Label" String="Plant"/>
+                <Annotation Term="SAP__common.ValueListReferences">
+                    <Collection>
+                        <String>../../../../srvd_f4/sap/zi_plant_vh/0001;ps='srvd-zsd_rules-0001';va='com.sap.gateway.srvd.zsd_rules.v0001.et-zc_rulesscope.plant'/$metadata</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.ValueListWithFixedValues">
+                    <Annotation Term="SAP__common.ValueListShowValuesImmediately"/>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/LocalCreatedBy">
+                <Annotation Term="SAP__common.Label" String="Created By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Created By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/LocalCreatedAt">
+                <Annotation Term="SAP__common.Label" String="Created At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Created On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Creation Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_CREATION_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/LocalLastChangedBy">
+                <Annotation Term="SAP__common.Label" String="Last Changed By"/>
+                <Annotation Term="SAP__common.IsUpperCase"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed By"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Changed By User"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_USER"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/LocalLastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed At"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Local Instance Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LOCINST_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/LastChangedAt">
+                <Annotation Term="SAP__common.Label" String="Last Changed Timestamp"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Heading" String="Changed On"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Last Change Date Time"/>
+                <Annotation Term="SAP__common.DocumentationRef" String="urn:sap-com:documentation:key?=type=DE&amp;id=ABP_LASTCHANGE_TSTMPL"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/HasDraftEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has Draft"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has draft document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/DraftUUID">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Key"/>
+                <Annotation Term="SAP__common.QuickInfo" String="UUID serving as key (parent key, root key)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/ParentDraftUUID">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Key"/>
+                <Annotation Term="SAP__common.QuickInfo" String="UUID serving as key (parent key, root key)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/DraftEntityCreationDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Created On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/DraftEntityLastChangeDateTime">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/HasActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Has active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Has active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/IsActiveEntity">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Is active"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Draft - Indicator - Is active document"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType/__EntityControl">
+                <Annotation Term="SAP__core.Computed"/>
+                <Annotation Term="SAP__UI.HiddenFilter"/>
+                <Annotation Term="SAP__UI.Hidden"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Container/ZC_RULESSCOPE">
+                <Annotation Term="SAP__capabilities.NavigationRestrictions">
+                    <Record>
+                        <PropertyValue Property="RestrictedProperties">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="SiblingEntity"/>
+                                    <PropertyValue Property="DeepUpdateSupport">
+                                        <Record>
+                                            <PropertyValue Property="Supported" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_RuleHeader"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                    <PropertyValue Property="DeepUpdateSupport">
+                                        <Record>
+                                            <PropertyValue Property="Supported" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__common.DraftNode"/>
+                <Annotation Term="SAP__common.DraftActivationVia">
+                    <Collection>
+                        <String>SAP__self.Container/ZC_RULESHEADER</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SearchRestrictions">
+                    <Record>
+                        <PropertyValue Property="Searchable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="Filterable" Bool="true"/>
+                        <PropertyValue Property="FilterExpressionRestrictions">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityCreationDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="DraftEntityLastChangeDateTime"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SingleRange"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="NonFilterableProperties">
+                            <Collection>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SortRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonSortableProperties">
+                            <Collection>
+                                <PropertyPath>__EntityControl</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.UpdateRestrictions">
+                    <Record>
+                        <PropertyValue Property="DeltaUpdateSupported" Bool="true"/>
+                        <PropertyValue Property="Updatable" Path="__EntityControl/Updatable"/>
+                        <PropertyValue Property="NonUpdatableNavigationProperties">
+                            <Collection>
+                                <PropertyPath>DraftAdministrativeData</PropertyPath>
+                                <PropertyPath>SiblingEntity</PropertyPath>
+                                <PropertyPath>_RuleHeader</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="QueryOptions">
+                            <Record>
+                                <PropertyValue Property="SelectSupported" Bool="true"/>
+                            </Record>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeepUpdateSupport">
+                    <Record>
+                        <PropertyValue Property="ContentIDSupported" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.InsertRestrictions">
+                    <Record>
+                        <PropertyValue Property="Insertable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.DeleteRestrictions">
+                    <Record>
+                        <PropertyValue Property="Deletable" Path="__EntityControl/Deletable"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESSCOPEType">
+                <Annotation Term="SAP__common.Label" String="Rules Scope"/>
+                <Annotation Term="SAP__UI.Facets">
+                    <Collection>
+                        <Record Type="SAP__UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Rule Scope"/>
+                            <PropertyValue Property="ID" String="RulesScope"/>
+                            <PropertyValue Property="Target" AnnotationPath="@SAP__UI.Identification"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.Identification">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="InventoryScope"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Plant"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.LineItem">
+                    <Collection>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Id"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="RuleId"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="InventoryScope"/>
+                        </Record>
+                        <Record Type="SAP__UI.DataField">
+                            <PropertyValue Property="Value" Path="Plant"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>RuleId</PropertyPath>
+                        <PropertyPath>InventoryScope</PropertyPath>
+                        <PropertyPath>Plant</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__common.Messages" Path="SAP__Messages"/>
+            </Annotations>
+            <Annotations Target="SAP__self.Container">
+                <Annotation Term="SAP__common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+                <Annotation Term="SAP__capabilities.FilterFunctions">
+                    <Collection>
+                        <String>eq</String>
+                        <String>ne</String>
+                        <String>gt</String>
+                        <String>ge</String>
+                        <String>lt</String>
+                        <String>le</String>
+                        <String>and</String>
+                        <String>or</String>
+                        <String>contains</String>
+                        <String>startswith</String>
+                        <String>endswith</String>
+                        <String>any</String>
+                        <String>all</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__support.TechnicalInfoLinks">
+                    <Record>
+                        <PropertyValue Property="Url" String="../../../../default/iwbep/common/0001/$metadata"/>
+                        <PropertyValue Property="FunctionImport" String="GetTechnicalInfoLinks"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.SupportedFormats">
+                    <Collection>
+                        <String>application/json</String>
+                        <String>application/pdf</String>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="SAP__PDF.Features">
+                    <Record>
+                        <PropertyValue Property="DocumentDescriptionReference" String="../../../../default/iwbep/common/0001/$metadata"/>
+                        <PropertyValue Property="DocumentDescriptionCollection" String="MyDocumentDescriptions"/>
+                        <PropertyValue Property="ArchiveFormat" Bool="true"/>
+                        <PropertyValue Property="Border" Bool="true"/>
+                        <PropertyValue Property="CoverPage" Bool="true"/>
+                        <PropertyValue Property="FitToPage" Bool="true"/>
+                        <PropertyValue Property="FontName" Bool="true"/>
+                        <PropertyValue Property="FontSize" Bool="true"/>
+                        <PropertyValue Property="HeaderFooter" Bool="true"/>
+                        <PropertyValue Property="IANATimezoneFormat" Bool="true"/>
+                        <PropertyValue Property="Margin" Bool="true"/>
+                        <PropertyValue Property="Padding" Bool="true"/>
+                        <PropertyValue Property="ResultSizeDefault" Int="20000"/>
+                        <PropertyValue Property="ResultSizeMaximum" Int="20000"/>
+                        <PropertyValue Property="Signature" Bool="true"/>
+                        <PropertyValue Property="TextDirectionLayout" Bool="true"/>
+                        <PropertyValue Property="Treeview" Bool="true"/>
+                        <PropertyValue Property="UploadToFileShare" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="SAP__capabilities.KeyAsSegmentSupported"/>
+                <Annotation Term="SAP__capabilities.AsynchronousRequestsSupported"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/DraftUUID">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft (Technical ID)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/ProcessingStartDateTime">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft In Process Since"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/DraftIsKeptByUser">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Is Kept By User"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/EnqueueStartDateTime">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Locked Since"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/DraftIsCreatedByMe">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Created By Me"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/DraftIsLastChangedByMe">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed By Me"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/DraftIsProcessedByMe">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft In Process By Me"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/CreatedByUserDescription">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Created By (Description)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/LastChangedByUserDescription">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed By (Description)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/InProcessByUserDescription">
+                <Annotation Term="SAP__UI.Hidden"/>
+                <Annotation Term="SAP__common.Label" String="Draft In Process By (Description)"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/CreationDateTime">
+                <Annotation Term="SAP__common.Label" String="Draft Created On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.I_DraftAdministrativeDataType/LastChangeDateTime">
+                <Annotation Term="SAP__common.Label" String="Draft Last Changed On"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERCbAControl/_RuleFilter">
+                <Annotation Term="SAP__common.Label" String="Dynamic CbA-Control"/>
+                <Annotation Term="SAP__common.Heading" String="Dynamic Create by Association Control"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Dynamic Create via Association Control Property"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERCbAControl/_RuleLogic">
+                <Annotation Term="SAP__common.Label" String="Dynamic CbA-Control"/>
+                <Annotation Term="SAP__common.Heading" String="Dynamic Create by Association Control"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Dynamic Create via Association Control Property"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADERCbAControl/_RuleScope">
+                <Annotation Term="SAP__common.Label" String="Dynamic CbA-Control"/>
+                <Annotation Term="SAP__common.Heading" String="Dynamic Create by Association Control"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Dynamic Create via Association Control Property"/>
+            </Annotations>
+            <Annotations Target="SAP__self.ZC_RULESHEADEROperationControl/Edit">
+                <Annotation Term="SAP__common.Label" String="Dyn. Action Control"/>
+                <Annotation Term="SAP__common.Heading" String="Dynamic Action Control"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Dynamic Action Property"/>
+            </Annotations>
+            <Annotations Target="SAP__self.EntityControl/Deletable">
+                <Annotation Term="SAP__common.Label" String="Dyn. Method Control"/>
+                <Annotation Term="SAP__common.Heading" String="Dynamic Method Control"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Dynamic Method Property"/>
+            </Annotations>
+            <Annotations Target="SAP__self.EntityControl/Updatable">
+                <Annotation Term="SAP__common.Label" String="Dyn. Method Control"/>
+                <Annotation Term="SAP__common.Heading" String="Dynamic Method Control"/>
+                <Annotation Term="SAP__common.QuickInfo" String="Dynamic Method Property"/>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

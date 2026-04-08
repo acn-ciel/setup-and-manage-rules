@@ -31,12 +31,12 @@
                 selectedKey="{app>/selectedRuleId}"
                 placeholder="Select rule ID to apply"
                 selectionChange=".onRuleSelectChange"
-                items="{app>/rules}">
-                <core:Item id="_IDGenItem50" key="{app>ID}" text="{app>ID}"/>
+                items="{app>/ruleSummary}">
+                <core:Item id="_IDGenItem50" key="{app>RuleId}" text="{app>RuleId}"/>
               </ComboBox>
 
-              <Text id="inpName" width="200px" wrapping="true" text="{app>/selectedRule/Name}" />
-              <Text id="inpDesc" width="200px" wrapping="true" text="{app>/selectedRule/Description}" />
+              <Text id="inpName" width="200px" wrapping="true" text="{app>/selectedRule/RuleName}" />
+              <Text id="inpDesc" width="200px" wrapping="true" text="{app>/selectedRule/RuleDescription}" />
             </cells>
           </ColumnListItem>
         </items>

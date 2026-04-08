@@ -4,16 +4,21 @@ specVersion: "4.0"
 metadata:
   name: applyrules
 type: application
-framework:
-  name: SAPUI5
-  version: 1.142.7
-  libraries:
-    - name: sap.m
-    - name: sap.ui.core
-    - name: sap.ushell
-    - name: themelib_sap_horizon
 server:
   customMiddleware:
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertErrors: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        ui5:
+          path:
+            - /resources
+            - /test-resources
+          url: https://ui5.sap.com
+        backend:
+          - path: /sap/opu/odata4/sap/zsb_rules/srvd/sap/zsd_rules/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:
@@ -25,14 +30,6 @@ server:
       configuration:
         flp:
           theme: sap_horizon
-    - name: fiori-tools-proxy
-      afterMiddleware: compression
-      configuration:
-        ignoreCertErrors: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
-        backend:
-          - path: /sap/opu/odata4/sap/zsb_rules/srvd/sap/zsd_rules/0001/
-            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
-            destination: ZSAP_BAS
     - name: sap-fe-mockserver
       beforeMiddleware: csp
       configuration:

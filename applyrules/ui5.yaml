@@ -15,6 +15,10 @@ server:
             - /resources
             - /test-resources
           url: https://ui5.sap.com
+        backend:
+          - path: /sap/opu/odata4/sap/zsb_rules/srvd/sap/zsd_rules/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:

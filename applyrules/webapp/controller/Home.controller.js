@@ -10,9 +10,15 @@ sap.ui.define([
 
     return Controller.extend("applyrules.controller.Home", {
     /* ===================== LIFECYCLE ===================== */
-    onInit: function () {
+    onInit: async function () {
+
+      const rules = await this.onGetRule();
+      console.log("RULE: ", rules)
+
       const oAppModel = new JSONModel({
         applyrules: [],
+        ruleSummary: rules,
+
         rules: [],
         scopes: [],
         filters: [],
@@ -28,16 +34,35 @@ sap.ui.define([
     },
 
     /* ===================== PUBLIC HANDLERS ===================== */
-    onAddApplyRule: async function () {
-      const oAppModel = this.getView().getModel("app");
-      const oRuleModel = this.getOwnerComponent()?.getModel("rule");
+    onGetRule: async function () {
+      const oModel = this.getOwnerComponent().getModel();
 
-      if (!oAppModel || !oRuleModel) {
+      const oList = oModel.bindList(
+        "/ZC_RULESHEADER",
+        null,
+        null,
+        null,
+        {
+          $filter: "IsActiveEntity eq true",
+          $orderby: "RuleId asc",         
+          $expand: {
+            _RuleScope: true
+          }
+        }
+      );
+
+      const aContexts = await oList.requestContexts(0, 300);
+      return aContexts.map(c => c.getObject());
+    },
+
+    onAddApplyRule: async function () {
+      const oModel = this.getView().getModel("app");
+      const ruleSummary = oModel.getProperty("/ruleSummary");
+
+      if (!ruleSummary.length > 0) {
         this._toast("NO_MODELS_FOUND")
         return;
       }
-
-      await this._getDataFromComponent();
 
       await this._ensureDialog("_pAddApplyRuleDialog", "applyrules.view.AddApplyRuleDialog");
       (await this._pAddApplyRuleDialog)?.open();
@@ -91,17 +116,10 @@ sap.ui.define([
       const oModel = this.getView().getModel("app");
       const sId = oEvent.getSource().getSelectedKey();
 
-      if (!oModel) {
-        this._toast?.("RULE_MODEL_NOT_FOUND"); // optional
-        return;
-      }
-
-      const aRules = oModel.getProperty("/rules") || [];
-      const oRule = aRules.find(r => r.ID === sId) || null;
+      const aRules = oModel.getProperty("/ruleSummary") || [];
+      const oRule = aRules.find(r => r.RuleId === sId) || null;
 
       console.log("ORULE: ", oRule)
-
-      oModel.setProperty("/selectedRuleId", sId);
       oModel.setProperty("/selectedRule", oRule);
     },
 
@@ -147,31 +165,6 @@ sap.ui.define([
     },
 
     /* ===================== PRIVATE HELPERS ===================== */
-    _getDataFromComponent: function () {
-      const oAppModel = this.getView().getModel("app");
-      const oRuleModel = this.getOwnerComponent()?.getModel("rule");
-
-      const oData = oRuleModel.getData() || {};
-
-      const aAllRules    = oData.rules   || [];
-      const aAllScopes   = oData.scopes   || [];   
-      const aAllFilters  = oData.filters || [];
-      const aAllAdjLogic = oData.adjLogic || [];
-
-      oAppModel.setProperty("/rules", aAllRules);
-      oAppModel.setProperty("/scopes", aAllScopes);
-      oAppModel.setProperty("/filters", aAllFilters);
-      oAppModel.setProperty("/adjLogics", aAllAdjLogic);
-
-      const sSelectedId = oAppModel.getProperty("/selectedRuleId");
-      if (sSelectedId) {
-        const oRule = aAllRules.find(r => r.ID === sSelectedId) || null;
-        oAppModel.setProperty("/selectedRule", oRule);
-        if (!oRule) oAppModel.setProperty("/selectedRuleId", "");
-      }
-
-      oAppModel.updateBindings(true);
-    },
     _ensureDialog: async function (sPromiseFieldName, sFragmentName) {
       if (!this[sPromiseFieldName]) {
         this[sPromiseFieldName] = Fragment.load({

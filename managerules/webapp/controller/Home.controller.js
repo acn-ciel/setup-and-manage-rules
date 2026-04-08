@@ -276,11 +276,20 @@ sap.ui.define([
     /* ===================== GET METHOD ===================== */
     onGetRule: async function () {
       const oModel = this.getOwnerComponent().getModel();
-      const oList = oModel.bindList("/ZC_RULESHEADER", null, null, null, {
-        $expand: {
-          _RuleScope: true
+
+      const oList = oModel.bindList(
+        "/ZC_RULESHEADER",
+        null,
+        null,
+        null,
+        {
+          $filter: "IsActiveEntity eq true",
+          $orderby: "RuleId asc",       
+          $expand: {
+            _RuleScope: true
+          }
         }
-      });
+      );
 
       const aContexts = await oList.requestContexts(0, 300);
       return aContexts.map(c => c.getObject());
