@@ -19,7 +19,7 @@
                <fb:FilterBar id="filterbar" persistencyKey="myPersKey" useToolbar="true" search=".onSearch" filterChange=".onFilterChange" afterVariantLoad=".onAfterVariantLoad">
                   <fb:filterGroupItems>
                      <!-- Global Search -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup3" name="SearchAll" label="Search All" visibleInFilterBar="true" groupName="1">
+                     <fb:FilterGroupItem id="_IDGenFilterGroup3" name="SearchAll" label="Search" visibleInFilterBar="true" groupName="1">
                         <fb:control>
                            <SearchField id="_IDGenSearchField" 
                               width= "200px"
@@ -30,54 +30,13 @@
                      </fb:FilterGroupItem>
 
                      <!-- Search by Rule ID -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup4" name="Rule ID" label="Rule ID" visibleInFilterBar="false" groupName="2">
-                        <fb:control>
-                           <MultiComboBox
-                              id="_IDGenMultiCB3"
-                              name="Name"
-                              selectionChange=".onSelectionChange"
-                              items="{
-                                 path: '/load.rules.RuleId',
-                                 templateShareable: true
-                                 }"
-                                 >
-                              <core:Item id="_IDGenItem3" key="{RuleId}" text="{RuleId}"/>
-                           </MultiComboBox>
-                        </fb:control>
-                     </fb:FilterGroupItem>
-
-                     <!-- Search by Rule Name -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup" name="Name" label="Name" visibleInFilterBar="true" groupName="3">
-                        <fb:control>
-                           <MultiComboBox
-                              id="_IDGenMultiCB"
-                              name="Name"
-                              selectionChange=".onSelectionChange"
-                              items="{
-                                 path: '/load.rules.RuleName',
-                                 templateShareable: true
-                                 }"
-                                 >
-                              <core:Item id="_IDGenItem" key="{RuleName}" text="{RuleName}"/>
-                           </MultiComboBox>
-                        </fb:control>
-                     </fb:FilterGroupItem>
-
-                     <!-- Search by Rule Description -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup8" name="Search" label="Search" visibleInFilterBar="false" groupName="4">
+                     <fb:FilterGroupItem id="_IDGenFilterGroup8" name="SearchByID" label="Search Rule ID" visibleInFilterBar="false" groupName="4">
                         <fb:control>
                            <SearchField id="_IDGenSearchField8" 
                               width= "200px"
-                              placeholder="Search rules"
+                              placeholder="e.g. 1"
                               liveChange="onSearchRuleDesc" 
                               />
-                        </fb:control>
-                     </fb:FilterGroupItem>
-
-                     <!-- Search by Date Valid From and Valid To -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup6"  name="ValidFromTo" label="Date Range Validity" visibleInFilterBar="false" groupName="5">
-                        <fb:control>
-                           <DateRangeSelection id="validFromTo"/>
                         </fb:control>
                      </fb:FilterGroupItem>
 
