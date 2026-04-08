@@ -15,92 +15,33 @@
    <NavContainer id="_IDGenNavContainer">
       <Page id="pageSummary" showHeader="false" enableScrolling="true">
          <content>
-            <VBox id="_IDGenToolbar2" height="auto" class="sapUiSmallPaddingBeginEnd">                           
-               <fb:FilterBar id="filterbar" persistencyKey="myPersKey" useToolbar="true" search=".onSearch" filterChange=".onFilterChange" afterVariantLoad=".onAfterVariantLoad">
-                  <fb:filterGroupItems>
-                     <!-- Global Search -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup3" name="SearchAll" label="Search" visibleInFilterBar="true" groupName="1">
-                        <fb:control>
-                           <SearchField id="_IDGenSearchField" 
-                              width= "200px"
-                              placeholder="e.g. 4010"
-                              liveChange="onSearch"
-                              />
-                        </fb:control>
-                     </fb:FilterGroupItem>
 
-                     <!-- Search by Rule ID -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup8" name="SearchByID" label="Search Rule ID" visibleInFilterBar="false" groupName="4">
-                        <fb:control>
-                           <SearchField id="_IDGenSearchField8" 
-                              width= "200px"
-                              placeholder="e.g. 1"
-                              liveChange="onSearchRuleDesc" 
-                              />
-                        </fb:control>
-                     </fb:FilterGroupItem>
+            <Toolbar id="_IDGenToolbar2" height="5rem" class="sapUiSmallPaddingBeginEnd">
 
-                     <!-- Search by Item Type -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup5" name="ItemType" label="Item Type" visibleInFilterBar="true" groupName="7">
-                        <fb:control>
-                           <MultiComboBox
-                              id="_IDGenMultiCB5"
-                              name="ItemType"
-                              selectionChange=".onSelectionChange"
-                              items="{
-                                 path: '/ProductNames',
-                                 templateShareable: true
-                                 }"
-                                 >
-                              <core:Item id="_IDGenItem5" key="{key}" text="{name}"/>
-                           </MultiComboBox>
-                        </fb:control>
-                     </fb:FilterGroupItem>
+                  <VBox id="_IDGenVBox1" alignItems="Start" justifyContent="Start" class="sapUiSmallMarginBegin sapUiSmallMarginTop">
+                     <Label
+                           id="_IDGenLabel"
+                           text="Search"
+                           labelFor="searchField1"
+                     />
+                     <SearchField
+                           id="searchField1"
+                           width="200px"
+                           placeholder="e.g. 4010"
+                           liveChange="onSearch"
+                     />
+                  </VBox>
 
-                     <!-- Search by Type of Rule -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup1" name="TypeOfRule" label="Type of Rule" visibleInFilterBar="true" groupName="8">
-                        <fb:control>
-                           <MultiComboBox
-                              id="_IDGenMultiCB1"
-                              name="TypeOfRule"
-                              selectionChange=".onSelectionChange"
-                              items="{
-                                 path: '/ProductCategories',
-                                 templateShareable: true
-                              }"
-                           >
-                              <core:Item id="_IDGenItem1"  key="{key}" text="{name}"/>
-                           </MultiComboBox>
-                        </fb:control>
-                     </fb:FilterGroupItem>
+            <ToolbarSpacer id="_IDGenToolbarSpacer" />
+            </Toolbar>
 
-                     <!-- Search by Plants -->
-                     <fb:FilterGroupItem id="_IDGenFilterGroup2" name="Plants" label="Plants" visibleInFilterBar="true" groupName="9">
-                        <fb:control>
-                           <MultiComboBox
-                              id="_IDGenMultiCB2"
-                              name="Plants"
-                              selectionChange=".onSelectionChange"
-                              items="{
-                                 path: '/ProductSuppliers',
-                                 templateShareable: true
-                              }"
-                           >
-                              <core:Item id="_IDGenItem2"  key="{key}" text="{name}"/>
-                           </MultiComboBox>
-                        </fb:control>
-                     </fb:FilterGroupItem>
-
-                  </fb:filterGroupItems>
-               </fb:FilterBar>
-            </VBox>
             <VBox id="_IDGenVBox2" class="sapUiSmallMargin">
                <f:Card id="_IDGenCard">
                   <f:content>
                      <VBox id="_IDGenVBox11">
                         <Toolbar id="_IDGenToolbar4" height="3rem" class="sapUiSmallPaddingBeginEnd sapUiSmallPaddingTop">
                            <Title id="_IDGenTitle" text="Rules Summary" class="sapUiSmallMarginBegin" />
-                           <ToolbarSpacer id="_IDGenToolbarSpacer" />  
+                           <ToolbarSpacer id="_IDGenToolbarSpacer1" />  
                            <Button id="_IDGenButton1" 
                               text="{= ${load>/loadingBackend} ? 'Loading…' : 'Create rule' }"
                               enabled="{= !${load>/loadingBackend} }"
@@ -127,7 +68,7 @@
                            
                            <t:rowMode>
                               <rowmodes:Auto id="_IDGenRowMode"
-                                    minRowCount="7"/>
+                                    minRowCount="9"/>
                            </t:rowMode>
 
                            <t:columns>

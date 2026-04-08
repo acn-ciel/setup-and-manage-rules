@@ -362,11 +362,11 @@ sap.ui.define([
 
       const plantLookup = plantList.map(p => ({
         ...p,
-        Plant: this.trimPlantKey(p.Plant)
+        Plant: p.Plant
       }));
 
       const aNames = (aScopes || []).map(s => {
-        const sPlant = this.trimPlantKey(s.Plant);
+        const sPlant = s.Plant;
         const oMatch = plantLookup.find(p => p.Plant === sPlant);
         return oMatch ? oMatch.PlantName : sPlant;
       });

@@ -115,8 +115,8 @@ sap.ui.define([
         PlantFormatted: this.plantFormatter(r._RuleScope)
         }))
 
+      oTable.clearSelection();
       oLoadModel.setProperty("/rules", formattedRule)
-      console.log("RULES: ", formattedRule)
       
       // Set busy to false once the data and formatter is loaded
       oTable.setBusy(false);
@@ -251,31 +251,36 @@ sap.ui.define([
       const aIdx = oTable.getSelectedIndices();
 
       if (!aIdx.length) {
-        sap.m.MessageToast.show("Please select a rule.");
+        sap.m.MessageToast.show("Please select at least one rule.");
         return;
       }
 
-      const oCtx = oTable.getContextByIndex(aIdx[0]);
-      const oRow = oCtx.getObject();
       const oModel = this.getOwnerComponent().getModel();
-      const oRowsBinding = oTable.getBinding("rows");
 
       try {
-        if (oRow.IsActiveEntity === false) {
-          const oDiscardCtx = oModel.bindContext("Discard(...)", oCtx);
-          await (oDiscardCtx.invoke?.("$auto") ?? oDiscardCtx.execute("$auto"));
-          sap.m.MessageToast.show("Draft discarded.");
-        } else {
-          await oRowsBinding.delete(aIdx[0], "$auto");
-          sap.m.MessageToast.show("Rule deleted.");
-        }
+        const aDeletePromises = [];
 
-        oTable.clearSelection();
-        oRowsBinding.refresh();
+        aIdx.forEach(idx => {
+          const oRow = oTable.getContextByIndex(idx).getObject();
+          const sPath = `/ZC_RULESHEADER(Id=${oRow.Id},RuleId='${encodeURIComponent(oRow.RuleId)}',DraftUUID=${oRow.DraftUUID},IsActiveEntity=${oRow.IsActiveEntity})`;
+
+          if (oRow.IsActiveEntity === false) {
+            const oDiscardCtx = oModel.bindContext(`${sPath}/Discard(...)`);
+            aDeletePromises.push(oDiscardCtx.invoke("$auto"));
+          } else {
+            aDeletePromises.push(oModel.delete(sPath, "$auto"));
+          }
+        });
+
+        await Promise.all(aDeletePromises);
+        oTable.setBusy(true)
+        
+        await this.loadRuleData()
+        sap.m.MessageToast.show("Selected rule(s) deleted.");
 
       } catch (e) {
         console.error(e);
-        sap.m.MessageBox.error(e?.message || "Operation failed.");
+        sap.m.MessageBox.error(e?.message || "Delete failed");
       }
     },
 
@@ -763,6 +768,7 @@ sap.ui.define([
                 onClose: function () {
                   oWizard.discardProgress(oStepGeneral);
                   this.byId("_IDGenNavContainer")?.backToTop();
+                  oModel.setProperty("/groupsFilter", [])
                   oModel.setProperty("/draftfilter", [])
                   oModel.setProperty("/draftadjlogic", [])
                 }.bind(this)
@@ -1681,17 +1687,6 @@ sap.ui.define([
       this.byId("idFilterDP").setValue("")
     },
 
-    trimPlantKey: function (sPlant) {
-      if (!sPlant) {
-        return "";
-      }
-
-      // Max length should be 4, trim excess
-      return sPlant.length > 4
-        ? sPlant.slice(0, 4)
-        : sPlant;
-    },
-
     /* ===================== SELECTION DEPENDENCIES HELPERS ===================== */
     onPlantSelectionChange: function (oEvent) {
       const oMCB = oEvent.getSource();
@@ -1894,16 +1889,11 @@ sap.ui.define([
 
     plantFormatter: function (aScopes) {
       const oModel = this.getView()?.getModel("load");
-      const plantList = oModel.getProperty("/plantList") || [];
-
-      const plantLookup = plantList.map(p => ({
-        ...p,
-        Plant: this.trimPlantKey(p.Plant)
-      }));
+      const plantLoookup = oModel.getProperty("/plantList") || [];
 
       const aNames = (aScopes || []).map(s => {
-        const sPlant = this.trimPlantKey(s.Plant);
-        const oMatch = plantLookup.find(p => p.Plant === sPlant);
+        const sPlant = s.Plant;
+        const oMatch = plantLoookup.find(p => p.Plant === sPlant);
         return oMatch ? oMatch.PlantName : sPlant;
       });
 
