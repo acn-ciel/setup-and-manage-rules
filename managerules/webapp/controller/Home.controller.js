@@ -29,8 +29,6 @@ sap.ui.define([
         const plant = await this.getPlant();
         oLoadModel.setProperty("/plantList", plant)
 
-        console.log("PLANT: ", plant)
-
         const ruleType = await this.getTypeRule();
         oLoadModel.setProperty("/ruleType", ruleType)
       
@@ -72,8 +70,8 @@ sap.ui.define([
           selectChar: null,
 
           /** Gen Info */
-          itemType: itemType,
-          ruleType: ruleType,
+          itemType: itemType.filter(i => (i.ItemType == "PR")),
+          ruleType: ruleType.filter(r => (r.IndexNo == "1")),
           
           /** Scope */
           invScope: invScope,
@@ -284,6 +282,51 @@ sap.ui.define([
       }
     },
 
+    onDeleteRule: async function () {
+      const oTable = this.byId("_IDGenTable");
+      const aIdx = oTable.getSelectedIndices();
+
+      if (!aIdx.length) {
+        sap.m.MessageToast.show("Please select at least one rule.");
+        return;
+      }
+
+      const oCtx = oTable.getContextByIndex(aIdx[0]);
+      const oModel = this.getOwnerComponent().getModel();
+
+      const aNavProps = [
+        "_RuleScope",
+        "_RuleFilter",
+        "_RuleLogic"
+      ];
+
+      try {
+        const aDeletePromises = [];
+
+        aIdx.forEach(idx => {
+          const oRow = oTable.getContextByIndex(idx).getObject();
+          const sPath = `/ZC_RULESHEADER(Id=${oRow.Id},RuleId='${encodeURIComponent(oRow.RuleId)}',DraftUUID=${oRow.DraftUUID},IsActiveEntity=${oRow.IsActiveEntity})`;
+
+          if (oRow.IsActiveEntity === false) {
+            const oDiscardCtx = oModel.bindContext(`${sPath}/Discard(...)`);
+            aDeletePromises.push(oDiscardCtx.invoke("$auto"));
+          } else {
+            aDeletePromises.push(oModel.delete(sPath, "$auto"));
+          }
+        });
+
+        await Promise.all(aDeletePromises);
+        oTable.setBusy(true)
+        
+        await this.loadRuleData()
+        sap.m.MessageToast.show("Selected rule(s) deleted.");
+
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e?.message || "Delete failed");
+      }
+    },
+
     /* ===================== GET METHOD ===================== */
     onGetRule: async function () {
       const oModel = this.getOwnerComponent().getModel();
@@ -367,6 +410,55 @@ sap.ui.define([
       const aFilters = aContexts.map(c => c.getObject());
 
       return aFilters.filter(f => String(f.RuleId).trim() === sRuleId);
+    },
+
+    onDeleteFilterGroup: async function (oCreated) {
+      const aGroupFilter = await this.onFetchFilter(oCreated.RuleId) || []
+      const oModel = this.getOwnerComponent().getModel("zsd_filtersgroup");
+
+      try {
+        const aDeletePromises = [];
+        if (aGroupFilter.length > 0) {
+          aGroupFilter.forEach( f => {
+            console.log("F: ", f)
+            const sPath = `/ZC_FILTERSGROUP(GroupId=${f.GroupId},IsActiveEntity=${f.IsActiveEntity})`
+            aDeletePromises.push(oModel.delete(sPath, "$auto"));
+          })
+
+          await Promise.all(aDeletePromises);
+        }
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e?.message || "Delete failed");
+      }
+    },
+
+    onDeleteRuleChildren: async function (oCreated) {
+      const oModel = this.getOwnerComponent().getModel();
+      const aNavProps = ["_RuleScope", "_RuleFilter", "_RuleLogic"];
+
+      try {
+        const sPath =
+          `/ZC_RULESHEADER(` +
+          `Id=${oCreated.Id},` +
+          `RuleId='${encodeURIComponent(oCreated.RuleId)}',` +
+          `DraftUUID=${oCreated.DraftUUID},` +
+          `IsActiveEntity=${oCreated.IsActiveEntity}` +
+          `)`;
+
+        for (const sNav of aNavProps) {
+          const oChildList = oModel.bindList(`${sPath}/${sNav}`);
+          const aChildCtx = await oChildList.requestContexts();
+          for (const oChild of aChildCtx) {
+            await oChild.delete("$auto");
+          }
+        }
+
+        await this.onDeleteFilterGroup(oCreated)
+      } catch (e) {
+        console.error(e);
+        sap.m.MessageBox.error(e?.message || "Delete failed");
+      }
     },
 
     /* ===================== PUBLIC HANDLERS ===================== */
@@ -641,31 +733,30 @@ sap.ui.define([
 
     onEditCreatedRule: async function (oCreated) {
       const oGenInfo = this.onGetGenInfo();
-      // const oScope = this.onSaveScope();
-      // const oFilter = this.onGetFilter();
-      // const oAdjLogic = this.onGetAdjLogic();
+      const oScope = this.onGetScope();
+      const oFilter = this.onGetFilter() || [];
+      const oAdjLogic = this.onGetAdjLogic();
 
       var success = null;
       const oView = this.getView();
-      const oModel = oView?.getModel("rules")
-
       oView.setBusy(true)
-      try {    
-         await this.onPatchGenInfo(oCreated, oGenInfo);
 
-        // Add delete functions for scope, filter, and adjustment logic
-        // await this.onCreateScope(oCreated, oScope);
-        // await oFilter.map(f => this.onCreateFilter(oCreated, f))
-        // await oAdjLogic.map(a => this.onCreateAdjLogic(oCreated, a))
+      try {    
+        await this.onDeleteRuleChildren(oCreated)
+        await this.onPatchGenInfo(oCreated, oGenInfo);
+
+        await this.onCreateScope(oCreated, oScope);
+        
+        if (oFilter.length > 0) { await oFilter.map(f => this.onCreateFilter(oCreated, f)) }
+        if (oAdjLogic.length > 0) { await oAdjLogic.map(a => this.onCreateAdjLogic(oCreated, a)) }
         success = true
       } catch (e) {
         MessageBox.error(`${e}`)
         success = false
       } finally {
         oView.setBusy(false)
+        return success
       }
-
-      return success
     },
 
     onValidateNextStep: async function () {
@@ -1016,6 +1107,8 @@ sap.ui.define([
       const oModel = this.getView()?.getModel("rules");
       oModel?.setProperty("/currentRule", aObj);
 
+      console.log("OBJECT EDIT: ", aObj)
+
       this._iEditRuleIndex = aSelectedIndices[0];
       this._navToWizardPage();
 
@@ -1028,11 +1121,14 @@ sap.ui.define([
       const aValidItemTypes = oModel.getProperty("/itemType")
       const aValidRuleTypes = oModel.getProperty("/ruleType")
 
-      if ([aValidItemTypes[0].ItemType].includes(aObj.ItemType)) {
+      const itemTypeArr = aValidItemTypes.map(a => (a.ItemType))
+      const ruleTypeArr = aValidRuleTypes.map(a => (a.IndexNo))
+
+      if (itemTypeArr.includes(aObj.ItemType)) {
         this.byId("idGenItemTypeMCB")?.setSelectedKeys([aObj.ItemType]);
       }
 
-      if ([aValidRuleTypes[0].IndexNo].includes(aObj.RuleType)) {
+      if (ruleTypeArr.includes(aObj.RuleType)) {
         this.byId("idGenRuleTypeMCB")?.setSelectedKey(aObj.RuleType);
       }
 
@@ -1669,12 +1765,11 @@ sap.ui.define([
       this._byAnyId(["idGenValidToDP", "dpTo"])?.setValue("");
 
       const oItemTypeMCB = this._mcb("idGenItemTypeMCB", "selItemType");
-      const oRuleTypeMCB = this._byAnyId("idGenRuleTypeMCB", "selRuleType");
+      const oRuleTypeMCB = this.byId("idGenRuleTypeMCB");
       oItemTypeMCB?.removeAllSelectedItems();
-      oRuleTypeMCB?.removeAllSelectedItems();
+      oRuleTypeMCB?.setSelectedKey("");
       if (typeof bEnableCombos === "boolean") {
         oItemTypeMCB?.setEnabled(bEnableCombos);
-        oRuleTypeMCB?.setEnabled(bEnableCombos);
       }
 
       this.byId("_IDGenSelect")?.setSelectedKey("");
