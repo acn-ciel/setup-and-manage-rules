@@ -43,14 +43,16 @@
               width="500px" 
               placeholder="{i18n>GENINFO_ITEMTYPE_PH}" 
               selectionChange=".onItemTypeSelectionChange" 
-              items="{rules>/itemType}">
-            <core:Item id="idGenItemTypePRO" key="{rules>ItemType}" text="{rules>ItemTypeName}"/>
+              items="{
+              path: 'zsd_itemtype_vh>/ZI_ITEMTYPE_VH'
+              }">
+            <core:Item id="idGenItemTypePRO" key="{zsd_itemtype_vh>ItemType}" text="{zsd_itemtype_vh>ItemTypeName}"/>
           </MultiComboBox>
 
           <!-- Type of rule -->
           <Label id="idGenRuleTypeLabel" text="{i18n>GENINFO_RULETYPE_LBL}" required="true" class="label"/>
-          <ComboBox id="idGenRuleTypeMCB" width="500px" placeholder="{i18n>GENINFO_RULETYPE_PH}" items="{rules>/ruleType}" selectedKey="{rules>/ruleTypeKey}">
-            <core:Item id="idGenRuleTypeAV" key="{rules>IndexNo}" text="{rules>TypeOfRules}" />
+          <ComboBox id="idGenRuleTypeMCB" width="500px" placeholder="{i18n>GENINFO_RULETYPE_PH}" items="{zsd_typerules_vh>/ZI_TYPERULES_VH}" selectedKey="{rules>/ruleTypeKey}">
+            <core:Item id="idGenRuleTypeAV" key="{zsd_typerules_vh>IndexNo}" text="{zsd_typerules_vh>TypeOfRules}" />
           </ComboBox>
 
         </l:SimpleForm>

@@ -18,7 +18,7 @@ xmlns:l="sap.ui.layout.form"
       path: 'rules>/groupsFilter',
       templateShareable: false
     }">
-      <Panel id="_IDGenPanel1" expandable="true" backgroundDesign="Solid" class="sapUiTinyMarginTop">
+      <Panel id="_IDGenPanel1" expanded="true" expandable="true" backgroundDesign="Solid" class="sapUiTinyMarginTop">
       
         <headerToolbar>
           <OverflowToolbar id="ToolBar">

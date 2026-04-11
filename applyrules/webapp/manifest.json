@@ -73,6 +73,15 @@
           "localUri": "localService/zsd_typerules_vh/metadata.xml",
           "odataVersion": "4.0"
         }
+      },
+      "zsd_ruleslist": {
+        "uri": "/sap/opu/odata4/sap/zui_ruleslist_v4/srvd/sap/zsd_ruleslist/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/zsd_ruleslist/metadata.xml",
+          "odataVersion": "4.0"
+        }
       }
     }
   },
@@ -98,7 +107,8 @@
       "minUI5Version": "1.142.7",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {}
+        "sap.ui.core": {},
+        "sap.ui.layout": {}
       }
     },
     "contentDensities": {
@@ -150,6 +160,15 @@
       },
       "zsd_typerules_vh": {
         "dataSource": "zsd_typerules_vh",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "zsd_ruleslist": {
+        "dataSource": "zsd_ruleslist",
         "preload": true,
         "settings": {
           "operationMode": "Server",

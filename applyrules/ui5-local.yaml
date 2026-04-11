@@ -45,6 +45,9 @@ server:
           - path: /sap/opu/odata4/sap/zapi_typerules_v4/srvd_a2x/sap/zsd_typerules_vh/0001/
             url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
             destination: ZSAP_BAS
+          - path: /sap/opu/odata4/sap/zui_ruleslist_v4/srvd/sap/zsd_ruleslist/0001/
+            url: https://3ded81b5-3f07-48a6-92ef-d6cfc17edd60.abap.eu10.hana.ondemand.com
+            destination: ZSAP_BAS
     - name: sap-fe-mockserver
       beforeMiddleware: csp
       configuration:
@@ -69,5 +72,9 @@ server:
           - urlPath: /sap/opu/odata4/sap/zapi_typerules_v4/srvd_a2x/sap/zsd_typerules_vh/0001
             metadataPath: ./webapp/localService/zsd_typerules_vh/metadata.xml
             mockdataPath: ./webapp/localService/zsd_typerules_vh/data
+            generateMockData: true
+          - urlPath: /sap/opu/odata4/sap/zui_ruleslist_v4/srvd/sap/zsd_ruleslist/0001
+            metadataPath: ./webapp/localService/zsd_ruleslist/metadata.xml
+            mockdataPath: ./webapp/localService/zsd_ruleslist/data
             generateMockData: true
         annotations: []

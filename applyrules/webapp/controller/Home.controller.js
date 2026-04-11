@@ -10,7 +10,7 @@ sap.ui.define([
 
   return Controller.extend("applyrules.controller.Home", {
     /* ===================== LIFECYCLE ===================== */
-    onInit: async function () {
+    onInit: function () {
       const oAppModel = new JSONModel({
         ruleSummary: [],
         applyRules: [],
@@ -18,7 +18,6 @@ sap.ui.define([
 
         selectedRuleId: "",
         selectedRule: null,
-        loadingBackend: true,
 
         plantList: [],
         ruleType: [],
@@ -26,56 +25,45 @@ sap.ui.define([
       });
 
       this.getView().setModel(oAppModel, "app");
-      const oModel = this.getView().getModel("app")
+      this.loadRuleData()
+    },
+      
+    onAfterRendering: function () {
+      // Item Filterbar VH
+      const oMCBitemtypeFilter = this.byId("idGenItemTypeMCBFilter");
+      const oBindingITFilter = oMCBitemtypeFilter.getBinding("items");
 
-      const plant = await this.getPlant();
-      oModel.setProperty("/plantList", plant)
+      if (!oBindingITFilter) {
+        setTimeout(() => this.onAfterRendering(), 0);
+        return;
+      }
 
-      const ruleType = await this.getTypeRule();
-      oModel.setProperty("/ruleType", ruleType)
+      oBindingITFilter.changeParameters({
+        $filter: "ItemType eq 'PR'"
+      });
 
-      const itemType = await this.getItemType();
-      oModel.setProperty("/itemType", itemType)
+      // Rule Type filterbar VH
+      const oMCBRuleTypeFilter = this.byId("idGenRuleTypeCBFilter");
+      const oBindingRTFilter = oMCBRuleTypeFilter.getBinding("items");
 
-      await this.loadRuleData();
-      oModel.setProperty("/loadingBackend", false);
+      if (!oBindingRTFilter) {
+        setTimeout(() => this.onAfterRendering(), 0);
+        return;
+      }
+
+      oBindingRTFilter.changeParameters({
+        $filter: "IndexNo eq '1'"
+      });
     },
 
-    /* ================== GET VALUE HELP DATA ================== */
-    getItemType: async function () {
-      const oModel = this.getOwnerComponent().getModel("zsd_itemtype_vh");
-      try {
-        const oList = oModel.bindList("/ZI_ITEMTYPE_VH");
-        const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
-      } catch (e) {
-        console.error("Failed to load", e);
-        return [];
-      }
-    },
+    _setGrowingThreshold: function () {
+      const iHeight = window.innerHeight;
+      const iItemHeight = 40;
 
-    getTypeRule: async function () {
-      const oModel = this.getOwnerComponent().getModel("zsd_typerules_vh");
-      try {
-        const oList = oModel.bindList("/ZI_TYPERULES_VH");
-        const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
-      } catch (e) {
-        console.error("Failed to load", e);
-        return [];
-      }
-    },
-
-    getPlant: async function () {
-      const oModel = this.getOwnerComponent().getModel("zsd_plant_vh");
-      try {
-        const oList = oModel.bindList("/zi_plant_vh");
-        const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
-      } catch (e) {
-        console.error("Failed to load", e);
-        return [];
-      }
+      const iThreshold = Math.ceil(iHeight / iItemHeight);
+      console.log("iHeight: ", iHeight)
+      console.log("iThreshold: ", iThreshold)
+      return iThreshold
     },
 
     /* ===================== PUBLIC HANDLERS ===================== */
@@ -83,8 +71,9 @@ sap.ui.define([
       if (!this._oRuleSelectDialog) {
         this._oRuleSelectDialog = new sap.m.TableSelectDialog({
           title: "Select Rule",
+          id: "_IDGenRuleSelection",
           growing: true,
-          growingThreshold: 80,
+          growingThreshold: this._setGrowingThreshold(),
           search: this._onRuleSearch.bind(this),
           columns: [
             new sap.m.Column({
@@ -95,11 +84,11 @@ sap.ui.define([
             })
           ],
           items: {
-            path: "app>/ruleSummary",
+            path: "zsd_ruleslist>/ZC_RULESLIST",
             template: new sap.m.ColumnListItem({
               cells: [
-                new sap.m.Text({ text: "{app>RuleId}" }),
-                new sap.m.Text({ text: "{app>RuleName}" })
+                new sap.m.Text({ text: "{zsd_ruleslist>RuleId}" }),
+                new sap.m.Text({ text: "{zsd_ruleslist>RuleName}" })
               ]
             })
           },
@@ -147,50 +136,22 @@ sap.ui.define([
     },
 
     onGetRule: async function () {
-      const oModel = this.getOwnerComponent().getModel();
+      const oModel = this.getOwnerComponent().getModel("zsd_ruleslist");
 
-      const oList = oModel.bindList(
-        "/ZC_RULESHEADER",
-        null,
-        null,
-        null,
-        {
-          $filter: "IsActiveEntity eq true",
-          $orderby: "RuleId asc",
-          $expand: {
-            _RuleScope: true
-          }
-        }
-      );
+      const oList = oModel.bindList("/ZC_RULESLIST");
 
       const aContexts = await oList.requestContexts(0, 300);
       return aContexts.map(c => c.getObject());
     },
 
     loadRuleData: async function () {
-      const oLoadModel = this.getView().getModel("app")
-
+      const oModel = this.getView().getModel("app")
       const rules = await this.onGetRule();
-      const formattedRule = await rules.map(r => ({
-        ...r,
-        ItemTypeFormatted: this.itemTypeFormatter(r.ItemType),
-        RuleTypeFormatted: this.ruleTypeFormatter(r.RuleType),
-        PlantFormatted: this.plantFormatter(r._RuleScope)
-      }))
 
-      oLoadModel.setProperty("/ruleSummary", formattedRule)
-      console.log("RULES: ", formattedRule)
+      oModel.setProperty("/ruleSummary", rules)
     },
 
     onAddApplyRule: async function () {
-      const oModel = this.getView().getModel("app");
-      const ruleSummary = oModel.getProperty("/ruleSummary");
-
-      if (!ruleSummary.length > 0) {
-        this._toast("NO_MODELS_FOUND")
-        return;
-      }
-
       await this._ensureDialog("_pAddApplyRuleDialog", "applyrules.view.AddApplyRuleDialog");
       (await this._pAddApplyRuleDialog)?.open();
 
@@ -335,45 +296,9 @@ sap.ui.define([
       const aRules = oModel.getProperty("/ruleSummary") || [];
       const oRule = aRules.find(r => r.RuleId === sRuleId) || null;
 
-      console.log("ORULE: ", oRule)
+      console.log("aRULE: ", aRules)
       oModel.setProperty("/selectedRule", oRule);
     },
-
-    /* ===================== KEY TO VALUE FORMATTER ===================== */
-    itemTypeFormatter: function (itemType) {
-      const oModel = this.getView().getModel("app");
-      const itemLookup = oModel.getProperty("/itemType")
-
-      const oMatch = itemLookup.find(i => i.ItemType == itemType);
-      return oMatch ? oMatch.ItemTypeName : itemType;
-    },
-
-    ruleTypeFormatter: function (ruleType) {
-      const oModel = this.getView().getModel("app");
-      const ruleLookup = oModel.getProperty("/ruleType")
-
-      const oMatch = ruleLookup.find(r => r.IndexNo == ruleType);
-      return oMatch ? oMatch.TypeOfRules : ruleType;
-    },
-
-    plantFormatter: function (aScopes) {
-      const oModel = this.getView()?.getModel("app");
-      const plantList = oModel.getProperty("/plantList") || [];
-
-      const plantLookup = plantList.map(p => ({
-        ...p,
-        Plant: p.Plant
-      }));
-
-      const aNames = (aScopes || []).map(s => {
-        const sPlant = s.Plant;
-        const oMatch = plantLookup.find(p => p.Plant === sPlant);
-        return oMatch ? oMatch.PlantName : sPlant;
-      });
-
-      return aNames.join(", ");
-    },
-
     /* ===================== SEARCH AND FILTER ===================== */
     onSearch: function (oEvent) {
       const sQuery = oEvent.getParameter("newValue")?.trim();

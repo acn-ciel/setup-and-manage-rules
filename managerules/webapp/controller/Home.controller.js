@@ -10,47 +10,9 @@ sap.ui.define([
 
     return Controller.extend("managerules.controller.Home", {
     /* ===================== LIFECYCLE ===================== */
-    onInit: async function () {
-      
+    onInit: function () {
       try {
-        const oTable = this.byId("_IDGenTable");
-        oTable.setBusy(true);
-
-        const oLoadModel = new JSONModel ({
-          loadingBackend: true,
-          plantList: [],
-          itemType: [],
-          ruleType: [],
-          rules: []
-        })
-
-        this.getView().setModel(oLoadModel, "load")
-
-        const plant = await this.getPlant();
-        oLoadModel.setProperty("/plantList", plant)
-
-        const ruleType = await this.getTypeRule();
-        oLoadModel.setProperty("/ruleType", ruleType)
-      
-        const itemType = await this.getItemType();
-        oLoadModel.setProperty("/itemType", itemType)
-
-        this.loadRuleData();
-
-        const invScope = await this.getInventoryScope();
-        const plantWithAll = [{ 
-          Plant: "*", PlantName: "All" },
-          ...plant];
-
-        const charFilters = await this.getCharacteristics();
-        const operator = await this.getOperator();
-        const product = await this.getProduct();
-
-        const values = await this.getValue();
-        const valueUom = await this.getValueUom();
-        const logic = await this.getLogic();
-
-        // // Current view model
+        // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
 
@@ -69,55 +31,147 @@ sap.ui.define([
           /** Selection keys */
           selectChar: null,
 
-          /** Gen Info */
-          itemType: itemType.filter(i => (i.ItemType == "PR")),
-          ruleType: ruleType.filter(r => (r.IndexNo == "1")),
-          
-          /** Scope */
-          invScope: invScope,
-          plants: plantWithAll,
-
-          /** Filters */
-          characteristics: charFilters,
-          operator: operator,
-          product: product, // values column
-          valueUom: valueUom,
-
-          productValue: null,
+          /** Filter */
+          characteristics: [],
+          operator: [],
+          product: [],
+          valueUomFilter: [],
 
           /** Adjustment Logic */
-          logic: logic.filter(l => (l.RuleType == "001")),
-          values: values.filter(v => (v.Logic == "1")),
-          // Value UoM is not applicable
-        
+          logic: [],
+          values: [],
+          valueUomAdjLogic: []
         });
         this.getView()?.setModel(oRuleModel, "rules");
-
-        const oModel = this.getView()?.getModel("load");
-
-        oModel.setProperty("/loadingBackend", false);
+        this.getCharacteristics()
+        this.getOperator()
+        this.getProduct()
+        this.getValueUom()
+        this.getLogic()
+        this.getValue()
       } catch (e) {
-        this._toast(`${e}`);
+        console.log("Error: ", e)
       }
     },
 
-    loadRuleData: async function () {
-      const oTable = this.byId("_IDGenTable");
-      const oLoadModel = this.getView().getModel("load")
-      
-      const rules = await this.onGetRule();
-      const formattedRule = await rules.map(r => ({
-        ...r,
-        ItemTypeFormatted: this.itemTypeFormatter(r.ItemType),
-        RuleTypeFormatted: this.ruleTypeFormatter(r.RuleType),
-        PlantFormatted: this.plantFormatter(r._RuleScope)
-        }))
+    onAfterRendering: function () {
+      // Item Type filter, Product option only
+      const oMCBitemtype = this.byId("idGenItemTypeMCB");
+      const oBindingItemType = oMCBitemtype.getBinding("items");
 
-      oTable.clearSelection();
-      oLoadModel.setProperty("/rules", formattedRule)
+      if (!oBindingItemType) {
+        setTimeout(() => this.onAfterRendering(), 0);
+        return;
+      }
+
+      oBindingItemType.changeParameters({
+        $filter: "ItemType eq 'PR'"
+      });
+
+      // Item Filterbar VH
+      const oMCBitemtypeFilter = this.byId("idGenItemTypeMCBFilter");
+      const oBindingITFilter = oMCBitemtypeFilter.getBinding("items");
+
+      if (!oBindingITFilter) {
+        setTimeout(() => this.onAfterRendering(), 0);
+        return;
+      }
+
+      oBindingITFilter.changeParameters({
+        $filter: "ItemType eq 'PR'"
+      });
+
+      // Rule Type filter, Average option only
+      const oMCBRuleType = this.byId("idGenRuleTypeMCB");
+      const oBindingRuleType = oMCBRuleType.getBinding("items");
+
+      if (!oBindingRuleType) {
+        setTimeout(() => this.onAfterRendering(), 0);
+        return;
+      }
+
+      oBindingRuleType.changeParameters({
+        $filter: "IndexNo eq '1'"
+      });
+
+      // Rule Type filter, Average option only
+      const oMCBRuleTypeFilter = this.byId("idGenRuleTypeMCBFilter");
+      const oBindingRTFilter = oMCBRuleTypeFilter.getBinding("items");
+
+      if (!oBindingRTFilter) {
+        setTimeout(() => this.onAfterRendering(), 0);
+        return;
+      }
+
+      oBindingRTFilter.changeParameters({
+        $filter: "IndexNo eq '1'"
+      });
       
-      // Set busy to false once the data and formatter is loaded
-      oTable.setBusy(false);
+      // Plant selection in Scope
+      const oMcbPlant = this.byId("_IDGenMultiComboBox");
+      // if (oMcbPlant.getItemByKey && oMcbPlant.getItemByKey("*")) return;
+
+      oMcbPlant.insertItem(new sap.ui.core.Item({
+        key: "*",
+        text: "All"
+      }), 0);
+    },
+    
+    _setGrowingThreshold: function () {
+      const oTable = this.byId("_IDGenTable2");
+      const oBinding = oTable.getBinding("items");
+      this._bItemsBindingSuspended = false;
+
+      if (oBinding) {
+        oBinding.suspend();
+        this._bItemsBindingSuspended = true;
+      }
+
+      const iHeight = window.innerHeight;
+      const iItemHeight = 48;
+
+      const iThreshold = Math.ceil(iHeight / iItemHeight);
+
+      console.log("iHeight: ", iHeight)
+      console.log("iThreshold: ", iThreshold)
+      oTable.setThreshold(iThreshold);
+
+      if (this._bItemsBindingSuspended === true) {
+        oBinding.resume()
+      }
+    },
+
+    loadTable: async function () {
+      const oTable = this.byId("_IDGenTable2");
+      const oBinding = oTable.getBinding("items");
+
+      if (oBinding) {
+        oBinding.refresh();
+      }
+    },
+
+    onEditCreatedRule2: async function (oCreated) {
+      const oGenInfo = this.onGetGenInfo();
+      const oScope = this.onGetScope();
+
+      const oFilter = this.onGetFilter() || [];
+      const aGroupFilter = await this.onFetchFilter(oCreated.RuleId)
+
+      const oAdjLogic = this.onGetAdjLogic();
+
+      // No assigned rule ID, so assign it from oCreated._RuleScope
+      console.log("oScope from Input: ", oScope)
+      console.log("oScope oCreated: ", oCreated._RuleScope)
+
+      // No assigned rule ID, so assign it from oCreated._RuleScope
+      console.log("aFilter from Input: ", oFilter)
+      console.log("aFilter oCreated: ", aGroupFilter)
+
+      // No assigned rule ID, so assign it from oCreated._RuleScope
+      console.log("aLogic from Input: ", oAdjLogic)
+      console.log("aLogic oCreated: ", oCreated._RuleLogic)
+
+      return true
     },
 
     /* ================== GET VALUE HELP DATA: General Info ================== */
@@ -137,18 +191,6 @@ sap.ui.define([
       const oModel = this.getOwnerComponent().getModel("zsd_typerules_vh");
       try {
         const oList = oModel.bindList("/ZI_TYPERULES_VH");
-        const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
-      } catch (e) {
-        console.error("Failed to load", e);
-        return [];
-      }
-    },
-
-    getProduct: async function () {
-      const oModel = this.getOwnerComponent().getModel("zsd_product_vh");
-      try {
-        const oList = oModel.bindList("/ZI_PRODUCT_VH");
         const aContexts = await oList.requestContexts();
         return aContexts.map(c => c.getObject());
       } catch (e) {
@@ -185,10 +227,12 @@ sap.ui.define([
     /* ================== GET VALUE HELP DATA: Filter ================== */
     getCharacteristics: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_characteristic_vh");
+      const loadModel = this.getView().getModel("rules")
       try {
         const oList = oModel.bindList("/ZI_CHARACTERISTIC_VH");
         const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
+        const obj = aContexts.map(c => c.getObject());
+        loadModel.setProperty("/characteristics", obj)
       } catch (e) {
         console.error("Failed to load characteristics VH", e);
         return [];
@@ -197,22 +241,26 @@ sap.ui.define([
 
     getOperator: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_operator_vh");
+      const loadModel = this.getView().getModel("rules")
       try {
         const oList = oModel.bindList("/ZI_OPERATOR_VH");
         const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
+        const obj = aContexts.map(c => c.getObject());
+        loadModel.setProperty("/operator", obj)
       } catch (e) {
         console.error("Failed to load characteristics VH", e);
         return [];
       }
     },
 
-    getValue: async function () {
-      const oModel = this.getOwnerComponent().getModel("zsd_values_vh");
+    getProduct: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_product_vh");
+      const loadModel = this.getView().getModel("rules")
       try {
-        const oList = oModel.bindList("/ZI_VALUES_VH");
+        const oList = oModel.bindList("/ZI_PRODUCT_VH");
         const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
+        const obj = aContexts.map(c => c.getObject());
+        loadModel.setProperty("/product", obj)
       } catch (e) {
         console.error("Failed to load", e);
         return [];
@@ -221,10 +269,12 @@ sap.ui.define([
 
     getValueUom: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_uom_vh");
+      const loadModel = this.getView().getModel("rules")
       try {
         const oList = oModel.bindList("/ZI_UOM_VH");
         const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
+        const obj = aContexts.map(c => c.getObject());
+        loadModel.setProperty("/valueUomFilter", obj)
       } catch (e) {
         console.error("Failed to load", e);
         return [];
@@ -233,10 +283,28 @@ sap.ui.define([
 
     getLogic: async function () {
       const oModel = this.getOwnerComponent().getModel("zsd_logic_vh");
+      const loadModel = this.getView().getModel("rules")
       try {
         const oList = oModel.bindList("/ZI_LOGIC_VH");
         const aContexts = await oList.requestContexts();
-        return aContexts.map(c => c.getObject());
+        const obj = aContexts.map(c => c.getObject());
+        const selLogic = obj.filter(l => (l.RuleType == "001"))
+        loadModel.setProperty("/logic", selLogic)
+      } catch (e) {
+        console.error("Failed to load", e);
+        return [];
+      }
+    },
+
+    getValue: async function () {
+      const oModel = this.getOwnerComponent().getModel("zsd_values_vh");
+      const loadModel = this.getView().getModel("rules")
+      try {
+        const oList = oModel.bindList("/ZI_VALUES_VH");
+        const aContexts = await oList.requestContexts();
+        const obj = aContexts.map(c => c.getObject());
+        const selLvalues = obj.filter(v => (v.Logic == "1"))
+        loadModel.setProperty("/values", selLvalues)
       } catch (e) {
         console.error("Failed to load", e);
         return [];
@@ -273,7 +341,7 @@ sap.ui.define([
         await Promise.all(aDeletePromises);
         oTable.setBusy(true)
         
-        await this.loadRuleData()
+        await this.loadTable()
         sap.m.MessageToast.show("Selected rule(s) deleted.");
 
       } catch (e) {
@@ -420,7 +488,6 @@ sap.ui.define([
         const aDeletePromises = [];
         if (aGroupFilter.length > 0) {
           aGroupFilter.forEach( f => {
-            console.log("F: ", f)
             const sPath = `/ZC_FILTERSGROUP(GroupId=${f.GroupId},IsActiveEntity=${f.IsActiveEntity})`
             aDeletePromises.push(oModel.delete(sPath, "$auto"));
           })
@@ -743,12 +810,16 @@ sap.ui.define([
 
       try {    
         await this.onDeleteRuleChildren(oCreated)
-        await this.onPatchGenInfo(oCreated, oGenInfo);
-
-        await this.onCreateScope(oCreated, oScope);
         
-        if (oFilter.length > 0) { await oFilter.map(f => this.onCreateFilter(oCreated, f)) }
-        if (oAdjLogic.length > 0) { await oAdjLogic.map(a => this.onCreateAdjLogic(oCreated, a)) }
+        await this.onPatchGenInfo(oCreated, oGenInfo);
+        await this.onCreateScope(oCreated, oScope);
+
+        if (oFilter.length > 0) {
+          await Promise.all(oFilter.map(f => this.onCreateFilter(oCreated, f)));
+        }
+        if (oAdjLogic.length > 0) {
+          await Promise.all(oAdjLogic.map(a => this.onCreateAdjLogic(oCreated, a)));
+        }
         success = true
       } catch (e) {
         MessageBox.error(`${e}`)
@@ -827,7 +898,8 @@ sap.ui.define([
           if (oCreated != null) {
             console.log("EDIT RULE")
             try {
-              success = await this.onEditCreatedRule(oCreated)
+              // success = await this.onEditCreatedRule(oCreated)
+              success = await this.onEditCreatedRule2(oCreated)
             } catch (e) {
               MessageBox.error(`${e}`)
             } finally {
@@ -868,16 +940,10 @@ sap.ui.define([
             }
             }
 
-            const oTable = this.byId("_IDGenTable");
-            oTable.setBusyIndicatorDelay(0);
-            oTable.setBusy(true);
-
-            try {
-              await oTable.getBinding("rows").refresh();
+            try {     
+              this.loadTable()
             } catch (e) {
               this._toast(`${e}`)
-            } finally {
-              this.loadRuleData()
             }
         }
       }
@@ -968,8 +1034,6 @@ sap.ui.define([
         ..._oPayload,
         RuleId: oCreated.RuleId
       }
-
-      console.log("OPayLOAD CREATE FILTER: ", oPayload)
 
       try {
         const oCtx = oList.create(oPayload); 
@@ -1146,7 +1210,6 @@ sap.ui.define([
           Plant: aPlants
         }
 
-        console.log("ASCOPE: ", aScope)
         oModel.setProperty("/editscope", aScope)
       }
 
@@ -1155,7 +1218,6 @@ sap.ui.define([
 
       // Step 3 & 4: Filters + AdjLogic
       const aFilter = await this.onFetchFilter(aObj.RuleId)
-      console.log("AFILTER: ", aFilter)
 
       oModel.setProperty("/groupsFilter", aFilter)
       oModel.setProperty("/draftadjlogic", aObj._RuleLogic)
@@ -1170,9 +1232,6 @@ sap.ui.define([
 
       const sItemKey = this.byId("idGenItemTypeMCB")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey() || "";
-
-      console.log("SITEMKEY: ", sItemKey)
-      console.log("sRuleKey: ", sRuleKey)
 
       if (sItemKey == "PR" && sRuleKey == "1") {
         await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
@@ -1237,6 +1296,8 @@ sap.ui.define([
       const oDialog = Fragment.byId(this.getView().getId(), "dlgAddFilter");
       const oCtx = oDialog.getBindingContext("rules");
 
+      console.log("OCTX confirm add filter: ", oCtx)
+
       if (!oCtx) {
         this._toast("Parent context not found");
         return;
@@ -1290,6 +1351,7 @@ sap.ui.define([
       if (aEditFilter != null) {
         // edit
         const sPath = aEditFilter.getPath()
+        console.log("sPath aEditFilter: ", sPath)
         oModel.setProperty(sPath, aFilterEntry)
         oModel.setProperty("/editfilter", null)
         this._resetFilterFields()
@@ -1402,13 +1464,14 @@ sap.ui.define([
       }
 
       const oSelectedItems = oTable.getSelectedItems();
-      const oRow = oSelectedItems[0].getBindingContext("rules").getObject();
-      const oCtx = oSelectedItems[0].getBindingContext("rules")
 
       if (oSelectedItems.length !== 1) {
         this._toast("SELECT_ONE_ROW_TO_EDIT_MSG");
         return;
       }
+
+      const oRow = oSelectedItems[0].getBindingContext("rules").getObject();
+      const oCtx = oSelectedItems[0].getBindingContext("rules")
 
       const sItemKey = this._mcb("idGenItemTypeMCB", "selItemType")?.getSelectedKeys()?.[0] || "";
       const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey()?.[0] || "";
@@ -2021,7 +2084,7 @@ sap.ui.define([
 
     valueUomFormatter: function (valueUom) {
       const oModel = this.getView().getModel("rules");
-      const valLookup = oModel.getProperty("/valueUom")
+      const valLookup = oModel.getProperty("/valueUomFilter")
 
       const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
       return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
@@ -2045,7 +2108,7 @@ sap.ui.define([
 
     valUomAdjLogicFormatter: function (valueUom) {
       const oModel = this.getView().getModel("rules");
-      const valLookup = oModel.getProperty("/valueUom")
+      const valLookup = oModel.getProperty("/valueUomAdjLogic")
 
       const oMatch = valLookup.find(v => v.UnitOfMeasure == valueUom);
       return oMatch ? oMatch.UnitOfMeasureLongName : valueUom;
@@ -2176,7 +2239,7 @@ sap.ui.define([
     /* ===================== SORT AND FILTER FUNCTIONS ===================== */
     onSearch: function (oEvent) {
       const sQuery = oEvent.getParameter("newValue")?.trim();
-      const oTable = this.byId("_IDGenTable");
+      const oTable = this.byId("_IDGenTable2");
       const oBinding = oTable.getBinding("rows");
 
       if (!sQuery) {
@@ -2192,13 +2255,13 @@ sap.ui.define([
         new Filter("RuleName", Op.Contains, sQuery),
         new Filter("RuleDescription", Op.Contains, sQuery),
 
-        new Filter("ValidFrom", Op.Contains, sQuery),
-        new Filter("ValidTo", Op.Contains, sQuery),
+        // new Filter("ValidFrom", Op.Contains, sQuery),
+        // new Filter("ValidTo", Op.Contains, sQuery),
 
-        new Filter("ItemTypeFormatted", Op.Contains, sQuery),
-        new Filter("RuleTypeFormatted", Op.Contains, sQuery),
+        new Filter("ItemType", Op.Contains, sQuery),
+        new Filter("RuleType", Op.Contains, sQuery),
 
-        new Filter("PlantFormatted", Op.Contains, sQuery),
+        new Filter("PlantName", Op.Contains, sQuery),
       ];
 
       const oGlobalFilter = new Filter({

@@ -30,28 +30,28 @@
                       class="select"
                       required="true"
                       placeholder="Select characteristic to apply"
-                      items="{rules>/characteristics}"
+                      items="{zsd_characteristic_vh>/ZI_CHARACTERISTIC_VH}"
                       selectionChange=".onCharacteristicsChange"
                       width="100%">
-                <core:Item id="_IDGenItem25" key="{rules>IndexNo}" text="{rules>Characteristic}"/>
+                <core:Item id="_IDGenItem25" key="{zsd_characteristic_vh>IndexNo}" text="{zsd_characteristic_vh>Characteristic}"/>
               </ComboBox>
 
               <ComboBox id="selOperator" 
                       class="select"
                       placeholder="Select operator"
-                      items="{rules>/operator}"
+                      items="{zsd_operator_vh>/ZI_OPERATOR_VH}"
                       width="100%">
-                <core:Item id="_IDGenItem28" key="{rules>Operator}" text="{rules>OperatorDesc}"/>
+                <core:Item id="_IDGenItem28" key="{zsd_operator_vh>Operator}" text="{zsd_operator_vh>OperatorDesc}"/>
               </ComboBox>
 
               <VBox id="InputValueContainer">
                 <ComboBox id= "inpValue" 
                       class="select"
                       placeholder="Select 1"
-                      items="{rules>/product}"
+                      items="{zsd_product_vh>/ZI_PRODUCT_VH}"
                       visible="false"
                       width="100%" >
-                <core:Item id="_IDGenItem16" key="{rules>Product}" text="{rules>ProductName}" />    
+                <core:Item id="_IDGenItem16" key="{zsd_product_vh>Product}" text="{zsd_product_vh>ProductName}" />    
                 </ComboBox>
                 
                 <Input
@@ -71,10 +71,10 @@
 
               <ComboBox id="selUoM"
                       placeholder="Select 1"
-                      items="{rules>/valueUom}"
+                      items="{zsd_uom_vh>/ZI_UOM_VH}"
                       enabled="{rules>/selectChar}"
                       width="100%">
-                <core:Item id="_IDGenItem31" key="{rules>UnitOfMeasure}" text="{rules>UnitOfMeasureLongName}"/>
+                <core:Item id="_IDGenItem31" key="{zsd_uom_vh>UnitOfMeasure}" text="{zsd_uom_vh>UnitOfMeasureLongName}"/>
               </ComboBox>
             </cells>
           </ColumnListItem>

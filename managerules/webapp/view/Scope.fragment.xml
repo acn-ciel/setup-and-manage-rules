@@ -19,8 +19,8 @@
 
       <Label id="_IDGenLabel6" text="Inventory scope" required="true" class="label" />
       <HBox id="_IDGenHBox8">
-        <ComboBox id="_IDGenSelect" width="400px" class="select" placeholder="Select 1" items="{rules>/invScope}">
-          <core:Item id="_IDGenItem8" key="{rules>InventoryScope}" text="{rules>InventoryScopeName}" />
+        <ComboBox id="_IDGenSelect" width="400px" class="select" placeholder="Select 1" items="{zsd_inventoryscope_vh>/ZI_INVENTORYSCOPE_VH}">
+          <core:Item id="_IDGenItem8" key="{zsd_inventoryscope_vh>InventoryScope}" text="{zsd_inventoryscope_vh>InventoryScopeName}" />
         </ComboBox>
         <Button id="editIconScope" icon="sap-icon://edit" type="Transparent" visible="false" />
       </HBox>
@@ -33,8 +33,8 @@
         width="400px"
         placeholder="Select one/multiple/All plants for this rule"
         selectionChange=".onPlantSelectionChange"
-        items="{rules>/plants}">
-        <core:Item id="_IDGenItem9" key="{rules>Plant}" text="{rules>PlantName}" />
+        items="{zsd_plant_vh>/zi_plant_vh}">
+        <core:Item id="_IDGenItem9" key="{zsd_plant_vh>Plant}" text="{zsd_plant_vh>PlantName}" />
       </MultiComboBox>
 
         <Button id="editIconPlants" icon="sap-icon://edit" type="Transparent" visible="false" />
