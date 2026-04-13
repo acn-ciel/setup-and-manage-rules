@@ -12,6 +12,8 @@ sap.ui.define([
     /* ===================== LIFECYCLE ===================== */
     onInit: function () {
       try {
+        const rules = this.onGetRule()
+        console.log("RULES: ", rules)
         // Current view model
         const oRuleModel = new JSONModel({
           currentRule: null,
@@ -49,8 +51,20 @@ sap.ui.define([
         this.getValueUom()
         this.getLogic()
         this.getValue()
+
+        this.oExpandedLabel = this.getView().byId("expandedLabel");
+        this.oSnappedLabel = this.getView().byId("snappedLabel");
+        this.oFilterBar = this.getView().byId("filterbar");
+        this.oTable = this.getView().byId("_IDGenTable2");
       } catch (e) {
         console.log("Error: ", e)
+      }
+    },
+   
+    onExit: function () {
+      const oFilterBar = this.byId("filterbar");
+      if (oFilterBar) {
+        oFilterBar.destroy();
       }
     },
 
@@ -115,30 +129,6 @@ sap.ui.define([
         key: "*",
         text: "All"
       }), 0);
-    },
-    
-    _setGrowingThreshold: function () {
-      const oTable = this.byId("_IDGenTable2");
-      const oBinding = oTable.getBinding("items");
-      this._bItemsBindingSuspended = false;
-
-      if (oBinding) {
-        oBinding.suspend();
-        this._bItemsBindingSuspended = true;
-      }
-
-      const iHeight = window.innerHeight;
-      const iItemHeight = 48;
-
-      const iThreshold = Math.ceil(iHeight / iItemHeight);
-
-      console.log("iHeight: ", iHeight)
-      console.log("iThreshold: ", iThreshold)
-      oTable.setThreshold(iThreshold);
-
-      if (this._bItemsBindingSuspended === true) {
-        oBinding.resume()
-      }
     },
 
     loadTable: async function () {
@@ -350,7 +340,7 @@ sap.ui.define([
       }
     },
 
-    onDeleteRule: async function () {
+    onDeleteRuleChildren: async function () {
       const oTable = this.byId("_IDGenTable");
       const aIdx = oTable.getSelectedIndices();
 
@@ -2237,40 +2227,139 @@ sap.ui.define([
     },
 
     /* ===================== SORT AND FILTER FUNCTIONS ===================== */
-    onSearch: function (oEvent) {
-      const sQuery = oEvent.getParameter("newValue")?.trim();
+    onFilterSearch: function () {
+      this._updateLabelsAndTable()
+      const mValues = this.getGroupItemsValues();
+
       const oTable = this.byId("_IDGenTable2");
       const oBinding = oTable.getBinding("rows");
 
-      if (!sQuery) {
-        oBinding.filter([]);
-        return;
-      }
-
+      const searchAllCol = ["RuleId", "RuleName", "RuleDescription", "ItemType", "TypeOfRules", "PlantName"]
       const Filter = sap.ui.model.Filter;
       const Op = sap.ui.model.FilterOperator;
 
-      const aFilters = [
-        new Filter("RuleId", Op.Contains, sQuery),
-        new Filter("RuleName", Op.Contains, sQuery),
-        new Filter("RuleDescription", Op.Contains, sQuery),
+      const aFilters = [];
 
-        // new Filter("ValidFrom", Op.Contains, sQuery),
-        // new Filter("ValidTo", Op.Contains, sQuery),
+      if (mValues.SearchAll != "") {
+        searchAllCol.forEach(colName => {
+          aFilters.push(new Filter(colName, Op.Contains, mValues.SearchAll))
+        })
+      }
 
-        new Filter("ItemType", Op.Contains, sQuery),
-        new Filter("RuleType", Op.Contains, sQuery),
+      if (mValues.SearchRuleId != "") {
+        aFilters.push(new Filter("RuleId", Op.Contains, mValues.SearchRuleId))
+      }
 
-        new Filter("PlantName", Op.Contains, sQuery),
-      ];
+      mValues.ItemType.forEach(sItemType => {
+        aFilters.push(new Filter("ItemType", Op.Contains, sItemType))
+      })
+
+      if (mValues.TypeOfRule != "") { 
+        aFilters.push(new Filter("RuleType", Op.Contains, mValues.TypeOfRule))
+      }
+
+      mValues.Plants.forEach(sPlant => {
+        aFilters.push(new Filter("PlantName", Op.Contains, sPlant))
+      })
 
       const oGlobalFilter = new Filter({
         filters: aFilters,
-        and: false // OR search
+        and: mValues.SearchAll != "" ? false: true
       });
 
       oBinding.filter(oGlobalFilter);
     },
+
+    getGroupItemsValues: function () {
+      const aFilterItems = this.oFilterBar.getFilterGroupItems();
+      const mValues = {};
+
+      aFilterItems.forEach(oItem => {
+        const oControl = oItem.getControl();
+
+        if (!oControl) {
+          return;
+        }
+
+        if (oControl.isA("sap.m.Input") || oControl.isA("sap.m.SearchField")) {
+          mValues[oItem.getName()] = oControl.getValue()?.trim();
+        }
+        else if (oControl.isA("sap.m.MultiComboBox")) {
+          mValues[oItem.getName()] = oControl.getSelectedItems()
+                                             .map(oItem =>
+                                              oItem.getText()?.trim()
+                                             );
+        }
+        else if (oControl.isA("sap.m.ComboBox") || oControl.isA("sap.m.Select")) {
+          mValues[oItem.getName()] = oControl.getSelectedKey()?.trim();
+        }
+        else if (oControl.isA("sap.m.DatePicker")) {
+          mValues[oItem.getName()] = oControl.getDateValue()?.trim();
+        }
+      });
+
+      return mValues
+    },
+
+    getActiveFilter: function () {
+      const mValues = this.getGroupItemsValues();
+      var activeFilter = [];
+
+      mValues.SearchAll != "" ? activeFilter.push("All") : activeFilter
+      mValues.SearchRuleId != "" ? activeFilter.push("Rule ID") : activeFilter
+      mValues.ItemType.length > 0 ? activeFilter.push("Item Type") : activeFilter
+      mValues.TypeOfRule != "" ? activeFilter.push("Rule Type") : activeFilter
+      mValues.Plants.length > 0 ? activeFilter.push("Plant") : activeFilter
+
+      return activeFilter;
+		},
+
+    getNonVisibleFilter: function () {
+      const aAllItems = this.oFilterBar.getFilterGroupItems();
+      const aHiddenItems = aAllItems.filter(oItem => !oItem.getVisibleInFilterBar());
+
+      return aHiddenItems.length
+    },
+
+    getFormattedSummaryText: function() {
+			var aFiltersWithValues = this.getActiveFilter();
+
+			if (aFiltersWithValues.length === 0) {
+				return "No filters active";
+			}
+
+			if (aFiltersWithValues.length === 1) {
+				return aFiltersWithValues.length + " filter active: " + aFiltersWithValues.join(", ");
+			}
+
+			return aFiltersWithValues.length + " filters active: " + aFiltersWithValues.join(", ");
+		},
+
+		getFormattedSummaryTextExpanded: function() {
+			var aFiltersWithValues = this.getActiveFilter();
+
+			if (aFiltersWithValues.length === 0) {
+				return "No filters active";
+			}
+
+			var sText = aFiltersWithValues.length + " filters active",
+				aNonVisibleFiltersWithValues = this.getNonVisibleFilter();
+
+			if (aFiltersWithValues.length === 1) {
+				sText = aFiltersWithValues.length + " filter active";
+			}
+
+			if (aNonVisibleFiltersWithValues && aNonVisibleFiltersWithValues > 0) {
+				sText += " (" + aNonVisibleFiltersWithValues + " hidden)";
+			}
+
+			return sText;
+		},
+
+		_updateLabelsAndTable: function () {
+			this.oExpandedLabel.setText(this.getFormattedSummaryTextExpanded());
+			this.oSnappedLabel.setText(this.getFormattedSummaryText());
+		},
 
     /* ===================== UTIL (ID + i18n) ===================== */
     _byAnyId: function (aIds) {

@@ -53,7 +53,7 @@
                         id="filterbar"
                         persistencyKey="myPersKey"
                         useToolbar="false"
-                        search=".onSearch"
+                        search=".onFilterSearch"
                         filterChange=".onFilterChange"
                         afterVariantLoad=".onAfterVariantLoad"
                     >
@@ -70,7 +70,6 @@
                                         id="_IDGenSearchField1"
                                         width="300px"
                                         placeholder="e.g. 4010"
-                                        liveChange="onSearch"
                                     />
                                 </fb:control>
                             </fb:FilterGroupItem>

@@ -26,6 +26,11 @@ sap.ui.define([
 
       this.getView().setModel(oAppModel, "app");
       this.loadRuleData()
+
+      this.oExpandedLabel = this.getView().byId("expandedLabel");
+      this.oSnappedLabel = this.getView().byId("snappedLabel");
+      this.oFilterBar = this.getView().byId("filterbar");
+      this.oTable = this.getView().byId("_IDGenTable2");
     },
       
     onAfterRendering: function () {
@@ -299,53 +304,143 @@ sap.ui.define([
       console.log("aRULE: ", aRules)
       oModel.setProperty("/selectedRule", oRule);
     },
-    /* ===================== SEARCH AND FILTER ===================== */
-    onSearch: function (oEvent) {
-      const sQuery = oEvent.getParameter("newValue")?.trim();
-      const oTable = this.byId("_IDGenTable1");
+
+    /* ===================== SORT AND FILTER FUNCTIONS ===================== */
+    onFilterSearch: function () {
+      this._updateLabelsAndTable()
+      const mValues = this.getGroupItemsValues();
+
+      const oTable = this.byId("_IDGenTable2");
       const oBinding = oTable.getBinding("rows");
 
-      if (!sQuery) {
-        oBinding.filter([]);
-        return;
-      }
-
+      const searchAllCol = ["RuleId", "RuleName", "RuleDescription", "ItemType", "TypeOfRules", "PlantName"]
       const Filter = sap.ui.model.Filter;
       const Op = sap.ui.model.FilterOperator;
 
-      const aFilters = [
-        new Filter("RuleId", Op.Contains, sQuery),
-        new Filter("RuleName", Op.Contains, sQuery),
-        new Filter("RuleDescription", Op.Contains, sQuery),
+      const aFilters = [];
 
-        new Filter("ValidFrom", Op.Contains, sQuery),
-        new Filter("ValidTo", Op.Contains, sQuery),
+      if (mValues.SearchAll != "") {
+        searchAllCol.forEach(colName => {
+          aFilters.push(new Filter(colName, Op.Contains, mValues.SearchAll))
+        })
+      }
 
-        new Filter("ItemTypeFormatted", Op.Contains, sQuery),
-        new Filter("RuleTypeFormatted", Op.Contains, sQuery),
+      if (mValues.SearchRuleId != "") {
+        aFilters.push(new Filter("RuleId", Op.Contains, mValues.SearchRuleId))
+      }
 
-        new Filter("PlantFormatted", Op.Contains, sQuery),
-      ];
+      mValues.ItemType.forEach(sItemType => {
+        aFilters.push(new Filter("ItemType", Op.Contains, sItemType))
+      })
+
+      if (mValues.TypeOfRule != "") { 
+        aFilters.push(new Filter("RuleType", Op.Contains, mValues.TypeOfRule))
+      }
+
+      mValues.Plants.forEach(sPlant => {
+        aFilters.push(new Filter("PlantName", Op.Contains, sPlant))
+      })
 
       const oGlobalFilter = new Filter({
         filters: aFilters,
-        and: false // OR search
+        and: mValues.SearchAll != "" ? false: true
       });
 
       oBinding.filter(oGlobalFilter);
     },
 
-    /* ===================== PRIVATE HELPERS ===================== */
-    trimPlantKey: function (sPlant) {
-      if (!sPlant) {
-        return "";
-      }
+    getGroupItemsValues: function () {
+      const aFilterItems = this.oFilterBar.getFilterGroupItems();
+      const mValues = {};
 
-      // Max length should be 4, trim excess
-      return sPlant.length > 4
-        ? sPlant.slice(0, 4)
-        : sPlant;
+      aFilterItems.forEach(oItem => {
+        const oControl = oItem.getControl();
+
+        if (!oControl) {
+          return;
+        }
+
+        if (oControl.isA("sap.m.Input") || oControl.isA("sap.m.SearchField")) {
+          mValues[oItem.getName()] = oControl.getValue()?.trim();
+        }
+        else if (oControl.isA("sap.m.MultiComboBox")) {
+          mValues[oItem.getName()] = oControl.getSelectedItems()
+                                             .map(oItem =>
+                                              oItem.getText()?.trim()
+                                             );
+        }
+        else if (oControl.isA("sap.m.ComboBox") || oControl.isA("sap.m.Select")) {
+          mValues[oItem.getName()] = oControl.getSelectedKey()?.trim();
+        }
+        else if (oControl.isA("sap.m.DatePicker")) {
+          mValues[oItem.getName()] = oControl.getDateValue()?.trim();
+        }
+      });
+
+      return mValues
     },
+
+    getActiveFilter: function () {
+      const mValues = this.getGroupItemsValues();
+      var activeFilter = [];
+
+      mValues.SearchAll != "" ? activeFilter.push("All") : activeFilter
+      mValues.SearchRuleId != "" ? activeFilter.push("Rule ID") : activeFilter
+      mValues.ItemType.length > 0 ? activeFilter.push("Item Type") : activeFilter
+      mValues.TypeOfRule != "" ? activeFilter.push("Rule Type") : activeFilter
+      mValues.Plants.length > 0 ? activeFilter.push("Plant") : activeFilter
+
+      return activeFilter;
+		},
+
+    getNonVisibleFilter: function () {
+      const aAllItems = this.oFilterBar.getFilterGroupItems();
+      const aHiddenItems = aAllItems.filter(oItem => !oItem.getVisibleInFilterBar());
+
+      return aHiddenItems.length
+    },
+
+    getFormattedSummaryText: function() {
+			var aFiltersWithValues = this.getActiveFilter();
+
+			if (aFiltersWithValues.length === 0) {
+				return "No filters active";
+			}
+
+			if (aFiltersWithValues.length === 1) {
+				return aFiltersWithValues.length + " filter active: " + aFiltersWithValues.join(", ");
+			}
+
+			return aFiltersWithValues.length + " filters active: " + aFiltersWithValues.join(", ");
+		},
+
+		getFormattedSummaryTextExpanded: function() {
+			var aFiltersWithValues = this.getActiveFilter();
+
+			if (aFiltersWithValues.length === 0) {
+				return "No filters active";
+			}
+
+			var sText = aFiltersWithValues.length + " filters active",
+				aNonVisibleFiltersWithValues = this.getNonVisibleFilter();
+
+			if (aFiltersWithValues.length === 1) {
+				sText = aFiltersWithValues.length + " filter active";
+			}
+
+			if (aNonVisibleFiltersWithValues && aNonVisibleFiltersWithValues > 0) {
+				sText += " (" + aNonVisibleFiltersWithValues + " hidden)";
+			}
+
+			return sText;
+		},
+
+		_updateLabelsAndTable: function () {
+			this.oExpandedLabel.setText(this.getFormattedSummaryTextExpanded());
+			this.oSnappedLabel.setText(this.getFormattedSummaryText());
+		},
+
+    /* ===================== PRIVATE HELPERS ===================== */
     _ensureDialog: async function (sPromiseFieldName, sFragmentName) {
       if (!this[sPromiseFieldName]) {
         this[sPromiseFieldName] = Fragment.load({
