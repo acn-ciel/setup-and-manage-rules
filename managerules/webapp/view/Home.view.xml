@@ -98,7 +98,6 @@
 											}"
                                         >
                                             <core:Item
-                                                id="_IDGenItem1"
                                                 key="{zsd_itemtype_vh>ItemType}"
                                                 text="{zsd_itemtype_vh>ItemTypeName}"
                                             />
@@ -123,7 +122,6 @@
                                  }"
                                         >
                                             <core:Item
-                                                id="_IDGenItem2"
                                                 key="{zsd_typerules_vh>IndexNo}"
                                                 text="{zsd_typerules_vh>TypeOfRules}"
                                             />
@@ -145,10 +143,8 @@
                                             items="{
 												path: 'zsd_plant_vh>/zi_plant_vh',
 												templateShareable: true
-                                 }"
-                                        >
+                                        }">
                                             <core:Item
-                                                id="_IDGenItem3"
                                                 key="{zsd_plant_vh>Plant}"
                                                 text="{zsd_plant_vh>PlantName}"
                                             />

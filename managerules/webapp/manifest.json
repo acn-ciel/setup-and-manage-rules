@@ -165,7 +165,7 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
+    "flexEnabled": false,
     "dependencies": {
       "minUI5Version": "1.142.7",
       "libs": {
@@ -333,8 +333,7 @@
       "targets": {
         "TargetHome": {
           "id": "Home",
-          "name": "Home",
-          "clearControlAggregation": true
+          "name": "Home"
         }
       }
     },
