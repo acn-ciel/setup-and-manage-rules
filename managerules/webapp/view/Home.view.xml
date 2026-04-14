@@ -160,7 +160,12 @@
             <f:content>
                 <t:Table
                     id="_IDGenTable2"
-                    rows="{zsd_ruleslist>/ZC_RULESLIST}"
+                    rows="{
+                    path: 'zsd_ruleslist>/ZC_RULESLIST',
+                    parameters: {
+                        $select: 'RuleId,RuleName,RuleType,ValidFrom,ValidTo,ItemTypeInternal,RuleType,TypeOfRules,PlantName'
+                        }
+                    }"
                     selectionMode="MultiToggle"
                     width="100%"
                     class="table"
