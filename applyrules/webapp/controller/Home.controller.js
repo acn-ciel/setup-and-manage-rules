@@ -194,7 +194,7 @@ sap.ui.define([
     },
 
     onDeleteSelectedApplyRules: function () {
-      const oTable = this.byId("_IDGenTable1");
+      const oTable = this.byId("_IDGenTable2");
       const oModel = this.getView().getModel("app");
       const aSelectedIndices = oTable.getSelectedIndices(); // always array
 
