@@ -132,18 +132,24 @@ sap.ui.define([
 
     loadTable: async function () {
       const oTable = this.byId("_IDGenTable2");
-      const oBinding = oTable.getBinding("items");
+      const oBinding = oTable.getBinding("rows");
 
       if (oBinding) {
         oBinding.refresh();
       }
+
+      oTable.setBusy(false)
     },
 
     onEditCreatedRule2: async function (oCreated) {
       const oGenInfo = this.onGetGenInfo();
       const oScope = this.onGetScope();
 
-      const objUpdateScope = this.compareScopeItems(oScope);
+      try {
+        await this.updateScope(oScope);
+      } catch (e) {
+        console.log(e)
+      }
 
       // const oFilter = this.onGetFilter() || [];
       // const aGroupFilter = await this.onFetchFilter(oCreated.RuleId)
@@ -169,82 +175,118 @@ sap.ui.define([
       const oModel = this.getView().getModel("rules")
       const origScope = oModel.getProperty("/currentRule/_RuleScope")
       var origScopePlants = origScope.map(o => (o.Plant))
+      
+      const newPlants = oScope.Plant.filter(p => !origScopePlants.includes(p))
+      console.log("New Plants: ", newPlants)
 
       var deleteArr = []
-      var postArr = []
+      var deleteScope = false
+      var postArr = {}
       var patchArr = []
 
       var changeItem = []
       var tempItem = []
 
-      oScope.Plant.forEach(p => {
-        if (!origScopePlants.includes(p) || origScope[0].InventoryScope != oScope.InventoryScope ) {
-          tempItem.push({Plant: p, InventoryScope: oScope.InventoryScope})
-        }
-      })
+      console.log("OSCOPE: ", oScope.InventoryScope)
+      console.log("origScope: ", origScope[0].InventoryScope)
 
-      origScope.forEach(o => {
-        if (!oScope.Plant.includes(o.Plant) || o.InventoryScope != oScope.InventoryScope) {
-          changeItem.push(o)
-        }
-      })
-
-      /** Determine plants to be deleted */
-      if (oScope.Plant.length < origScope.length) {
-
-        // Count items that will be deleted
-        const deleteItems = origScope.length - oScope.Plant.length;
-        deleteArr = changeItem.splice(0, deleteItems)
-      } 
-
-      /** Determine plants to be added */
-      else if (oScope.Plant.length > origScope.length) {
-
-        // Count items that will be added
-        const addItemsLength = oScope.Plant.length - origScope.length;
-        const addPlants = tempItem.splice(0, addItemsLength)
-
-        postArr = addPlants.map(p => ({
-          InventoryScope: p.InventoryScope,
-          Plant: p.Plant,
-        }))
-      }
-
-      /** Determine plants to be patched */
-      if (changeItem.length > 0) {
-        console.log("Change item: ", changeItem)
-
-        // Determine the plants that are for deletion/posting
-        const deletePlantsArr = deleteArr.map(d => d.Plant)
-        const postPlantsArr = postArr.map(p => p.Plant)
-
-        const currPlants = [...deletePlantsArr, ...postPlantsArr]
-        const patchPlants = []
-
-        console.log("Current Plants: ", currPlants)
+      if (oScope.InventoryScope !== origScope[0].InventoryScope) {
+        deleteScope = true
+        postArr = oScope } 
+      
+      else {
 
         oScope.Plant.forEach(p => {
-          if (!currPlants.includes(p)) {
-            patchPlants.push(p)
+          if (!origScopePlants.includes(p)) {
+            tempItem.push({Plant: p, InventoryScope: oScope.InventoryScope})
           }
         })
 
-        changeItem.forEach((t, i) => {
-          patchArr.push({
-            ...t,
-            Id: t.Id,
-            RuleUUID: t.RuleUUID,
-            RuleId: t.RuleId,
-            DraftUUID: t.DraftUUID,
-            IsActiveEntity: t.IsActiveEntity,
-            InventoryScope: oScope.InventoryScope,
-            Plant: patchPlants[i]          
-          })
+        origScope.forEach(o => {
+          if (!oScope.Plant.includes(o.Plant)) {
+            changeItem.push(o)
+          }
         })
+
+        console.log("tempItem", tempItem)
+        console.log("changeItem", changeItem)
+
+        /** Determine plants to be deleted */
+        if (oScope.Plant.length < origScope.length) {
+          deleteArr = changeItem.filter(c => !oScope.Plant.includes(c.Plant))
+          
+          deleteArr.forEach(d => {
+            const i = changeItem.findIndex(c => c.Plant === d.Plant);
+            if (i !== -1) {
+              changeItem.splice(i, 1);
+            }
+          });
+
+          // Check if all prev plants are deleted, then post is needed
+          if (newPlants.length > 0) {
+            postArr = oScope
+          }
+        } 
+
+        /** Determine plants to be added */
+        else if (oScope.Plant.length > origScope.length) {
+          var addPlants = []
+
+          // Count items that will be added
+          const addItemsLength = oScope.Plant.length - origScope.length;
+                addPlants = tempItem.splice(0, addItemsLength)
+          const plants = addPlants.map(p => p.Plant)
+
+          postArr = {
+            InventoryScope: oScope.InventoryScope,
+            Plant: plants
+          }
+        }
+
+        /** Determine plants to be patched */
+        if (changeItem.length > 0) {
+          console.log("Change item: ", changeItem)
+
+          // Determine the plants that are for deletion/posting
+          const deletePlantsArr = deleteArr.map(d => d.Plant)
+
+          const currPlants = postArr.Plant ? [...deletePlantsArr, ...postArr.Plant] : [...deletePlantsArr]
+          const patchPlants = []
+
+          console.log("Current Plants: ", currPlants)
+
+          newPlants.forEach(p => {
+            if (!currPlants.includes(p)) {
+              patchPlants.push(p)
+            }
+          })
+
+          console.log("Patch Plant: ", patchPlants)
+
+          origScope.forEach(p => {
+            if (!currPlants.includes(p.Plant)) {
+              patchPlants.push(p.Plant)
+            }
+          })
+
+          changeItem.forEach((t, i) => {
+            patchArr.push({
+              ...t,
+              Id: t.Id,
+              RuleUUID: t.RuleUUID,
+              RuleId: t.RuleId,
+              DraftUUID: t.DraftUUID,
+              IsActiveEntity: t.IsActiveEntity,
+              InventoryScope: oScope.InventoryScope,
+              Plant: patchPlants[i]          
+            })
+          })
+        }
       }
 
       const updateItems = {
         Delete: deleteArr,
+        deleteScope: deleteScope,
         Post: postArr,
         Patch: patchArr,
       }
@@ -253,8 +295,28 @@ sap.ui.define([
       return updateItems
     },
 
-    updateScopeItems: function () {
+    updateScope: function (oScope) {
+      const oModel = this.getView().getModel("rules")
+      const oCreated = oModel.getProperty("/currentRule");
+      const updateItems = this.compareScopeItems(oScope)
 
+      console.log("update items: ", updateItems)
+
+      if (updateItems.Patch.length) {
+        updateItems.Patch.forEach(oPayLoad => {
+          this.onPatchScope(oPayLoad)
+        })
+      } 
+      
+      if (updateItems.Delete.length) {
+        updateItems.Delete.forEach(oPayLoad => {
+          this.onDeleteScope(oPayLoad)
+        })
+      }
+      
+      if (updateItems.Post.length) {
+        this.onCreateScope(oCreated, updateItems.Post)
+      }
     },
 
     /* ================== GET VALUE HELP DATA: General Info ================== */
@@ -400,7 +462,7 @@ sap.ui.define([
 
     /* ===================== DELETE METHOD ===================== */
     onDeleteRule: async function () {
-      const oTable = this.byId("_IDGenTable");
+      const oTable = this.byId("_IDGenTable2");
       const aIdx = oTable.getSelectedIndices();
 
       if (!aIdx.length) {
@@ -414,8 +476,17 @@ sap.ui.define([
         const aDeletePromises = [];
 
         aIdx.forEach(idx => {
-          const oRow = oTable.getContextByIndex(idx).getObject();
-          const sPath = `/ZC_RULESHEADER(Id=${oRow.Id},RuleId='${encodeURIComponent(oRow.RuleId)}',DraftUUID=${oRow.DraftUUID},IsActiveEntity=${oRow.IsActiveEntity})`;
+          var oRow = oTable.getContextByIndex(idx).getObject();
+          oRow = {
+            ...oRow,
+            DraftUUID: oRow.DraftUUID || "00000000-0000-0000-0000-000000000000",
+            IsActiveEntity: oRow.IsActiveEntity || true
+          }
+          const sPath = `/ZC_RULESHEADER(` +
+            `Id=${oRow.Id},` +
+            `RuleId='${oRow.RuleId}',` +
+            `DraftUUID=${oRow.DraftUUID},` +
+            `IsActiveEntity=${oRow.IsActiveEntity})`;
 
           if (oRow.IsActiveEntity === false) {
             const oDiscardCtx = oModel.bindContext(`${sPath}/Discard(...)`);
@@ -480,6 +551,22 @@ sap.ui.define([
         console.error(e);
         sap.m.MessageBox.error(e?.message || "Delete failed");
       }
+    },
+
+    onDeleteScope: async function (oPayLoad) {
+      console.log("Delete Scope", oPayLoad)
+      const oModel = this.getOwnerComponent().getModel();
+      const aDeletePromises = [];
+
+      const sPath = `/ZC_RULESSCOPE(` +
+        `Id=${oPayLoad.Id},` +
+        `RuleId='${oPayLoad.RuleId}',` +
+        `RuleUUID=${oPayLoad.RuleUUID},` +
+        `DraftUUID=${oPayLoad.DraftUUID},` +
+        `IsActiveEntity=${oPayLoad.IsActiveEntity})`;
+
+      aDeletePromises.push(oModel.delete(sPath, "$auto"))
+      await Promise.all(aDeletePromises);
     },
 
     /* ===================== GET METHOD ===================== */
@@ -1083,10 +1170,13 @@ sap.ui.define([
           await Promise.all(aCtx.map(c => c.created()));
           return aCtx.map(c => c.getObject());
         } else {
-            const oCtx = oList.create({...oPayload, Plant: oPayload.Plant[0]}); 
+            const oCtx = oList.create({
+              InventoryScope: oPayload.InventoryScope, 
+              Plant: oPayload.Plant[0],
+              IsActiveEntity : true
+            }); 
             await oCtx.created();        
-            const oCreated = oCtx.getObject();  
-            return oCreated
+            return oCtx.getObject();  
           }
       } catch (e) {
         console.error(e);
@@ -1148,32 +1238,29 @@ sap.ui.define([
       return oCtx.getObject();
     },
 
-    onPatchScope: async function (oCreated, oPayload) {
+    onPatchScope: async function (oPayload) {
       const oModel = this.getOwnerComponent().getModel();
-      const aScopes = oCreated._RuleScope || [];
-
-      const sGroupId = "ruleUpdates";
-      if (!aRowsToDelete.length) {
-        sap.m.MessageToast.show("No matching scope rows found to delete.");
-        return;
+      const scopeValues = {
+        Plant: oPayload.Plant,
+        InventoryScope: oPayload.InventoryScope
       }
 
-      for (const r of aScopes) {
-        const sPath =
-          `/ZC_RULESSCOPE(` +
-            `Id=${r.Id},` +
-            `RuleUUID=${r.RuleUUID},` +
-            `RuleId='${r.RuleId}',` +
-            `DraftUUID=${r.DraftUUID},` +
-            `IsActiveEntity=${r.IsActiveEntity}` +
-          `)`;
+      const sPath = 
+        `/ZC_RULESSCOPE(`+
+        `Id=${oPayload.Id},`+
+        `RuleUUID=${oPayload.RuleUUID},` +
+        `RuleId='${oPayload.RuleId}',`+
+        `DraftUUID=${oPayload.DraftUUID},`+
+        `IsActiveEntity=${oPayload.IsActiveEntity})`;
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
+      const oCtx = oCtxBinding.getBoundContext();
 
-        const oCtx = oModel.bindContext(sPath, null, { $$updateGroupId: sGroupId }).getBoundContext();
-        await oCtx.delete(sGroupId); // queues deletes in same group
-      }
+      Object.entries(scopeValues).forEach(([sProp, vValue]) => {
+        oCtx.setProperty(sProp, vValue);
+      });
 
-      await oModel.submitBatch(sGroupId);
-      sap.m.MessageToast.show("Selected scope rows deleted.");
+      await oModel.submitBatch("ruleUpdates");
+      return oCtx.getObject();
     },
 
     onPatchFilter: async function (oCreated, oPayload) {
