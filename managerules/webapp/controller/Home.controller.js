@@ -143,24 +143,118 @@ sap.ui.define([
       const oGenInfo = this.onGetGenInfo();
       const oScope = this.onGetScope();
 
-      const oFilter = this.onGetFilter() || [];
-      const aGroupFilter = await this.onFetchFilter(oCreated.RuleId)
+      const objUpdateScope = this.compareScopeItems(oScope);
 
-      const oAdjLogic = this.onGetAdjLogic();
+      // const oFilter = this.onGetFilter() || [];
+      // const aGroupFilter = await this.onFetchFilter(oCreated.RuleId)
 
-      // No assigned rule ID, so assign it from oCreated._RuleScope
-      console.log("oScope from Input: ", oScope)
-      console.log("oScope oCreated: ", oCreated._RuleScope)
+      // const oAdjLogic = this.onGetAdjLogic();
 
-      // No assigned rule ID, so assign it from oCreated._RuleScope
-      console.log("aFilter from Input: ", oFilter)
-      console.log("aFilter oCreated: ", aGroupFilter)
+      // // No assigned rule ID, so assign it from oCreated._RuleScope
+      // console.log("oScope from Input: ", oScope)
+      // console.log("oScope oCreated: ", oCreated._RuleScope)
 
-      // No assigned rule ID, so assign it from oCreated._RuleScope
-      console.log("aLogic from Input: ", oAdjLogic)
-      console.log("aLogic oCreated: ", oCreated._RuleLogic)
+      // // No assigned rule ID, so assign it from oCreated._RuleScope
+      // console.log("aFilter from Input: ", oFilter)
+      // console.log("aFilter oCreated: ", aGroupFilter)
+
+      // // No assigned rule ID, so assign it from oCreated._RuleScope
+      // console.log("aLogic from Input: ", oAdjLogic)
+      // console.log("aLogic oCreated: ", oCreated._RuleLogic)
 
       return true
+    },
+
+    compareScopeItems: function (oScope) {
+      const oModel = this.getView().getModel("rules")
+      const origScope = oModel.getProperty("/currentRule/_RuleScope")
+      var origScopePlants = origScope.map(o => (o.Plant))
+
+      var deleteArr = []
+      var postArr = []
+      var patchArr = []
+
+      var changeItem = []
+      var tempItem = []
+
+      oScope.Plant.forEach(p => {
+        if (!origScopePlants.includes(p) || origScope[0].InventoryScope != oScope.InventoryScope ) {
+          tempItem.push({Plant: p, InventoryScope: oScope.InventoryScope})
+        }
+      })
+
+      origScope.forEach(o => {
+        if (!oScope.Plant.includes(o.Plant) || o.InventoryScope != oScope.InventoryScope) {
+          changeItem.push(o)
+        }
+      })
+
+      /** Determine plants to be deleted */
+      if (oScope.Plant.length < origScope.length) {
+
+        // Count items that will be deleted
+        const deleteItems = origScope.length - oScope.Plant.length;
+        deleteArr = changeItem.splice(0, deleteItems)
+      } 
+
+      /** Determine plants to be added */
+      else if (oScope.Plant.length > origScope.length) {
+
+        // Count items that will be added
+        const addItemsLength = oScope.Plant.length - origScope.length;
+        const addPlants = tempItem.splice(0, addItemsLength)
+
+        postArr = addPlants.map(p => ({
+          InventoryScope: p.InventoryScope,
+          Plant: p.Plant,
+        }))
+      }
+
+      /** Determine plants to be patched */
+      if (changeItem.length > 0) {
+        console.log("Change item: ", changeItem)
+
+        // Determine the plants that are for deletion/posting
+        const deletePlantsArr = deleteArr.map(d => d.Plant)
+        const postPlantsArr = postArr.map(p => p.Plant)
+
+        const currPlants = [...deletePlantsArr, ...postPlantsArr]
+        const patchPlants = []
+
+        console.log("Current Plants: ", currPlants)
+
+        oScope.Plant.forEach(p => {
+          if (!currPlants.includes(p)) {
+            patchPlants.push(p)
+          }
+        })
+
+        changeItem.forEach((t, i) => {
+          patchArr.push({
+            ...t,
+            Id: t.Id,
+            RuleUUID: t.RuleUUID,
+            RuleId: t.RuleId,
+            DraftUUID: t.DraftUUID,
+            IsActiveEntity: t.IsActiveEntity,
+            InventoryScope: oScope.InventoryScope,
+            Plant: patchPlants[i]          
+          })
+        })
+      }
+
+      const updateItems = {
+        Delete: deleteArr,
+        Post: postArr,
+        Patch: patchArr,
+      }
+
+      console.log("Update Items: ", updateItems)
+      return updateItems
+    },
+
+    updateScopeItems: function () {
+
     },
 
     /* ================== GET VALUE HELP DATA: General Info ================== */
@@ -1126,6 +1220,7 @@ sap.ui.define([
 
     onEditRule: async function () {
       const oTable = this.byId("_IDGenTable2");
+      const oView = this.getView()
       const aSelectedIndices = oTable.getSelectedIndices();
 
       if (!aSelectedIndices.length) {
@@ -1149,6 +1244,8 @@ sap.ui.define([
         DraftUUID: aObj.DraftUUID || "00000000-0000-0000-0000-000000000000",
         IsActiveEntity: aObj.IsActiveEntity || true
       }
+
+      oView.setBusy(true)
 
       const oRuleScope = await this.onFetchScope(oCreated);
       const oGroupsFilter = await this.onFetchFilter(oCreated)
@@ -1208,6 +1305,7 @@ sap.ui.define([
       // Step 3 & 4: Filters + AdjLogic
       oModel.setProperty("/groupsFilter", oGroupsFilter)
       oModel.setProperty("/draftadjlogic", oRuleLogic)
+      oView.setBusy(false)
     },
 
     /* ===================== FILTER DIALOGS ===================== */
