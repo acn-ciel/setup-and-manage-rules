@@ -144,10 +144,12 @@ sap.ui.define([
     onEditCreatedRule2: async function (oCreated) {
       const oGenInfo = this.onGetGenInfo();
       const oScope = this.onGetScope();
+      const oFilter = this.onGetFilter()
 
       try {
-        await this.onPatchGenInfo(oCreated, oGenInfo);
-        await this.updateScope(oScope);
+        // await this.onPatchGenInfo(oCreated, oGenInfo);
+        // await this.updateScope(oScope);
+        await this.updateFilter(oFilter)
       } catch (e) {
         console.log(e)
       }
@@ -195,10 +197,7 @@ sap.ui.define([
         deleteScope = true
         postArr = oScope 
         deleteArr = origScope
-      }
-      
-      else {
-
+      } else {
         oScope.Plant.forEach(p => {
           if (!origScopePlants.includes(p)) {
             tempItem.push({Plant: p, InventoryScope: oScope.InventoryScope})
@@ -298,6 +297,24 @@ sap.ui.define([
       return updateItems
     },
 
+    compareFilterItem: function (origFilter, oFilter) {
+      console.log("oFilter Input: ", oFilter)
+      console.log("origFilter: ", origFilter)
+
+      if (origFilter.length > oFilter.length) {
+        // delete items that is not in orig filter
+      } 
+      else if (origFilter.length < oFilter.length) {
+        // add items that has no rule id
+      }
+
+
+    },
+
+    hasChangeFilterItem: function () {
+      // Naka each 
+    },
+
     updateScope: function (oScope) {
       const oModel = this.getView().getModel("rules")
       const oCreated = oModel.getProperty("/currentRule");
@@ -328,6 +345,14 @@ sap.ui.define([
         })
         this.onCreateScope(oCreated, updateItems.Post)
       }
+    },
+
+    updateFilter: async function (oFilter) {
+      const oModel = this.getView().getModel("rules")
+      const origFilter = oModel.getProperty("/currentRule/_RuleFilter")
+      const updateItems = this.compareFilterItem(origFilter, oFilter)
+
+
     },
 
     /* ================== GET VALUE HELP DATA: General Info ================== */
@@ -954,7 +979,7 @@ sap.ui.define([
         if (oFilter.length > 0) { await oFilter.map(f => this.onCreateFilter(oCreated, f)) }
         if (oAdjLogic.length > 0) { await oAdjLogic.map(a => this.onCreateAdjLogic(oCreated, a)) }
 
-        success = true
+        success = oCreated.RuleId
       } catch (e) {
         MessageBox.error(`${e}`)
         success = false
@@ -1092,7 +1117,7 @@ sap.ui.define([
               MessageBox.error(`${e}`)
             } finally {
               if (success) {
-                MessageBox.success(this._i18n("RULE_SAVED_SUCCESS"), {
+                MessageBox.success(this._i18n("Rule was saved successfully." + "\n" + `Rule Id: ${success}`), {
                 title: this._i18n("SUCCESS_TITLE"),
                 onClose: function () {
                   oWizard.discardProgress(oStepGeneral);
@@ -1352,8 +1377,8 @@ sap.ui.define([
       const oRuleData = {
         ...oCreated,
         _RuleScope: oRuleScope,
-        _RuleFilter: oGroupsFilter,
-        _RuleLogic: oRuleLogic
+        _RuleFilter: structuredClone(oGroupsFilter),
+        _RuleLogic: structuredClone(oRuleLogic)
       }
 
       oModel?.setProperty("/currentRule", oRuleData);
@@ -1660,6 +1685,12 @@ sap.ui.define([
       const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey()?.[0] || "";
 
       await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
+      const oDialog = Fragment.byId(this.getView().getId(), "dlgAddFilter");
+
+      oDialog.bindElement({
+        path: oCtx.getPath(),
+        model: "rules"
+      });
 
 
       if (sItemKey == "PR" && sRuleKey == "1") {
@@ -2340,7 +2371,7 @@ sap.ui.define([
     },
     _findAncestorTable: function (oControl) {
       // bounded walk up the parent chain (prevents infinite loop)
-      for (let i = 0; i < 30 && oControl; i++) {
+      for (let i = 0; i < 100 && oControl; i++) {
         if (oControl.isA("sap.m.Table") || oControl.isA("sap.ui.table.Table")) {
           return oControl;
         }

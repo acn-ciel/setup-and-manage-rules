@@ -163,7 +163,8 @@
                     rows="{
                     path: 'zsd_ruleslist>/ZC_RULESLIST',
                     parameters: {
-                        $select: 'RuleId,RuleName,RuleType,ValidFrom,ValidTo,ItemTypeInternal,RuleType,TypeOfRules,PlantName'
+                        $select: 'RuleId,RuleName,RuleType,ValidFrom,ValidTo,ItemTypeInternal,RuleType,TypeOfRules,PlantName',
+                        $orderby: 'RuleId desc'
                         }
                     }"
                     selectionMode="MultiToggle"
