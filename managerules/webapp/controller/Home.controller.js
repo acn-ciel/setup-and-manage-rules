@@ -146,6 +146,7 @@ sap.ui.define([
       const oScope = this.onGetScope();
 
       try {
+        await this.onPatchGenInfo(oCreated, oGenInfo);
         await this.updateScope(oScope);
       } catch (e) {
         console.log(e)
@@ -181,7 +182,7 @@ sap.ui.define([
 
       var deleteArr = []
       var deleteScope = false
-      var postArr = {}
+      var postArr = []
       var patchArr = []
 
       var changeItem = []
@@ -192,7 +193,9 @@ sap.ui.define([
 
       if (oScope.InventoryScope !== origScope[0].InventoryScope) {
         deleteScope = true
-        postArr = oScope } 
+        postArr = oScope 
+        deleteArr = origScope
+      }
       
       else {
 
@@ -302,19 +305,27 @@ sap.ui.define([
 
       console.log("update items: ", updateItems)
 
-      if (updateItems.Patch.length) {
+      if (updateItems.Patch.length > 0) {
         updateItems.Patch.forEach(oPayLoad => {
           this.onPatchScope(oPayLoad)
         })
       } 
       
-      if (updateItems.Delete.length) {
+      if (updateItems.Delete.length > 0) {
         updateItems.Delete.forEach(oPayLoad => {
           this.onDeleteScope(oPayLoad)
         })
       }
       
-      if (updateItems.Post.length) {
+      if (Object.keys(updateItems.Post).length > 0) {
+        console.log("Update Items Post")
+        this.onCreateScope(oCreated, updateItems.Post)
+      }
+
+      if (updateItems.deleteScope) {
+        updateItems.Delete.forEach(oPayLoad => {
+          this.onDeleteScope(oPayLoad)
+        })
         this.onCreateScope(oCreated, updateItems.Post)
       }
     },
