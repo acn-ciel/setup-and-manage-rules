@@ -141,36 +141,24 @@ sap.ui.define([
       oTable.setBusy(false)
     },
 
-    onEditCreatedRule2: async function (oCreated) {
+    onEditCreatedRule: async function (oCreated) {
       const oGenInfo = this.onGetGenInfo();
       const oScope = this.onGetScope();
       const oFilter = this.onGetFilter()
+      const oLogic = this.onGetAdjLogic()
+
+      this.oView.setBusy(true)
 
       try {
-        // await this.onPatchGenInfo(oCreated, oGenInfo);
-        // await this.updateScope(oScope);
+        await this.onPatchGenInfo(oCreated, oGenInfo);
+        await this.updateScope(oScope);
         await this.updateFilter(oFilter)
+        await this.updateAdjLogic(oLogic)
       } catch (e) {
         console.log(e)
+      } finally {
+        this.oView.setBusy(false)
       }
-
-      // const oFilter = this.onGetFilter() || [];
-      // const aGroupFilter = await this.onFetchFilter(oCreated.RuleId)
-
-      // const oAdjLogic = this.onGetAdjLogic();
-
-      // // No assigned rule ID, so assign it from oCreated._RuleScope
-      // console.log("oScope from Input: ", oScope)
-      // console.log("oScope oCreated: ", oCreated._RuleScope)
-
-      // // No assigned rule ID, so assign it from oCreated._RuleScope
-      // console.log("aFilter from Input: ", oFilter)
-      // console.log("aFilter oCreated: ", aGroupFilter)
-
-      // // No assigned rule ID, so assign it from oCreated._RuleScope
-      // console.log("aLogic from Input: ", oAdjLogic)
-      // console.log("aLogic oCreated: ", oCreated._RuleLogic)
-
       return true
     },
 
@@ -180,7 +168,6 @@ sap.ui.define([
       var origScopePlants = origScope.map(o => (o.Plant))
       
       const newPlants = oScope.Plant.filter(p => !origScopePlants.includes(p))
-      console.log("New Plants: ", newPlants)
 
       var deleteArr = []
       var deleteScope = false
@@ -189,9 +176,6 @@ sap.ui.define([
 
       var changeItem = []
       var tempItem = []
-
-      console.log("OSCOPE: ", oScope.InventoryScope)
-      console.log("origScope: ", origScope[0].InventoryScope)
 
       if (oScope.InventoryScope !== origScope[0].InventoryScope) {
         deleteScope = true
@@ -209,9 +193,6 @@ sap.ui.define([
             changeItem.push(o)
           }
         })
-
-        console.log("tempItem", tempItem)
-        console.log("changeItem", changeItem)
 
         /** Determine plants to be deleted */
         if (oScope.Plant.length < origScope.length) {
@@ -247,7 +228,6 @@ sap.ui.define([
 
         /** Determine plants to be patched */
         if (changeItem.length > 0) {
-          console.log("Change item: ", changeItem)
 
           // Determine the plants that are for deletion/posting
           const deletePlantsArr = deleteArr.map(d => d.Plant)
@@ -255,15 +235,11 @@ sap.ui.define([
           const currPlants = postArr.Plant ? [...deletePlantsArr, ...postArr.Plant] : [...deletePlantsArr]
           const patchPlants = []
 
-          console.log("Current Plants: ", currPlants)
-
           newPlants.forEach(p => {
             if (!currPlants.includes(p)) {
               patchPlants.push(p)
             }
           })
-
-          console.log("Patch Plant: ", patchPlants)
 
           origScope.forEach(p => {
             if (!currPlants.includes(p.Plant)) {
@@ -293,34 +269,112 @@ sap.ui.define([
         Patch: patchArr,
       }
 
-      console.log("Update Items: ", updateItems)
       return updateItems
     },
 
     compareFilterItem: function (origFilter, oFilter) {
-      console.log("oFilter Input: ", oFilter)
-      console.log("origFilter: ", origFilter)
+      const origFilterIds = origFilter.map(o => o.GroupId)
+      var postArr = []
+      var deleteArr = []
+      var patchArr = []
 
-      if (origFilter.length > oFilter.length) {
-        // delete items that is not in orig filter
-      } 
-      else if (origFilter.length < oFilter.length) {
-        // add items that has no rule id
+      oFilter.forEach(f => {
+
+        if (f.GroupId) {
+          console.log("Group Id: ", f.GroupId)
+
+          const origItem = origFilter.find(o => o.GroupId == f.GroupId)
+          const hasChange = this.hasChangeFilterItem(f, origItem)
+
+          if (hasChange) { 
+            patchArr.push({origArr: origItem, inpArr: f})
+          } 
+          
+          const i = origFilterIds.findIndex(c => c === f.GroupId);
+
+          if (i !== -1) {
+            origFilterIds.splice(i, 1);
+          }
+
+        } else {
+          console.log("No ID: ", f)
+          postArr.push(f)
+        }
+
+      })
+
+      if (origFilter.length > 0) {
+        origFilterIds.forEach(o => {
+          const item = origFilter.find(f => f.GroupId == o)
+          deleteArr.push(item)
+        })
+      }
+    
+      const updateItems = {
+        Delete: deleteArr,
+        Post: postArr,
+        Patch: patchArr
       }
 
-
+      return updateItems
     },
 
-    hasChangeFilterItem: function () {
-      // Naka each 
+    compareAdjLogicItem: function (origLogic, oLogic) {
+      const origLogicIds = origLogic.map(o => o.Id)
+      var postArr = []
+      var deleteArr = []
+      
+      oLogic.forEach(l => {
+        if (l.Id) {
+
+          const i = origLogicIds.findIndex(c => c === l.Id);
+          if (i !== -1) { origLogicIds.splice(i, 1); }
+
+        } else {
+          postArr.push(l)
+        }
+      })
+
+      if (origLogicIds.length > 0) {
+        origLogicIds.forEach(o => {
+          const item = origLogic.find(f => f.Id == o)
+          deleteArr.push(item)
+        })
+      }
+
+      const updateItems = {
+        Delete: deleteArr,
+        Post: postArr,
+      }
+
+      return updateItems
+    },
+
+    hasChangeFilterItem: function (newItem, origItem) {
+      var hasChange = false
+
+      if (newItem.GroupName != origItem.GroupName) {
+        hasChange = true
+      } else if (newItem._FilterCondition.length != origItem._FilterCondition.length) {
+        hasChange = true
+      } else {
+        newItem._FilterCondition.forEach(f => {
+          if (f.GroupId === undefined) {
+            hasChange = true
+          }
+        })
+      }
+      return hasChange
+    },
+
+    hasChangeAdjLogicItem: function (newItem, origItem) {
+
     },
 
     updateScope: function (oScope) {
       const oModel = this.getView().getModel("rules")
       const oCreated = oModel.getProperty("/currentRule");
       const updateItems = this.compareScopeItems(oScope)
-
-      console.log("update items: ", updateItems)
 
       if (updateItems.Patch.length > 0) {
         updateItems.Patch.forEach(oPayLoad => {
@@ -335,7 +389,6 @@ sap.ui.define([
       }
       
       if (Object.keys(updateItems.Post).length > 0) {
-        console.log("Update Items Post")
         this.onCreateScope(oCreated, updateItems.Post)
       }
 
@@ -350,9 +403,59 @@ sap.ui.define([
     updateFilter: async function (oFilter) {
       const oModel = this.getView().getModel("rules")
       const origFilter = oModel.getProperty("/currentRule/_RuleFilter")
+      const oCreated = oModel.getProperty("/currentRule")
       const updateItems = this.compareFilterItem(origFilter, oFilter)
 
+      console.log("Update Items: ", updateItems)
 
+      if (updateItems.Delete.length > 0) {
+
+        for (const f of updateItems.Delete) {
+          await this.onDeleteFilterGroup(f);
+        }
+
+        setTimeout(() => {
+        }, 2000);
+      } 
+      
+      if (updateItems.Patch.length > 0) {
+
+        for (const f of origFilter) {
+          await this.onDeleteFilterGroup(f)
+        }
+
+        setTimeout(() => {
+        }, 3000);
+
+        for (const f of oFilter) {
+          await this.onCreateFilter(oCreated, f)
+        }
+      } 
+      
+      if (updateItems.Post.length > 0) {
+        for (const f of updateItems.Post) {
+          await this.onCreateFilter(oCreated, f);
+        }
+      }
+    },
+
+    updateAdjLogic: async function (oLogic) {
+      const oModel = this.getView().getModel("rules")
+      const origLogic = oModel.getProperty("/currentRule/_RuleLogic")
+      const oCreated = oModel.getProperty("/currentRule")
+      const updateItems = this.compareAdjLogicItem(origLogic, oLogic)
+
+      if (updateItems.Delete.length > 0) {
+        for (const f of updateItems.Delete) {
+          await this.onDeleteAdjustmentLogic(f);
+        }
+      }
+
+      if (updateItems.Post.length > 0) {
+        for (const f of updateItems.Post) {
+          await this.onCreateAdjLogic(oCreated, f);
+        }
+      }
     },
 
     /* ================== GET VALUE HELP DATA: General Info ================== */
@@ -605,6 +708,53 @@ sap.ui.define([
       await Promise.all(aDeletePromises);
     },
 
+    onDeleteFilterGroup: async function (oPayload) {
+      const oModel = this.getOwnerComponent().getModel("zsd_filtersgroup");
+      const sGroupId = "$auto.filterDelete";
+
+      const sGroupPath =
+        `/ZC_FILTERSGROUP(GroupId=${oPayload.GroupId},IsActiveEntity=${true})`;
+
+      for (const c of (oPayload._FilterCondition || [])) {
+        for (const v of (c._FilterValues || [])) {
+          oModel.delete(
+            `/ZC_FILTERSVALUES(` +
+            `GroupId=${v.GroupId},` +
+            `ConditionId=${v.ConditionId},` +
+            `ValueId=${v.ValueId},` +
+            `IsActiveEntity=${true})`
+          );
+        }
+      }
+
+      for (const c of (oPayload._FilterCondition || [])) {
+        oModel.delete(
+          `/ZC_FILTERSCONDITION(` +
+          `GroupId=${c.GroupId},` +
+          `ConditionId=${c.ConditionId},` +
+          `IsActiveEntity=${true})`
+        );
+      }
+
+      await oModel.delete(sGroupPath, "$direct");
+    },
+
+    onDeleteAdjustmentLogic: async function (oPayLoad) {
+      console.log("Delete Logic", oPayLoad)
+      const oModel = this.getOwnerComponent().getModel();
+      const aDeletePromises = [];
+
+      const sPath = `/ZC_RULESLOGIC(` +
+        `Id=${oPayLoad.Id},` +
+        `RuleId='${oPayLoad.RuleId}',` +
+        `RuleUUID=${oPayLoad.RuleUUID},` +
+        `DraftUUID=${oPayLoad.DraftUUID},` +
+        `IsActiveEntity=${oPayLoad.IsActiveEntity})`;
+
+      aDeletePromises.push(oModel.delete(sPath, "$auto"))
+      await Promise.all(aDeletePromises);
+    },
+
     /* ===================== GET METHOD ===================== */
     onFetchRule: async function (oCreated) {
       const oModel = this.getOwnerComponent().getModel();
@@ -671,20 +821,17 @@ sap.ui.define([
       return aContexts.map(c => c.getObject());
     },
 
-    onDeleteFilterGroup: async function (oCreated) {
-      const aGroupFilter = await this.onFetchFilter(oCreated.RuleId) || []
+    onDeleteFilterGroup2: async function (oCreated) {
+      console.log("oCreated: ", oCreated)
       const oModel = this.getOwnerComponent().getModel("zsd_filtersgroup");
 
       try {
         const aDeletePromises = [];
-        if (aGroupFilter.length > 0) {
-          aGroupFilter.forEach( f => {
-            const sPath = `/ZC_FILTERSGROUP(GroupId=${f.GroupId},IsActiveEntity=${f.IsActiveEntity})`
-            aDeletePromises.push(oModel.delete(sPath, "$auto"));
-          })
 
-          await Promise.all(aDeletePromises);
-        }
+        const sPath = `/ZC_FILTERSGROUP(GroupId=${oCreated},IsActiveEntity=${true})`
+        aDeletePromises.push(oModel.delete(sPath, "$auto"));
+
+        await Promise.all(aDeletePromises);
       } catch (e) {
         console.error(e);
         sap.m.MessageBox.error(e?.message || "Delete failed");
@@ -989,7 +1136,7 @@ sap.ui.define([
       }
     },
 
-    onEditCreatedRule: async function (oCreated) {
+    onEditCreatedRuleDraft: async function (oCreated) {
       const oGenInfo = this.onGetGenInfo();
       const oScope = this.onGetScope();
       const oFilter = this.onGetFilter() || [];
@@ -1089,8 +1236,7 @@ sap.ui.define([
           if (oCreated != null) {
             console.log("EDIT RULE")
             try {
-              // success = await this.onEditCreatedRule(oCreated)
-              success = await this.onEditCreatedRule2(oCreated)
+              success = await this.onEditCreatedRule(oCreated)
             } catch (e) {
               MessageBox.error(`${e}`)
             } finally {
@@ -1220,26 +1366,31 @@ sap.ui.define([
       }
     },
 
-    onCreateFilter: async function (oCreated, _oPayload) {
+    onCreateFilter: async function (_oCreated, _oPayload) {
       const oModel = this.getOwnerComponent().getModel("zsd_filtersgroup");
-      const oList = oModel.bindList(`/ZC_FILTERSGROUP`);
+      const sGroupId = "$auto.filterCreate";
+
+      const oList = oModel.bindList(`/ZC_FILTERSGROUP`, null, null, null, {
+        $$groupId: sGroupId  
+      });
 
       const oPayload = {
-        ..._oPayload,
-        RuleId: oCreated.RuleId
-      }
+        GroupName: _oPayload.GroupName,
+        RuleId: `${_oCreated.RuleId}`,
+        IsActiveEntity: _oPayload.IsActiveEntity,
+        _FilterCondition: _oPayload._FilterCondition
+      };
 
       try {
-        const oCtx = oList.create(oPayload); 
-        await oCtx.created();        
-        const oCreated = oCtx.getObject();   
-        return oCreated
+        const oCtx = oList.create(oPayload);
+        await oCtx.created();
+        return oCtx.getObject();
       } catch (e) {
         console.error(e);
         sap.m.MessageBox.error(e.message || "Create failed");
       }
     },
-
+    
     onCreateAdjLogic: async function (oCreated, oPayload) {
       const oModel = this.getOwnerComponent().getModel();
       const oList = oModel.bindList(`/ZC_RULESHEADER(Id=${oCreated.Id},RuleId='${oCreated.RuleId}',DraftUUID=${oCreated.DraftUUID},IsActiveEntity=${oCreated.IsActiveEntity})/_RuleLogic`);
@@ -1299,25 +1450,33 @@ sap.ui.define([
       return oCtx.getObject();
     },
 
-    onPatchFilter: async function (oCreated, oPayload) {
-      const oModel = this.getOwnerComponent().getModel();
+    onPatchFilter: async function (oPayload) {
+      const oModel = this.getOwnerComponent().getModel("zsd_filtersgroup");
+      const scopeValues = {
+        Plant: oPayload.Plant,
+        InventoryScope: oPayload.InventoryScope
+      }
 
       const sPath = 
-        `/ZC_RULESFILTER(`+
-        `Id=${oCreated.Id},`+
-        `RuleUUID=${oCreated.RuleUUID},` +
-        `RuleId='${oCreated.RuleId}',`+
-        `DraftUUID=${oCreated.DraftUUID},`+
-        `IsActiveEntity=${oCreated.IsActiveEntity})`;
+        `/ZC_RULESSCOPE(`+
+        `Id=${oPayload.Id},`+
+        `RuleUUID=${oPayload.RuleUUID},` +
+        `RuleId='${oPayload.RuleId}',`+
+        `DraftUUID=${oPayload.DraftUUID},`+
+        `IsActiveEntity=${oPayload.IsActiveEntity})`;
       const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
       const oCtx = oCtxBinding.getBoundContext();
 
-      Object.entries(oPayload).forEach(([sProp, vValue]) => {
+      Object.entries(scopeValues).forEach(([sProp, vValue]) => {
         oCtx.setProperty(sProp, vValue);
       });
 
       await oModel.submitBatch("ruleUpdates");
       return oCtx.getObject();
+    },
+
+    onPatchFilterCondition: function () {
+
     },
 
     onPatchAdjLogic: async function (oCreated, oPayload) {
@@ -1502,7 +1661,7 @@ sap.ui.define([
       await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
       
       const oDialog = Fragment.byId(this.getView().getId(), "dlgAddFilter");
-      const oCtx = oDialog.getBindingContext("rules");
+      const oCtx = oDialog.getBindingContext("rules") || oModel?.getProperty("/editfilter")
 
       console.log("OCTX confirm add filter: ", oCtx)
 
@@ -1565,38 +1724,14 @@ sap.ui.define([
         this._resetFilterFields()
       } else {
         // add
-        console.log("ACONDIITONS: ", aConditions)
         aConditions.push(aFilterEntry)
+        console.log("ACONDIITONS: ", aConditions)
         oModel.setProperty(sFilterCondPath, aConditions)
+        
         this._resetFilterFields()
       }
 
       this.byId("dlgAddFilter")?.close();
-
-      // if (aFilter != null) {
-      //   // Edit filter
-      //   oTable.setBusy(true)
-      //   try {
-      //     await this.onPatchFilter(aFilter, oEntry)
-      //     oModel?.setProperty("/editfilter", null)
-      //   } catch (e) {
-      //     this._toast(`${e}`)
-      //   } finally {
-      //     await this._applyFiltersForCurrentRule(oCreated)
-      //     oTable.setBusy(false);
-      //   }
-      // } else {
-      //   // Create filter
-      //   oTable.setBusy(true)
-      //   try {
-      //     await this.onCreateFilter(oCreated, oEntry)
-      //   } catch (e) {
-      //     this._toast(`${e}`)
-      //   } finally {
-      //     await this._applyFiltersForCurrentRule(oCreated)
-      //     oTable.setBusy(false);
-      //   }
-      // }
     },
 
     onCancelAddFilter: function () { this._closeDialogPromise("_pAddDialog"); },
@@ -1685,12 +1820,12 @@ sap.ui.define([
       const sRuleKey = this.byId("idGenRuleTypeMCB")?.getSelectedKey()?.[0] || "";
 
       await this._ensureDialog("_pAddDialog", "managerules.view.FilterAddDialog");
-      const oDialog = Fragment.byId(this.getView().getId(), "dlgAddFilter");
+      // const oDialog = Fragment.byId(this.getView().getId(), "dlgAddFilter");
 
-      oDialog.bindElement({
-        path: oCtx.getPath(),
-        model: "rules"
-      });
+      // oDialog.bindElement({
+      //   path: oCtx.getPath(),
+      //   model: "rules"
+      // });
 
 
       if (sItemKey == "PR" && sRuleKey == "1") {
