@@ -138,6 +138,7 @@ sap.ui.define([
         await this.updateScope();
         await this.updateFilter();
         await this.updateAdjLogic();
+
       } catch (e) {
         console.log(e)
       } finally {
@@ -223,6 +224,7 @@ sap.ui.define([
         const aInvScope = oRuleScope[0].InventoryScope || "";
         const aPlants = (oRuleScope.map(s => s.Plant) || "")
 
+        console.log("oRuleScope: ", oRuleScope)
         console.log("aInventoryScope: ", aInvScope)
         console.log("aPlants: ", aPlants)
 
@@ -234,6 +236,20 @@ sap.ui.define([
       oModel.setProperty("/groupsFilter", oGroupsFilter)
       oModel.setProperty("/draftadjlogic", oRuleLogic)
       oView.setBusy(false)
+    },
+    
+    _submitQueue: Promise.resolve(),
+
+    submitBatchSafely: function (oModel, sGroupId) {
+      this._submitQueue = this._submitQueue
+        .catch((e) => { console.log("Submit batch: ", e) })
+        .then(async () => {
+          console.log("No Pending Batch")
+          await oModel.submitBatch(sGroupId);
+          console.log("Submit New Batch: ", sGroupId)
+        });
+
+      return this._submitQueue;
     },
 
     /* ================== EDIT RULE FUNCTIONS ================== */
@@ -448,13 +464,14 @@ sap.ui.define([
 
       if (patchGrp.length > 0) {
         await this.onPatchFilter(origItem.GroupId, patchGrp[0])
+        await this.submitBatchSafely(oModel, "ruleFilterPatch")
       }
       
       if (postArr.length > 0) {
         for (const f of postArr) {
-          console.log("POST ARRAY CONDITIONAL FILTER: ", f)
           await this.onCreateFilterCondition(f)
         }
+        await this.submitBatchSafely(oModel, "ruleFilterConditionCreate")
       }
 
       if (conditionFilterIds.length > 0) {
@@ -469,12 +486,15 @@ sap.ui.define([
         hasChange = true
       }
 
-      await Promise.resolve(oModel.submitBatch("ruleFilterUpdates"));
       return hasChange
     },
 
     hasChangeGenInfo: function (newItem, origItem) {
-      const hasChange = ["RuleName", "RuleDescription", "ValidFrom", "ItemType", "RuleType"]
+      let hasChange = false
+
+      console.log("New Item")
+      console.log("Orig Item")
+      hasChange = ["RuleName", "RuleDescription", "ValidFrom", "ValidTo", "ItemType", "RuleType"]
                         .some(k => newItem[k] !== origItem[k])
       return hasChange
     },
@@ -482,27 +502,37 @@ sap.ui.define([
     updateGenInfo: async function () {
       const oGenInfo = this.onGetGenInfo();
       const oModel = this.getView().getModel("rules")
+      const oMainModel = this.getOwnerComponent().getModel();
       const oCreated = oModel.getProperty("/currentRule");
       const hasChange = this.hasChangeGenInfo(oGenInfo, oCreated)
 
-      if (hasChange) { await this.onPatchGenInfo(oCreated, oGenInfo) }
+      if (hasChange) { 
+        await this.onPatchGenInfo(oCreated, oGenInfo)
+        await this.submitBatchSafely(oMainModel, "ruleHeaderPatch")
+       }
     },
 
     updateScope: async function () {
       const oScope = this.onGetScope();
       const oModel = this.getView().getModel("rules")
+      const oMainModel = this.getOwnerComponent().getModel();
       const oCreated = oModel.getProperty("/currentRule");
       const updateItems = this.compareScopeItems(oScope)
+
+      console.log("Update items in Scope: ", updateItems)
       
       if (updateItems.deleteScope) {
         for (const o of updateItems.Delete) {
           await this.onDeleteScope(o)
         }
-
         await this.onCreateScope(oCreated, updateItems.Post)
+        
+        await this.submitBatchSafely(oMainModel, "ruleScopeDelete")
+        await this.submitBatchSafely(oMainModel, "ruleScopeCreate")
+        return;
       }
 
-      if (updateItems.Delete.length > 0 && !updateItems.deleteScope) {
+      if (updateItems.Delete.length > 0) {
         for (const o of updateItems.Delete) {
           await this.onDeleteScope(o)
         }
@@ -510,18 +540,21 @@ sap.ui.define([
       
       if (Object.keys(updateItems.Post).length > 0) {
         await this.onCreateScope(oCreated, updateItems.Post)
+        await this.submitBatchSafely(oMainModel, "ruleScopeCreate")
       }
 
       if (updateItems.Patch.length > 0) {
         for (const o of updateItems.Patch) {
           await this.onPatchScope(o)
         }
+        await this.submitBatchSafely(oMainModel, "ruleScopePatch")
       } 
     },
 
     updateFilter: async function () {
       const oFilter = this.onGetFilter()
       const oModel = this.getView().getModel("rules")
+      const oMainModel = this.getOwnerComponent().getModel("zsd_filtersgroup");
       const origFilter = oModel.getProperty("/currentRule/_RuleFilter")
       const oCreated = oModel.getProperty("/currentRule")
       const updateItems = this.compareFilterItem(origFilter, oFilter)
@@ -531,21 +564,20 @@ sap.ui.define([
         for (const f of updateItems.Delete) {
           await this.onDeleteFilterGroup(f);
         }
-
-        setTimeout(() => {
-        }, 2000);
       } 
       
       if (updateItems.Post.length > 0) {
         for (const f of updateItems.Post) {
           await this.onCreateFilter(oCreated, f);
         }
+        await this.submitBatchSafely(oMainModel, "ruleFilterGroupCreate")
       }
     },
 
     updateAdjLogic: async function () {
       const oLogic = this.onGetAdjLogic()
       const oModel = this.getView().getModel("rules")
+      const oMainModel = this.getOwnerComponent().getModel();
       const origLogic = oModel.getProperty("/currentRule/_RuleLogic")
       const oCreated = oModel.getProperty("/currentRule")
       const updateItems = this.compareAdjLogicItem(origLogic, oLogic)
@@ -560,6 +592,7 @@ sap.ui.define([
         for (const f of updateItems.Post) {
           await this.onCreateAdjLogic(oCreated, f);
         }
+        await this.submitBatchSafely(oMainModel, "ruleAdjLogicCreate")
       }
     },
 
@@ -753,17 +786,17 @@ sap.ui.define([
     },
 
     onDeleteScope: async function (oPayload) {
-      console.log("Delete Scope", oPayload)
       const oModel = this.getOwnerComponent().getModel();
       const aDeletePromises = [];
+      console.log("Delete Scope", oPayload)
 
       const sPath = `/ZC_RULESSCOPE(` +
         `Id=${oPayload.Id},` +
         `RuleId='${oPayload.RuleId}',` +
-        `RuleUUID=${oPayload.RuleUUID},` +
-        `DraftUUID=${oPayload.DraftUUID},` +
+        `RuleUUID='${oPayload.RuleUUID}',` +
+        `DraftUUID='${oPayload.DraftUUID}',` +
         `IsActiveEntity=${oPayload.IsActiveEntity})`;
-
+        
       aDeletePromises.push(oModel.delete(sPath, "$auto"))
       await Promise.all(aDeletePromises);
     },
@@ -859,9 +892,10 @@ sap.ui.define([
         `/ZC_RULESHEADER(Id=${oCreated.Id},`+
         `RuleId='${oCreated.RuleId}',`+
         `DraftUUID=${oCreated.DraftUUID},`+
-        `IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`
+        `IsActiveEntity=${oCreated.IsActiveEntity})/_RuleScope`,
+        { $$updateGroupId: "ruleScopeCreate" }
       );
-
+      
       try {
         if (oPayload.Plant.length > 1) {
 
@@ -893,10 +927,9 @@ sap.ui.define([
 
     onCreateFilter: async function (_oCreated, _oPayload) {
       const oModel = this.getOwnerComponent().getModel("zsd_filtersgroup");
-      const sGroupId = "$auto.filterCreate";
 
-      const oList = oModel.bindList(`/ZC_FILTERSGROUP`, null, null, null, {
-        $$groupId: sGroupId  
+      const oList = oModel.bindList(`/ZC_FILTERSGROUP`, {
+        $$updateGroupId: "ruleFilterGroupCreate"
       });
 
       const oPayload = {
@@ -928,7 +961,7 @@ sap.ui.define([
         null,
         null,
         {
-          $$groupId: "ruleFilterUpdates"
+          $$groupId: "ruleFilterConditionCreate"
         }
       );
 
@@ -947,7 +980,13 @@ sap.ui.define([
     
     onCreateAdjLogic: async function (oCreated, oPayload) {
       const oModel = this.getOwnerComponent().getModel();
-      const oList = oModel.bindList(`/ZC_RULESHEADER(Id=${oCreated.Id},RuleId='${oCreated.RuleId}',DraftUUID=${oCreated.DraftUUID},IsActiveEntity=${oCreated.IsActiveEntity})/_RuleLogic`);
+      const oList = oModel.bindList(
+        `/ZC_RULESHEADER(Id=${oCreated.Id},`+
+        `RuleId='${oCreated.RuleId}',`+
+        `DraftUUID=${oCreated.DraftUUID},`+
+        `IsActiveEntity=${oCreated.IsActiveEntity})/_RuleLogic`, {
+          $$updateGroupId: "ruleAdjLogicCreate"
+        });
 
       try {
         const oCtx = oList.create(oPayload); 
@@ -968,14 +1007,13 @@ sap.ui.define([
       `RuleId='${oCreated.RuleId}',`+
       `DraftUUID=${oCreated.DraftUUID},`+
       `IsActiveEntity=${oCreated.IsActiveEntity})`;
-      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleUpdates" });
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleHeaderPatch" });
       const oCtx = oCtxBinding.getBoundContext();
 
       Object.entries(oPayload).forEach(([sProp, vValue]) => {
         oCtx.setProperty(sProp, vValue);
       });
 
-      await oModel.submitBatch("ruleUpdates");
       return oCtx.getObject();
     },
 
@@ -993,14 +1031,13 @@ sap.ui.define([
         `RuleId='${oPayload.RuleId}',`+
         `DraftUUID=${oPayload.DraftUUID},`+
         `IsActiveEntity=${oPayload.IsActiveEntity})`;
-      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "scopeUpdates" });
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleScopePatch" });
       const oCtx = oCtxBinding.getBoundContext();
 
       Object.entries(scopeValues).forEach(([sProp, vValue]) => {
         oCtx.setProperty(sProp, vValue);
       });
 
-      await oModel.submitBatch("scopeUpdates");
       return oCtx.getObject();
     },
 
@@ -1012,7 +1049,7 @@ sap.ui.define([
         `GroupId=${GroupId},`+
         `IsActiveEntity=${oPayload.IsActiveEntity})`;
       
-      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleFilterUpdates" });
+      const oCtxBinding = oModel.bindContext(sPath, null, { $$updateGroupId: "ruleFilterPatch" });
       const oCtx = oCtxBinding.getBoundContext();
 
       Object.entries(oPayload).forEach(([sProp, vValue]) => {
