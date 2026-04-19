@@ -242,7 +242,7 @@ sap.ui.define([
 
     submitBatchSafely: function (oModel, sGroupId) {
       this._submitQueue = this._submitQueue
-        .catch((e) => { console.log("Submit batch: ", e) })
+        .catch(() => {})
         .then(async () => {
           console.log("No Pending Batch")
           await oModel.submitBatch(sGroupId);
@@ -492,10 +492,12 @@ sap.ui.define([
     hasChangeGenInfo: function (newItem, origItem) {
       let hasChange = false
 
-      console.log("New Item")
-      console.log("Orig Item")
-      hasChange = ["RuleName", "RuleDescription", "ValidFrom", "ValidTo", "ItemType", "RuleType"]
-                        .some(k => newItem[k] !== origItem[k])
+      if (newItem.ItemType != origItem.ItemTypeInternal) {
+        return true
+      }
+
+      hasChange = ["RuleName", "RuleDescription", "ValidFrom", "ValidTo", "RuleType"]
+                        .some(k => newItem[k] != origItem[k])
       return hasChange
     },
 
@@ -526,8 +528,6 @@ sap.ui.define([
           await this.onDeleteScope(o)
         }
         await this.onCreateScope(oCreated, updateItems.Post)
-        
-        await this.submitBatchSafely(oMainModel, "ruleScopeDelete")
         await this.submitBatchSafely(oMainModel, "ruleScopeCreate")
         return;
       }
@@ -773,15 +773,19 @@ sap.ui.define([
           }
         });
 
-        await Promise.all(aDeletePromises);
         oTable.setBusy(true)
-        
-        await this.loadTable()
-        sap.m.MessageToast.show("Selected rule(s) deleted.");
 
+        await Promise.all(aDeletePromises);        
+        await this.loadTable()
+        
+        oTable.clearSelection();
+
+        this._toast("Selected rule(s) deleted.");
       } catch (e) {
         console.error(e);
         sap.m.MessageBox.error(e?.message || "Delete failed");
+      } finally {
+        oTable.setBusy(false)
       }
     },
 
@@ -793,8 +797,8 @@ sap.ui.define([
       const sPath = `/ZC_RULESSCOPE(` +
         `Id=${oPayload.Id},` +
         `RuleId='${oPayload.RuleId}',` +
-        `RuleUUID='${oPayload.RuleUUID}',` +
-        `DraftUUID='${oPayload.DraftUUID}',` +
+        `RuleUUID=${oPayload.RuleUUID},` +
+        `DraftUUID=${oPayload.DraftUUID},` +
         `IsActiveEntity=${oPayload.IsActiveEntity})`;
         
       aDeletePromises.push(oModel.delete(sPath, "$auto"))
